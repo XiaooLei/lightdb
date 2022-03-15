@@ -1,0 +1,52 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/root/lightdb'
+/usr/bin/cmake -H/root/lightdb -B/root/lightdb --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /root/lightdb/CMakeFiles /root/lightdb/CMakeFiles/progress.marks
+make -f CMakeFiles/Makefile2 all
+ 
+make[1]: Entering directory `/root/lightdb'
+make -f CMakeFiles/MyProject.dir/build.make CMakeFiles/MyProject.dir/depend
+ 
+make[2]: Entering directory `/root/lightdb'
+cd /root/lightdb && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /root/lightdb /root/lightdb /root/lightdb /root/lightdb /root/lightdb/CMakeFiles/MyProject.dir/DependInfo.cmake --color=
+make[2]: Leaving directory `/root/lightdb'
+make -f CMakeFiles/MyProject.dir/build.make CMakeFiles/MyProject.dir/build
+ 
+make[2]: Entering directory `/root/lightdb'
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 1
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/test_lightdb.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/test_lightdb.cpp.o -c /root/lightdb/test_lightdb.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 2
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/lightdb.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/lightdb.cpp.o -c /root/lightdb/lightdb.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 3
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/db_hash.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/db_hash.cpp.o -c /root/lightdb/db_hash.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 4
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/db_list.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/db_list.cpp.o -c /root/lightdb/db_list.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 5
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/db_set.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/db_set.cpp.o -c /root/lightdb/db_set.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 6
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/db_str.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/db_str.cpp.o -c /root/lightdb/db_str.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 7
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/db_zset.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/db_zset.cpp.o -c /root/lightdb/db_zset.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 8
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/storage/db_file.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/storage/db_file.cpp.o -c /root/lightdb/storage/db_file.cpp
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles 9
+/usr/bin/cmake -E cmake_echo_color --switch= --green "Building CXX object CMakeFiles/MyProject.dir/idx.cpp.o"
+/usr/bin/c++    -std=c++11 -fpermissive -o CMakeFiles/MyProject.dir/idx.cpp.o -c /root/lightdb/idx.cpp
+/usr/bin/cmake -E cmake_echo_color --switch= --red --bold "Linking CXX executable MyProject"
+/usr/bin/cmake -E cmake_link_script CMakeFiles/MyProject.dir/link.txt --verbose=
+make[2]: Leaving directory `/root/lightdb'
+/usr/bin/cmake -E cmake_progress_report /root/lightdb/CMakeFiles  1 2 3 4 5 6 7 8 9
+echo "Built target MyProject"
+make[1]: Leaving directory `/root/lightdb'
+ 
+/usr/bin/cmake -E cmake_progress_start /root/lightdb/CMakeFiles 0
+make: Leaving directory `/root/lightdb'
+ 
