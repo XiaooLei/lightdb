@@ -67,14 +67,11 @@ namespace lightdb{
     Status DBFile::Read(Entry& entry){
         std::string buf;
         Status status = ReadBuf(buf, EntryHeaderSize);
-        //printf("fileName %s\n", this->_fileName.c_str());
-//        for(int i = 0; i < buf.size(); i++){
-//            std::cout << "0x" <<  std::hex << static_cast<unsigned short>(buf.c_str()[i]) << " " ;//输出十六进制FF
-//        }
-
         if(!status.ok()){
+            printf("pointer aaa code:%d \n", status.Code());
             return status;
         }
+
         entry.Decode(buf);
         std::string key;
         if(entry.meta->keySize>0){
@@ -108,8 +105,6 @@ namespace lightdb{
         char buf[size];
         memset(buf, 0, size);
         Status status;
-        //size_t read_size = read(_fd, buf, size);
-        //printf("offset %d \n", this->Offset);
         //printf("size :%d \n", size);
         while (true) {
             //printf("point a \n");
@@ -123,6 +118,7 @@ namespace lightdb{
                 if (errno == EINTR) {
                     continue;  // Retry
                 }
+                printf("pointer b, code:%d \n", status.Code());
                 status = PosixError(_fileName, errno);
                 break;
             }else if(read_size == 0 && size!=0){
@@ -137,6 +133,7 @@ namespace lightdb{
             this->Offset+=size;
             break;
         }
+        printf("pointer c, code:%d \n", status.Code());
         return status;
     }
 

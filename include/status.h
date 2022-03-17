@@ -30,7 +30,7 @@ class Status{
         const uint32_t len1 = static_cast<uint32_t>(msg.size());
         const uint32_t len2 = static_cast<uint32_t>(msg2.size());
         const uint32_t size = len1 + (len2 ? (2 + len2) : 0);
-        char* result = new char[size + 5];
+        char* result = (char *)malloc(size + 5);
         memcpy(result, &size, sizeof(size));
         result[4] = static_cast<char>(code);
         memcpy(result + 5, msg.data(), len1);
@@ -45,6 +45,21 @@ class Status{
 
     public:
     Status(): state_(nullptr){}
+public:
+    //copy constructor of Status
+    Status(const Status& s){
+        state_ = nullptr;
+        if(s.state_!= nullptr) {
+            state_ = (char*)malloc(sizeof(s.state_));
+            memcpy(this->state_, s.state_, sizeof(s.state_));
+        }
+    }
+    ~Status(){
+        if(state_!= nullptr) {
+            free(state_);
+        }
+    }
+
 
     Code Code(){
         if(state_ == nullptr){

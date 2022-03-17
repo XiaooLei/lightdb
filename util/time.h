@@ -1,6 +1,8 @@
 
 #pragma once
 #include <chrono>
+#include <algorithm>
+using namespace std;
 namespace lightdb{
 
 inline  uint64_t getCurrentTimeStamp(){

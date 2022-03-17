@@ -109,26 +109,28 @@ namespace lightdb {
             if(sucs[i]) {
                 resp.append(") " + values[i]);
             }else{
-                resp.append("nil");
+                resp.append("(nil)");
             }
-            resp.append("\n ");
+            resp.append("\n");
         }
         return Status::OK();
     }
 
-    Status appendStr(LightDB *db, std::vector<std::string> args, std::string &resp){
+    Status appendStr(LightDB *db, std::vector<std::string> args, std::string& resp){
         if(args.size() != 2){
             resp = "wrong num of args";
             return Status::OK();
         }
 
         Status s;
-        int length;
+        int length = 0;
         s = db->Append(args[0], args[1], length);
-        if(s.ok()){
+        if(!s.ok()){
+            printf("db->append failed, code:%d \n", s.Code());
             return s;
         }
-        resp = to_string(length);
+        resp.append(to_string(length));
+        printf("resp str:%s \n", resp.c_str());
         return Status::OK();
     }
 
@@ -197,7 +199,7 @@ namespace lightdb {
         addExecCommand("setnx", setNx);
         addExecCommand("getnet", getSet);
         addExecCommand("mset", mSet);
-        addExecCommand("mset", mGet);
+        addExecCommand("mget", mGet);
         addExecCommand("appendstr", appendStr);
         addExecCommand("strexist", strExist);
         addExecCommand("remove", remove);

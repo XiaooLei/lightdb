@@ -220,7 +220,7 @@ namespace lightdb{
         if(!s.ok()){
             return s;
         }
-        uint64_t deadline = getCurrentTimeStamp() + duration;
+        uint64_t deadline = getCurrentTimeStamp() + duration * 1000;
         Entry* e = Entry::NewEntryWithExpire(key, value, deadline, String, StringExpire);
         s = store(e);
         if(!s.ok()){

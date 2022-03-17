@@ -38,7 +38,7 @@ Status LightDB::loadIdxFromFiles(){
                     break;
                 }
                 if(!s.ok()){
-                    printf("a fatal err occurred, the db can not open \n");
+                    printf("a fatal err occurred, the db can not open, code:%d \n", s.Code());
                     s.Report();
                     exit(1);
                 }
@@ -57,8 +57,8 @@ Status LightDB::loadIdxFromFiles(){
 
             }
         }
-
     }
+    return Status::OK();
 }
 
 Status LightDB::buildIndex(Entry* entry, Indexer* indexer, bool isOpen){
@@ -84,6 +84,7 @@ Status LightDB::buildIndex(Entry* entry, Indexer* indexer, bool isOpen){
             buildZSetIndex(entry);
             break;
     }
+    return Status::OK();
 }
 
 //build

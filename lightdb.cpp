@@ -31,8 +31,10 @@ Status LightDB::Open(Config* config){
 
     cache = new LRUCache(config->cacheCapacity);
 
-    this->loadIdxFromFiles();
-
+    s = this->loadIdxFromFiles();
+    if(!s.ok()){
+        return s;
+    }
     return Status::OK();
 }
 
@@ -79,7 +81,8 @@ bool LightDB::CheckExpired(string key, DataType dataType){
         return false;
     }
     uint64_t deadline = expires[dataType][key];
-    if(deadline < getCurrentTimeStamp()){
+    uint64_t currentTimeStamp = getCurrentTimeStamp();
+    if(deadline < currentTimeStamp){
         Entry* e;
         switch (dataType) {
             case String:
