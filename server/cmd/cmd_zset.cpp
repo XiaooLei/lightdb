@@ -205,7 +205,7 @@ namespace lightdb {
             return Status::OK();
         }
         Status s;
-        uint64_t ttl = db->ZTTL(args[0]);
+        int64_t ttl = db->ZTTL(args[0]);
         resp.append("(integer) ");
         resp.append(to_string(ttl));
         return Status::OK();

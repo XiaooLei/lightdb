@@ -55,14 +55,17 @@ Status hGetAll(LightDB* db, std::vector<std::string> args, std::string& resp){
         return Status::OK();
     }
     std::vector<std::string> vals;
-    db->HGetAll(args[1], vals);
+    bool suc = db->HGetAll(args[0], vals);
+    if(!suc){
+        resp = "(empty set or list)";
+        return Status::OK();
+    }
     for(int i = 0; i < vals.size(); i++){
-        resp.append(to_string(i) + ") ");
+        resp.append(to_string(i + 1) + ") ");
         resp.append(vals[i] + "\n");
     }
     return Status::OK();
 }
-
 
 Status hMSet(LightDB* db, std::vector<std::string> args, std::string& resp){
     Status s;
@@ -86,18 +89,23 @@ Status hMGet(LightDB* db, std::vector<std::string> args, std::string& res){
         res = "wrong num of args";
         return Status::OK();
     }
+    std::string key = args[0];
     args.erase(args.begin());
     std::vector<std::string> vals;
     std::vector<bool> sucs;
-    s = db->HMGet(args[1], args, vals, sucs);
+    s = db->HMGet(key, args, vals, sucs);
+    if(!s.ok()){
+        return s;
+    }
     for(int i = 0; i < vals.size(); i++){
-        res.append(to_string(i));
+        res.append(to_string(i + 1));
         res.append(") ");
         if(sucs[i]){
             res.append(vals[i]);
         }else{
             res.append("(nil)");
         }
+        res.append("\n");
     }
     return Status::OK();
 }
@@ -113,7 +121,7 @@ Status hDel(LightDB* db, std::vector<std::string> args, std::string& resp){
     int suc;
     int count = 0;
     for(int i = 1; i <= args.size(); i++) {
-        s = db->HDel(args[0], args[1], suc);
+        s = db->HDel(args[0], args[i], suc);
         if (!s.ok()) {
             return s;
         }
@@ -243,13 +251,11 @@ Status hTTL(LightDB* db, std::vector<std::string> args, std::string& resp){
         return Status::OK();
     }
     Status s;
-    uint64_t ttl = db->HTTL(args[0]);
+    int64_t ttl = db->HTTL(args[0]);
     resp.append("(integer) ");
     resp.append(to_string(ttl));
     return Status::OK();
 }
-
-
 
 void init_hash(){
     addExecCommand("hset", hSet);
@@ -268,15 +274,6 @@ void init_hash(){
     addExecCommand("hexpire", hExpire);
     addExecCommand("httl", hTTL);
 }
-
-
-
-
-
-
-
-
-
 
 
 }

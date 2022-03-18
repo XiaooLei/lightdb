@@ -83,6 +83,9 @@ namespace lightdb{
             return Status::OK();
         }
         suc  = db->LIndex(args[0], idx, resp);
+        if(!suc){
+            resp = "(nil)";
+        }
         return Status::OK();
     }
 
@@ -192,10 +195,14 @@ namespace lightdb{
         if(!s.ok()){
             return s;
         }
+        if(vals.size() == 0){
+            resp = "(empty set or list)";
+        }
         for(int i = 0; i < vals.size(); i++){
             resp.append(to_string(i + 1) );
             resp.append(") ");
             resp.append(vals[i]);
+            resp.append("\n");
         }
         return s;
     }
@@ -246,7 +253,7 @@ namespace lightdb{
         Status s;
         int count = 0;
         bool suc;
-        s = db->HExpire(args[0], strtoull(args[1].c_str(), nullptr, 10), suc);
+        s = db->LExpire(args[0], strtoull(args[1].c_str(), nullptr, 10), suc);
         if(!s.ok()){
             return s;
         }
@@ -264,7 +271,7 @@ namespace lightdb{
             return Status::OK();
         }
         Status s;
-        uint64_t ttl = db->HTTL(args[0]);
+        auto ttl = db->LTTL(args[0]);
         resp.append("(integer) ");
         resp.append(to_string(ttl));
         return Status::OK();

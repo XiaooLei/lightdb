@@ -214,7 +214,7 @@ namespace lightdb{
     // The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
     // These offsets can also be negative numbers indicating offsets starting at the end of the list.
     // For example, -1 is the last element of the list, -2 the penultimate, and so on.
-    Status LightDB::LRange(std::string key, int start, int end, std::vector<std::string> vals, bool& suc){
+    Status LightDB::LRange(std::string key, int start, int end, std::vector<std::string>& vals, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -267,32 +267,34 @@ namespace lightdb{
     }
 
     // LExpire set expired time for a specified key of List.
-    Status LightDB::LExpire(std::string key, uint64_t duration){
+    Status LightDB::LExpire(std::string key, uint64_t duration, bool& suc){
         Status s;
         if(!LKeyExist(key)){
+            suc = false;
             return Status::KeyNotExist();
         }
-        uint64_t deadline = getCurrentTimeStamp() + duration;
+        uint64_t deadline = getCurrentTimeStamp() + duration * 1000;
         Entry* e = Entry::NewEntryWithExpire(key, "", deadline, List, ListLExpire);
         s = store(e);
         if(!s.ok()){
             return s;
         }        
         expires[List][key] = deadline;
+        suc = true;
         return Status::OK();
     }
 
     // LTTL return time to live.
-    uint64_t LightDB::LTTL(std::string key){
+    int64_t LightDB::LTTL(std::string key){
         bool expired = CheckExpired(key, List);
         if(expired){
-            return 0;
+            return -2;
         }
         if(expires[List].find(key) == expires[List].end()){
-            return 0;
+            return -2;
         }
         uint64_t deadline = expires[List][key];
-        return deadline - getCurrentTimeStamp();
+        return (deadline - getCurrentTimeStamp()) / 1000;
     }
     
 

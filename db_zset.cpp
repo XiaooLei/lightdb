@@ -23,6 +23,7 @@ namespace lightdb{
         if(!s.ok()){
             return s;
         }
+        suc = true;
         return Status::OK();
     }
 
@@ -195,20 +196,20 @@ namespace lightdb{
         return Status::OK();
     }
 
-    uint64_t LightDB::ZTTL(std::string key){
+    int64_t LightDB::ZTTL(std::string key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
-            return 0;
+            return -2;
         }
         bool expired = CheckExpired(key, ZSet);
         if(expired){
-            return 0;
+            return -2;
         }
         if(!ZKeyExist(key)){
-            return 0;
+            return -2;
         }
-        return expires[ZSet][key];
+        return (expires[ZSet][key] - getCurrentTimeStamp()) / 1000;
     }
 
 }

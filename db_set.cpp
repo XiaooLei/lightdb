@@ -132,7 +132,7 @@ namespace lightdb{
     }
 
     // SMembers returns all the members of the set value stored at key.
-    bool LightDB::SMembers(std::string key, std::vector<std::string> members){
+    bool LightDB::SMembers(std::string key, std::vector<std::string>& members){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -151,7 +151,7 @@ namespace lightdb{
         std::vector<std::string> validKeys;
         for(auto it = keys.begin(); it!=keys.end(); it++){
             s = CheckKeyValue(*it, "");
-            if(!s.ok()){
+            if(s.ok()){
                 validKeys.push_back(*it);
             }
         }
@@ -162,9 +162,6 @@ namespace lightdb{
             }
         }
         setIdx.indexes->SUnion(keysNotExpired, vals);
-        if(!s.ok()){
-            return s;
-        }
     }
 
     // SKeyExists returns if the key exists.
@@ -212,7 +209,7 @@ namespace lightdb{
     Status LightDB::SExpire(std::string key, uint64_t duration, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
-        if(s.ok()){
+        if(!s.ok()){
             suc = false;
             return Status::OK();
         }
@@ -226,10 +223,10 @@ namespace lightdb{
             return Status::OK();
         }
         
-        uint64_t deadline = getCurrentTimeStamp() + duration;
+        uint64_t deadline = getCurrentTimeStamp() + duration * 1000;
         Entry* e = Entry::NewEntryWithExpire(key, "", deadline, Set, SetSExpire);
         s = store(e);
-        if(s.ok()){
+        if(!s.ok()){
             return s;
         }
         expires[Set][key] == deadline;
@@ -238,20 +235,20 @@ namespace lightdb{
     }
 
     // STTL return time to live for the key in set.
-    uint64_t LightDB::STTL(std::string key){
+    int64_t LightDB::STTL(std::string key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
-            return 0;
+            return -2;
         }
         bool expired = CheckExpired(key, Set);
         if(expired){
-            return 0;
+            return -2;
         }
         if(expires[Set].find(key) == expires[static_cast<const uint16_t>(Set)].end()){
-            return 0;
+            return -2;
         }
-        return expires[Set][key] - getCurrentTimeStamp();
+        return (expires[Set][key] - getCurrentTimeStamp()) / 1000;
     }
     
 

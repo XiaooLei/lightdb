@@ -141,7 +141,7 @@ namespace lightdb{
     }
 
     // HMGet get the values of all the given hash fields
-    Status LightDB::HMGet(std::string key, std::vector<std::string> fields, std::vector<std::string>& vals, std::vector<bool> sucs){
+    Status LightDB::HMGet(std::string key, std::vector<std::string> fields, std::vector<std::string>& vals, std::vector<bool>& sucs){
         Status s;
         s = CheckKeyValue(key, fields);
         if(!s.ok()){
@@ -282,20 +282,20 @@ namespace lightdb{
     }
 
     // HTTL return time to live for the key.
-    uint64_t LightDB::HTTL(std::string key){
+    int64_t LightDB::HTTL(std::string key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
-            return 0;
+            return -2;
         }
         bool expired = CheckExpired(key, Hash);
         if(expired){
-            return 0;
+            return -2;
         }
         if(expires[Hash].find(key) == expires[Hash].end()){
-            return 0;
+            return -2;
         }
-        return expires[Hash][key] - getCurrentTimeStamp();
+        return (expires[Hash][key] - getCurrentTimeStamp()) / 1000;
     }
 
 }// namespace lightdb

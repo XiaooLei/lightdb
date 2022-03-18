@@ -91,7 +91,7 @@ class LightDB{
 
     Status Expire(std::string key, uint64_t duration, bool& suc);
 
-    uint64_t TTL(std::string key);
+    int64_t TTL(std::string key);
 
     Status getVal(std::string key, std::string& value, bool& suc);
 
@@ -110,7 +110,7 @@ class LightDB{
 
     Status HDel(std::string key, std::string field, int& res);
 
-    Status HMGet(std::string key, std::vector<std::string> fields, std::vector<std::string>& vals, std::vector<bool> sucs);
+    Status HMGet(std::string key, std::vector<std::string> fields, std::vector<std::string>& vals, std::vector<bool>& sucs);
 
     bool HKeyExist(std::string key);
 
@@ -126,7 +126,7 @@ class LightDB{
 
     Status HExpire(std::string key, uint64_t duration, bool& suc);
 
-    uint64_t HTTL(std::string key);
+    int64_t HTTL(std::string key);
 
     //List operations
     Status LPush(std::string key, std::string value, int& length);
@@ -147,7 +147,7 @@ class LightDB{
 
     Status LTrim(std::string key, int start, int end, bool& suc);
 
-    Status LRange(std::string key, int start, int end, std::vector<std::string> vals, bool& suc);
+    Status LRange(std::string key, int start, int end, std::vector<std::string>& vals, bool& suc);
 
     bool LKeyExist(std::string key);
 
@@ -155,9 +155,9 @@ class LightDB{
 
     Status LClear(std::string key, int& count);
 
-    Status LExpire(std::string key, uint64_t duration);
+    Status LExpire(std::string key, uint64_t duration, bool& suc);
 
-    uint64_t LTTL(std::string key);
+    int64_t LTTL(std::string key);
 
 
     //Set operations
@@ -173,7 +173,7 @@ class LightDB{
 
     int SCard(std::string key);
 
-    bool SMembers(std::string key, std::vector<std::string> members);
+    bool SMembers(std::string key, std::vector<std::string>& members);
 
     void SUnion(std::vector<std::string> keys, std::vector<std::string>& vals);
 
@@ -183,7 +183,7 @@ class LightDB{
 
     Status SExpire(std::string key, uint64_t duration, bool& suc);
 
-    uint64_t STTL(std::string key);
+    int64_t STTL(std::string key);
 
     //SortedSet operations
     Status ZAdd(std::string key, double score,std::string member, bool& suc);
@@ -208,7 +208,7 @@ class LightDB{
 
     Status ZExpire(std::string key, int64_t duration, bool& suc);
 
-    uint64_t ZTTL(std::string key);
+    int64_t ZTTL(std::string key);
 
     //idx
     Status loadIdxFromFiles();

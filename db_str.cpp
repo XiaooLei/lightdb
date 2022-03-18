@@ -220,6 +220,9 @@ namespace lightdb{
         if(!s.ok()){
             return s;
         }
+        if(!suc){
+            return Status::OK();
+        }
         uint64_t deadline = getCurrentTimeStamp() + duration * 1000;
         Entry* e = Entry::NewEntryWithExpire(key, value, deadline, String, StringExpire);
         s = store(e);
@@ -231,17 +234,17 @@ namespace lightdb{
     }
 
     // TTL Time to live.
-    uint64_t LightDB::TTL(std::string key){
+    int64_t LightDB::TTL(std::string key){
         Status s;
         if(expires[String].find(key) == expires[String].end()){
-            return 0;
+            return -2;
         }
         uint64_t deadline = expires[String][key];
         bool expired = CheckExpired(key, String);
         if(expired){
-            return 0;
+            return -2;
         }
-        return deadline - getCurrentTimeStamp();
+        return (deadline - getCurrentTimeStamp()) / 1000;
     }
 
 
@@ -252,12 +255,12 @@ namespace lightdb{
         tmp_meta->value = entry->meta->value;
 
         Indexer* idx = new Indexer(tmp_meta, activeFile->Id, static_cast<int64_t>(activeFile->WriteOffset - entry->Size()));
-        printf("activeFile->Offset :%d \n", activeFile->WriteOffset - entry->Size());
-        printf("set indexer: idx.offset:%d \n", idx->offset - entry->Size());
+        //printf("activeFile->Offset :%d \n", activeFile->WriteOffset - entry->Size());
+        //printf("set indexer: idx.offset:%d \n", idx->offset - entry->Size());
         if( config->indexMode == KeyValueMemMode ){
             idx->meta->value = entry->meta->value;
         }
-        printf("indexer put(key:%s) \n", entry->meta->key.c_str());
+        //printf("indexer put(key:%s) \n", entry->meta->key.c_str());
         strIdx.indexes->put(entry->meta->key, *idx);
         return Status::OK();
     }

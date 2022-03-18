@@ -131,9 +131,11 @@ namespace lightdb{
             resp = "wrong num of args";
             return Status::OK();
         }
-        args.erase(args.begin());
         std::vector<std::string> vals;
         db->SUnion(args, vals);
+        if(vals.size() == 0){
+            resp = "(empty set or list)";
+        }
         for(int i = 0; i < vals.size(); i++){
             resp.append(to_string(i+1) + ") ");
             resp.append(vals[i] + "\n");
@@ -194,7 +196,7 @@ namespace lightdb{
             return Status::OK();
         }
         Status s;
-        uint64_t ttl = db->STTL(args[0]);
+        int64_t ttl = db->STTL(args[0]);
         resp.append("(integer) ");
         resp.append(to_string(ttl));
         return Status::OK();
