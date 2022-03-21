@@ -8,14 +8,14 @@
 #include "ds/zset/ds_zset.h"
 #include "ds/str/ds_strlist.h"
 #include "cache/lru.h"
-#include "config.h"
+#include "config/config.h"
 #include "include/status.h"
 #include "include/types.h"
 #include "storage/db_file.h"
 #include "storage/entry.h"
 #include "util/time.h"
 #include "stdio.h"
-#include "util/sync/waitGroup.h"
+#include "sync/waitGroup.h"
 #include <thread>
 #include <cstdio>
 
@@ -177,6 +177,8 @@ class LightDB{
 
     void SUnion(std::vector<std::string> keys, std::vector<std::string>& vals);
 
+    void SDiff(std::string key1, std::vector<std::string> succ_keys, std::vector<std::string>& vals);
+
     bool SKeyExist(std::string key);
 
     Status SClear(std::string key, int& count);
@@ -194,13 +196,19 @@ class LightDB{
 
     int ZRank(std::string, std::string member);
 
+    int ZRevRank(std::string, std::string member);
+
     Status ZIncrBy(std::string key, double increment, std::string member, double& res);
 
     void ZRange(std::string key, int start, int end, std::vector<std::string>& vals);
 
+    void ZRevRange(std::string key, int start, int end, std::vector<std::string>& vals);
+
     Status ZRem(std::string key, std::string member, bool& suc);
 
     bool ZGetByRank(std::string key, int rank, std::string& member);
+
+    bool ZRevGetByRank(std::string key, int rank, std::string& member);
 
     bool ZKeyExist(std::string key);
 

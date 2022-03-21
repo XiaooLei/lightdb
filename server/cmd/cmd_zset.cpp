@@ -70,6 +70,24 @@ namespace lightdb {
         return Status::OK();
     }
 
+    Status zRevRank(LightDB *db, std::vector <std::string> args, std::string &resp){
+        if(args.size() != 2){
+            resp = "wrong num of args";
+            return Status::OK();
+        }
+        Status s;
+        int rank = db->ZRevRank(args[0], args[1]);
+        if(rank != -1) {
+            resp.append(to_string(rank));
+        }else{
+            resp.append("(nil)");
+        }
+        return Status::OK();
+    }
+
+
+
+
     Status zIncrBy(LightDB *db, std::vector <std::string> args, std::string &resp){
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -116,6 +134,30 @@ namespace lightdb {
         return Status::OK();
     }
 
+    Status zRevRange(LightDB *db, std::vector <std::string> args, std::string &resp){
+        if(args.size() != 3){
+            resp = "wrong num of args";
+            return Status::OK();
+        }
+        int start;
+        bool start_valid;
+        start = stringToInt(args[1], start_valid);
+        int end;
+        bool end_valid;
+        end = stringToInt(args[2], end_valid);
+        if(!(start_valid && end_valid)){
+            resp = "syntax not correct";
+            return Status::OK();
+        }
+        std::vector<std::string> vals;
+        db->ZRevRange(args[0], start, end, vals);
+        for(int i = 0; i < vals.size(); i++){
+            resp.append(to_string(i+1) + ") ");
+            resp.append(vals[i] + "\n");
+        }
+        return Status::OK();
+    }
+
     Status zRem(LightDB *db, std::vector <std::string> args, std::string &resp){
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -145,6 +187,27 @@ namespace lightdb {
         }
         std::string member;
         bool suc = db->ZGetByRank(args[0], rank, member);
+        if(suc){
+            resp = member;
+        }else{
+            resp = "(nil)";
+        }
+        return Status::OK();
+    }
+
+    Status zRevGetByRank(LightDB *db, std::vector <std::string> args, std::string &resp){
+        if(args.size() != 2){
+            resp = "wrong num of args";
+            return Status::OK();
+        }
+        bool rank_valid;
+        int rank = stringToInt(args[1], rank_valid);
+        if(!rank_valid){
+            resp = "syntax not correct";
+            return Status::OK();
+        }
+        std::string member;
+        bool suc = db->ZRevGetByRank(args[0], rank, member);
         if(suc){
             resp = member;
         }else{
@@ -216,10 +279,13 @@ namespace lightdb {
         addExecCommand("zscore", zScore);
         addExecCommand("zcard", zCard);
         addExecCommand("zrank", zRank);
+        addExecCommand("zrevrank", zRevRank);
         addExecCommand("zincyby", zIncrBy);
         addExecCommand("zrange", zRange);
+        addExecCommand("zrevrange", zRevRange);
         addExecCommand("zrem", zRem);
         addExecCommand("zgetbyrank", zGetByRank);
+        addExecCommand("zrevgetbyrank", zRevGetByRank);
         addExecCommand("zkeyexist", zKeyExist);
         addExecCommand("zclear", zClear);
         addExecCommand("zexpire", zExpire);

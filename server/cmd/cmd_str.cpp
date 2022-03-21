@@ -197,7 +197,7 @@ namespace lightdb {
         addExecCommand("set", set);
         addExecCommand("get", get);
         addExecCommand("setnx", setNx);
-        addExecCommand("getnet", getSet);
+        addExecCommand("getset", getSet);
         addExecCommand("mset", mSet);
         addExecCommand("mget", mGet);
         addExecCommand("appendstr", appendStr);

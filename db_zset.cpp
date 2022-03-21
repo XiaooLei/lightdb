@@ -69,6 +69,19 @@ namespace lightdb{
         return sortedSetIdx.indexes->ZRank(key, member);
     }
 
+    int LightDB::ZRevRank(std::string key, std::string member) {
+        Status s;
+        s = CheckKeyValue(key, member);
+        if(!s.ok()){
+            return -1;
+        }
+        bool expired = CheckExpired(key, ZSet);
+        if(expired){
+            return -1;
+        }
+        return sortedSetIdx.indexes->ZRevRank(key, member);
+    }
+
     // ZIncrBy increments the score of member in the sorted set stored at key by increment.
     // If member does not exist in the sorted set, it is added with increment as its score (as if its previous score was 0.0).
     // If key does not exist, a new sorted set with the specified member as its sole member is created.
@@ -104,6 +117,22 @@ namespace lightdb{
         return;
     }
 
+    void LightDB::ZRevRange(std::string key, int start, int end, std::vector<std::string>& vals){
+        Status s;
+        s = CheckKeyValue(key, "");
+        if(!s.ok()){
+            return;
+        }
+        bool expired = CheckExpired(key, ZSet);
+        if(expired){
+            return;
+        }
+        sortedSetIdx.indexes->ZRevRange(key, start, end,vals);
+        return;
+    }
+
+
+
     // ZRem removes the specified members from the sorted set stored at key. Non existing members are ignored.
     // An error is returned when key exists and does not hold a sorted set.
     Status LightDB::ZRem(std::string key, std::string member, bool& suc){
@@ -135,6 +164,14 @@ namespace lightdb{
             return false;
         }
         return sortedSetIdx.indexes->ZGetByRank(key, rank, member);
+    }
+
+    bool LightDB::ZRevGetByRank(std::string key, int rank, std::string& member){
+        bool expired = CheckExpired(key, ZSet);
+        if(expired){
+            return false;
+        }
+        return sortedSetIdx.indexes->ZRevGetByRank(key, rank, member);
     }
 
     // ZKeyExists check if the key exists in zset.

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <cassert>
 #include <iostream>
-#include "../config.h"
+#include "../config/config.h"
 using namespace lightdb;
 int main(){
     ArchivedFiles archFiles;

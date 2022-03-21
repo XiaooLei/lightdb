@@ -77,11 +77,8 @@ namespace lightdb{
 //                printf("null ptr   ");
 //            }
             printf("null :%d \n", this->requestHandler == nullptr);
-            std::string resp = this->requestHandler->HandleCmd(request);
-            printf("resp: %s \n", resp.c_str());
+            std::string resp = this->requestHandler->HandleCmd(request, evs[i].data.fd);
 
-            write(evs[i].data.fd, resp.c_str(), resp.size()); //>回写
-            write(evs[i].data.fd, "\n>>>", 4);
         }
     }
 

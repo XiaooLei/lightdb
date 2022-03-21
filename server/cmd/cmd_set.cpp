@@ -135,6 +135,7 @@ namespace lightdb{
         db->SUnion(args, vals);
         if(vals.size() == 0){
             resp = "(empty set or list)";
+            return Status::OK();
         }
         for(int i = 0; i < vals.size(); i++){
             resp.append(to_string(i+1) + ") ");
@@ -143,6 +144,27 @@ namespace lightdb{
 
         return Status::OK();
     }
+
+    Status sDiff(LightDB* db, std::vector<std::string> args, std::string& resp){
+        if(args.size() <= 1){
+            resp = "wrong num of args";
+            return Status::OK();
+        }
+        std::vector<std::string> vals;
+        std::string key1 = args[0];
+        args.erase(args.begin());
+        db->SDiff(key1, args, vals);
+        if(vals.size() == 0){
+            resp = "(empty set or list)";
+            return Status::OK();
+        }
+        for(int i = 0; i < vals.size(); i++){
+            resp.append(to_string(i+1) + ") ");
+            resp.append(vals[i] + "\n");
+        }
+        return Status::OK();
+    }
+
 
     Status sKeyExist(LightDB* db, std::vector<std::string> args, std::string& resp){
         if(args.size() != 1){
@@ -211,6 +233,7 @@ namespace lightdb{
         addExecCommand("scard", sCard);
         addExecCommand("smembers", sMemebers);
         addExecCommand("sunion", sUnion);
+        addExecCommand("sdiff", sDiff);
         addExecCommand("skeyexist", sKeyExist);
         addExecCommand("sclear", sClear);
         addExecCommand("sexpire", sExpire);

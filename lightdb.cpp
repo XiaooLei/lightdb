@@ -1,5 +1,6 @@
 #include "util/dir_util.h"
 #include "lightdb.h"
+#include "sync/waitGroup.h"
 
 namespace lightdb{
 

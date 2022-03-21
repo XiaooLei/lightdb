@@ -16,7 +16,7 @@ namespace lightdb {
 
     public:
 
-        virtual std::string HandleCmd(std::string request) = 0;
+        virtual std::string HandleCmd(std::string request, int conn_fd) = 0;
 
 
     };

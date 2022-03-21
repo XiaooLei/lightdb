@@ -10,7 +10,7 @@ int main(){
     lightdb::Server* server = new lightdb::Server();
 
     lightdb::LightDB* lightdb = new lightdb::LightDB();
-    lightdb::Config config = lightdb::Config::DefaultConfig();
+    lightdb::Config config = lightdb::Config::BuildConfig("/tmp/lightdb/config.ini");
     lightdb->Open(&config);
 
     lightdb::RequestHandler* requestHandler = new lightdb::LightdbRequestHandler(lightdb);
@@ -19,4 +19,5 @@ int main(){
 
     server->Listen(10000);
     server->Loop();
+    delete server;
 }

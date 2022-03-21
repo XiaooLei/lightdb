@@ -61,6 +61,17 @@ public:
         return record[key].rank(member,member_score);
     }
 
+    int ZRevRank(std::string key, std::string member){
+        if(!ZKeyExist(key)){
+            return -1;
+        }
+        if(dict[key].find(member) == dict[key].end()){
+            return -1;
+        }
+        double member_score = dict[key][member]->score;
+        return dict.size() - record[key].rank(member, member_score) -1;
+    }
+
     bool ZRem(std::string key, std::string member){
         Status s;
         if(!ZKeyExist(key)){
@@ -90,6 +101,16 @@ public:
 
         return new_score;
     }
+
+    void ZRevRange(std::string key, int start, int end, std::vector<std::string>& vals) {
+        int size = dict[key].size();
+        start = size - end -1;
+        end = size - start -1;
+        ZRange(key, start, end, vals);
+    }
+
+
+
 
     void ZRange(std::string key, int start, int end, std::vector<std::string>& vals){
         std::string start_member;
@@ -130,6 +151,14 @@ public:
         if(!ZKeyExist(key)){
             return false;
         }
+        return record[key].getByRank(rank,member);
+    }
+
+    bool ZRevGetByRank(std::string key, int revRank, std::string& member){
+        if(!ZKeyExist(key)){
+            return false;
+        }
+        int rank = dict[key].size() - revRank -1;
         return record[key].getByRank(rank,member);
     }
 

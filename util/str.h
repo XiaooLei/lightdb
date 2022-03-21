@@ -1,8 +1,8 @@
-
-
 #include <vector>
 #include <string>
 #include <string.h>
+#include <regex>
+
 namespace lightdb{
 inline std::vector<std::string> splitWithStl(const std::string &str,const std::string &pattern)
 {
@@ -74,8 +74,49 @@ inline void splitStrBySpace(std::string text, std::vector<std::string>& words){
         }
 }
 
+inline std::string& Strim(std::string &s, const std::string & del)
+{
+    if (s.empty())
+    {
+        return s;
+    }
 
+    s.erase(0,s.find_first_not_of(del));
+    s.erase(s.find_last_not_of(del) + 1);
+    return s;
+}
 
+inline std::vector<std::string> Split(const std::string & input, const std::string& regex)
+{
+    // passing -1 as the submatch index parameter performs splitting
+    std::string key;
+    std::string value;
+    int count = 0;
+    for(auto c : input){
+        if(c == '='){
+            count ++;
+        }
+    }
+    if(count != 1){
+        return {};
+    }
+    bool flag = false;
+    for(auto c : input){
+        if(c == '='){
+            flag = true;
+            continue;
+        }
+        if(c == ' '){
+            continue;
+        }
+        if(flag){
+            key += c;
+        }else{
+            value += c;
+        }
+    }
+    return {key, value};
+}
 
 
 }

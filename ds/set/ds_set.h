@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <vector>
 #include <mutex>
+#include <set>
 #include "../../include/status.h"
 
 namespace lightdb{
@@ -124,6 +125,24 @@ class Set{
             vals.push_back(it->first);
         }
     }
+
+    void SDiff(std::string key1, std::vector<std::string> succ_keys, std::vector<std::string>& vals){
+        std::set<std::string> to_ret;
+        for(auto it = record[key1].begin(); it != record[key1].end(); it++){
+            to_ret.insert(it->first);
+        }
+        std::vector<std::string> succ_vals;
+        SUnion(succ_keys, succ_vals);
+        for(auto it : succ_vals){
+            if(to_ret.find(it)!=to_ret.end()){
+                to_ret.erase(it);
+            }
+        }
+        for(auto val : to_ret){
+            vals.push_back(val);
+        }
+    }
+
 
     // SClear clear the specified key in set.
     int SClear(std::string key){

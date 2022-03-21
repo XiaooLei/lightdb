@@ -164,6 +164,32 @@ namespace lightdb{
         setIdx.indexes->SUnion(keysNotExpired, vals);
     }
 
+    void LightDB::SDiff(std::string key1, std::vector<std::string> succ_keys, std::vector<std::string>& vals) {
+        Status s;
+        s = CheckKeyValue(key1, "");
+        if(!s.ok()){
+            return;
+        }
+        if(CheckExpired(key1, Set)){
+            return;
+        }
+
+        std::vector<std::string> validKeys;
+        for(auto it = succ_keys.begin(); it!=succ_keys.end(); it++){
+            s = CheckKeyValue(*it, "");
+            if(s.ok()){
+                validKeys.push_back(*it);
+            }
+        }
+        std::vector<std::string> keysNotExpired;
+        for(auto it = validKeys.begin(); it!=validKeys.end(); it++){
+            if(!CheckExpired(*it, Set)){
+                keysNotExpired.push_back(*it);
+            }
+        }
+        setIdx.indexes->SDiff(key1, keysNotExpired, vals);
+    }
+
     // SKeyExists returns if the key exists.
     bool LightDB::SKeyExist(std::string key){
         Status s;
