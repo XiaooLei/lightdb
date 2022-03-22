@@ -70,13 +70,11 @@ namespace lightdb{
 
             std::string request;
             request.assign(buf, nread - 2);
-            printf("lalala \n");
 //            if(this->requestHandler != nullptr) {
 //                std::cout<<"request handler"<<std::endl;
 //            }else{
 //                printf("null ptr   ");
 //            }
-            printf("null :%d \n", this->requestHandler == nullptr);
             std::string resp = this->requestHandler->HandleCmd(request, evs[i].data.fd);
 
         }

@@ -9,7 +9,7 @@ namespace lightdb{
 
 const string DefaultAddr = "127.0.0.1:5200";
 const string DefaultDirPath = "/tmp/lightdb";
-const uint32_t DefaultBlockSize = 16 * 1024 * 1024;
+const uint32_t DefaultBlockSize = 16 * 10 * 1024 * 1024;
 const uint32_t DefaultMaxKeySize = uint32_t(1 * 1024 * 1024);
 const uint32_t DefaultMaxValueSize = uint32_t(8 * 1024 * 1024);
 const uint32_t DefaultMergeThreshold = 64;

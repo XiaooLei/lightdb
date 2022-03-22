@@ -36,7 +36,6 @@ namespace lightdb {
         if(suc) {
             resp.append(value);
         }else{
-            printf("ppppa \n");
             resp = "(nil)";
         }
         return Status::OK();

@@ -18,11 +18,9 @@ void test_str(){
     if(!s.ok()){
         s.Report();
     }
-    printf("Get res:%d \n", suc);
     assert( suc );
     cout<< value <<endl;
     s = lightdb->Remove("kaaa", suc);
-    printf("Remove res:%d \n", suc);
     assert( suc );
 
 }

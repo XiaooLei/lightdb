@@ -271,7 +271,7 @@ class List{
                 index++;
             }
             for(auto it = vec.begin(); it!=vec.end(); it++){
-                printf("to be removed:%s \n",(*it)->c_str());
+                //printf("to be removed:%s \n",(*it)->c_str());
                 record[key].erase(*it);
             }
         }

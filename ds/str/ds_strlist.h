@@ -46,12 +46,12 @@ public:
     
     bool get(std::string key, Indexer& val) {
         StrSkipListNode *p = find(key);
-        printf("key: %s \n", key.c_str());
-        printf("p-> key:%s \n", p->key.c_str());
+        //printf("key: %s \n", key.c_str());
+        //printf("p-> key:%s \n", p->key.c_str());
         bool exist = p->key.compare(key) == 0;
         if(exist){
             val = p->val;
-            printf("buttom get, key:%s fileId:%d, offset:%d  p->value:%s \n", key.c_str(), p->val.fileId, p->val.offset, p->val.meta->value.c_str());
+            //printf("buttom get, key:%s fileId:%d, offset:%d  p->value:%s \n", key.c_str(), p->val.fileId, p->val.offset, p->val.meta->value.c_str());
         }
         return exist;
     }

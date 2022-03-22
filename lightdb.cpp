@@ -113,6 +113,12 @@ bool LightDB::CheckExpired(string key, DataType dataType){
 Status LightDB::store(Entry* entry){
     Status s;
     DBFile* activeFile = this->getActiveFile(static_cast<DataType>(entry->GetType()));
+    if(activeFile->WriteOffset > config->blockSize) {
+        DBFile* newActiveFile = new DBFile(config->dirPath, activeFile->Id + 1, config->rWMethod, config->blockSize, entry->GetType());
+        this->activeFiles[entry->GetType()] = newActiveFile;
+        this->archivedFiles[entry->GetType()].insert(std::make_pair(activeFile->Id, activeFile));
+        activeFile = newActiveFile;
+    }
     s = activeFile->Write(entry);
     if(!s.ok()){
         return s;

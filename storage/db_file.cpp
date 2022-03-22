@@ -22,7 +22,7 @@ namespace lightdb{
             {4, "%09d.data.zset"},
     };
 
-    DBFile::DBFile(std::string path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType){
+    DBFile::DBFile(std::string path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType):Id(fileId){
         char buf[20];
         memset(buf, '\0', sizeof(buf));
         sprintf(buf, DBFileFormatNames[eType].c_str(), fileId);
@@ -39,7 +39,7 @@ namespace lightdb{
         }
         WriteOffset = lseek(_fd, 0l, SEEK_END);
         lseek(_fd, 0l, SEEK_SET);
-        printf("WriteOffset :%d \n", WriteOffset );
+        //printf("WriteOffset :%d \n", WriteOffset );
         if(WriteOffset == -1){
             printf("error occurred : errno :%d \n", errno);
             exit(-1);
@@ -68,7 +68,6 @@ namespace lightdb{
         std::string buf;
         Status status = ReadBuf(buf, EntryHeaderSize);
         if(!status.ok()){
-            printf("pointer aaa code:%d \n", status.Code());
             return status;
         }
 
@@ -77,7 +76,6 @@ namespace lightdb{
         if(entry.meta->keySize>0){
             status = ReadBuf(key, entry.meta->keySize);
             if(!status.ok() && status.Code()!=kEndOfFile){
-                printf("code:  %d", status.Code());
                 return status;
             }
         }
@@ -104,21 +102,15 @@ namespace lightdb{
     Status DBFile::ReadBuf(std::string& result, uint32_t size){
         char buf[size];
         memset(buf, 0, size);
+
         Status status;
-        //printf("size :%d \n", size);
         while (true) {
-            //printf("point a \n");
             ssize_t read_size = read(_fd, buf, size);
-//            for(int i = 0; i < sizeof(buf); i++){
-//                std::cout << "0x" <<  std::hex << static_cast<unsigned short>(buf[i]) << " " ;//输出十六进制FF
-//            }
 
             if (read_size < 0) {  // Read error.
-                printf("errrrrrr----\n");
                 if (errno == EINTR) {
                     continue;  // Retry
                 }
-                printf("pointer b, code:%d \n", status.Code());
                 status = PosixError(_fileName, errno);
                 break;
             }else if(read_size == 0 && size!=0){
@@ -126,14 +118,12 @@ namespace lightdb{
                 printf("end of file \n");
                 return Status::EndOfFile(this->_fileName);
             }else{
-                //printf("add offset\n");
                 this->Offset += read_size;
             }
             result.assign(buf, size);
             this->Offset+=size;
             break;
         }
-        printf("pointer c, code:%d \n", status.Code());
         return status;
     }
 
@@ -218,9 +208,7 @@ namespace lightdb{
                 //todo
             }
         }
-//        for(auto it = fileIdsMap.begin(); it!=fileIdsMap.end(); it++){
-//            printf("type%d , size:%d \n", it->first, it->second.size());
-//        }
+
         printf("start build---\n");
 
         uint16_t typ = 0;

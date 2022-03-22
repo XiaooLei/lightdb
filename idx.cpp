@@ -47,7 +47,7 @@ Status LightDB::loadIdxFromFiles(){
                 indexer->meta = e.meta;
                 indexer->fileId = fid;
                 indexer->offset = offset;
-                printf("build index, set offset key:%s, offset:%d \n", e.meta->key.c_str(), indexer->offset);
+                //printf("build index, set offset key:%s, offset:%d \n", e.meta->key.c_str(), indexer->offset);
 
                 offset+=e.Size();
                 df->SetOffset(offset);
@@ -66,7 +66,7 @@ Status LightDB::buildIndex(Entry* entry, Indexer* indexer, bool isOpen){
         indexer->meta->value = entry->meta->value;
         indexer->meta->valueSize = entry->meta->valueSize;
     }
-    printf("Type:%d \n",entry->GetType());
+    //printf("Type:%d \n",entry->GetType());
     switch(entry->GetType()){
         case String:
             buildStringIndex(indexer, entry);
@@ -94,7 +94,7 @@ void LightDB::buildStringIndex(Indexer* indexer,Entry* entry){
     }
     switch (entry->GetMark()) {
         case StringSet:
-            printf("string put, key:%s, value:%s, offset:%d \n", indexer->meta->key.c_str(), indexer->meta->value.c_str(), indexer->offset);
+            //printf("string put, key:%s, value:%s, offset:%d \n", indexer->meta->key.c_str(), indexer->meta->value.c_str(), indexer->offset);
             indexer->meta->value = entry->meta->value;
             strIdx.indexes->put(indexer->meta->key, *indexer);
             break;
@@ -178,11 +178,11 @@ void LightDB::buildHashIndex(Entry *entry) {
         return;
     }
     std::string key = entry->meta->key;
-    printf("Mark:%d \n",entry->GetMark());
+    //printf("Mark:%d \n",entry->GetMark());
     switch (entry->GetMark()) {
         case HashHSet:
             hashIdx.indexes->HSet(entry->meta->key, entry->meta->extra, entry->meta->value);
-            printf("hashBuildIndex, key:%s, value:%s \n", entry->meta->key.c_str(), entry->meta->value.c_str());
+            //printf("hashBuildIndex, key:%s, value:%s \n", entry->meta->key.c_str(), entry->meta->value.c_str());
             break;
         case HashHDel:
             hashIdx.indexes->HDel(entry->meta->key, entry->meta->extra);

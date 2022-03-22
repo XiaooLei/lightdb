@@ -189,7 +189,7 @@ namespace lightdb{
             oldValue = "";
         }
         std::string newValue = oldValue + value;
-        printf("new value :%s \n", newValue.c_str());
+        //printf("new value :%s \n", newValue.c_str());
         length = newValue.size();
         return StrSet(key, newValue);
     }
@@ -279,12 +279,10 @@ namespace lightdb{
 
 
     Status LightDB::getVal(std::string key, std::string& value, bool& suc){
-        printf("-------------------------\n");
         Status s;
         Indexer idx;
-        printf("indexes get(key:%s )\n", key.c_str());
         bool get = strIdx.indexes->get(key, idx);
-        printf("get: %d \n", get);
+        //printf("get: %d \n", get);
         if(!get){
             suc = false;
             return Status::OK();
@@ -311,13 +309,13 @@ namespace lightdb{
                 df = archivedFiles[String][idx.fileId];
             }
             Entry entry;
-            printf("read offset: %d \n", idx.offset);
+            //printf("read offset: %d \n", idx.offset);
             s = df->Read(idx.offset, entry);
             if(!s.ok()){
                 return s;
             }
             value = entry.meta->value;
-            printf("read value:%s \n", value.c_str());
+            //printf("read value:%s \n", value.c_str());
             cache->put(key, value);
             return Status::OK();
         }
