@@ -49,7 +49,7 @@ namespace lightdb{
                 }
                 printf( "Server get from client !\n"/*,  inet_ntoa(cliaddr.sin_addr), cliaddr.sin_port */);
                 AddConn(conn_fd);
-                write(conn_fd, "\n>>>", 4);
+                //write(conn_fd, "\n>>>", 4);
                 continue;
             }
             //todo handle command from client!
@@ -62,14 +62,15 @@ namespace lightdb{
                 DelEvent(evs[i].data.fd);
                 continue;
             }
-            printf("msg from client :%s \n", buf);
+
+            //printf("msg from client :%s \n", buf);
             if(strncmp(buf, "quit", 4) == 0){
                 printf("close connection \n");
                 close(evs[i].data.fd);
             }
 
             std::string request;
-            request.assign(buf, nread - 2);
+            request.assign(buf, nread);
 //            if(this->requestHandler != nullptr) {
 //                std::cout<<"request handler"<<std::endl;
 //            }else{
