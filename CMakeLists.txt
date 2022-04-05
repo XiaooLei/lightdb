@@ -9,7 +9,7 @@ add_compile_options(-g)
 add_compile_options(-fexceptions)
 add_compile_options(-Wall)
 add_compile_options(-fpermissive)
-add_executable(MyProject  lightdb.cpp db_hash.cpp db_list.cpp db_set.cpp db_str.cpp db_zset.cpp storage/db_file.cpp
+add_executable(LightDBServer  lightdb.cpp db_hash.cpp db_list.cpp db_set.cpp db_str.cpp db_zset.cpp storage/db_file.cpp
         storage/db_file.h ds/hash/ds_hash.h ds/list/ds_list.h ds/set/ds_set.h ds/str/ds_strlist.h ds/zset/ds_zset.h
         include/common.h include/status.h include/types.h storage/db_file.h storage/entry.h idx.cpp sync/CTimer.h sync/CTimer.cpp sync/waitGroup.h dump.cpp server/epoll.h server/epoll.cpp server/server.h server/server.cpp server/main.cpp
         server/cmd/cmd_hash.cpp server/cmd/cmd_list.cpp server/cmd/cmd_set.cpp server/cmd/cmd_str.cpp server/cmd/cmd_zset.cpp server/cmd/cmd.h server/cmd/cmd.cpp server/cmd/requestHandler.h server/cmd/LightdbRequestHandler.cpp server/cmd/LightdbRequestHandler.h
@@ -32,5 +32,11 @@ add_executable(TestListLPush lightdb.cpp db_hash.cpp db_list.cpp db_set.cpp db_s
         include/common.h include/status.h include/types.h storage/db_file.h storage/entry.h idx.cpp sync/CTimer.h sync/CTimer.cpp sync/waitGroup.h dump.cpp server/epoll.h server/epoll.cpp server/server.h server/server.cpp
         server/cmd/cmd_hash.cpp server/cmd/cmd_list.cpp server/cmd/cmd_set.cpp server/cmd/cmd_str.cpp server/cmd/cmd_zset.cpp server/cmd/cmd.h server/cmd/cmd.cpp server/cmd/requestHandler.h server/cmd/LightdbRequestHandler.cpp server/cmd/LightdbRequestHandler.h
         config/configParser.h config/configParser.cpp sync/SafeQueue.h  benchmark/list/benchmark_LPush.cpp)
+
+add_executable(BenchMarkSingleClient client/lightdb_client.h client/lightdb_client.cpp util/time.h benchmark/concurrent/BenchMark_Single.cpp)
+
+add_executable(BenchMarkConcurrent client/lightdb_client.h client/lightdb_client.cpp util/time.h benchmark/concurrent/BenchMark_Concurrent.cpp)
+
+
 
 
