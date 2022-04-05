@@ -8,7 +8,7 @@ typedef struct Indexer{
     uint32_t fileId;
     int64_t offset;
 
-    Indexer(){}
+    Indexer():fileId(0),offset(0),meta(nullptr){}
 
     Indexer(Meta* meta, uint32_t fileId, int64_t offset):meta(meta), fileId(fileId), offset(offset){}
 
