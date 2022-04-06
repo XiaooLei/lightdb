@@ -1,10 +1,16 @@
 #include "util/dir_util.h"
 #include "lightdb.h"
 #include "sync/waitGroup.h"
+#include "sync/CTimer.h"
 
 namespace lightdb{
 
 LightDB::LightDB(){
+}
+
+void runMerge(LightDB* lightdb){
+    printf("trying to merge ---\n");
+    lightdb->Merge();
 }
 
 Status LightDB::Open(Config* config){
@@ -36,6 +42,15 @@ Status LightDB::Open(Config* config){
     if(!s.ok()){
         return s;
     }
+    printf("checkInterval :%d \n", config->mergeCheckInterval);
+    CTimer* cTimer = new CTimer();
+    std::thread mergeThread(
+            [&](LightDB* lightDb, int mergeCheckInterval, CTimer* cTimer) {
+                printf("check interval1 :%d \n", mergeCheckInterval);
+                cTimer->AsyncLoop(mergeCheckInterval, runMerge, lightDb);
+            }, this, this->config->mergeCheckInterval, cTimer);
+    mergeThread.detach();
+    printf("定时器设置完毕\n");
     return Status::OK();
 }
 
@@ -127,6 +142,7 @@ Status LightDB::store(Entry* entry){
 }
 
 Status LightDB::Merge(){
+    printf("trying to merge---\n");
     if(isMerging){
         return Status::IsMergingErr();
     }
@@ -296,7 +312,7 @@ void LightDB::mergeString(WaitGroup& wg){
         DBFile* rewriteDF = nullptr;
         int rewriteFileId = 0;
         for(auto entry : validEntries){
-            if(rewriteDF == nullptr || rewriteDF->Offset > config->blockSize){
+            if(rewriteDF == nullptr || rewriteDF->WriteOffset > config->blockSize){
                 rewriteDF = new DBFile(mergePath, rewriteFileId, config->rWMethod, config->blockSize, String);
                 this->archivedFiles[String][rewriteFileId] = rewriteDF;
                 archFiles.insert(std::make_pair(rewriteFileId, rewriteDF));

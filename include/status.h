@@ -56,7 +56,8 @@ public:
     }
     ~Status(){
         if(state_!= nullptr) {
-            free(state_);
+            //todo 解决的内存泄漏问题
+            //free(state_);
         }
     }
 

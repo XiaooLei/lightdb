@@ -222,7 +222,7 @@ namespace lightdb{
 //                printf("size:::%d , activeFileId:%d \n", fileIdsMap[typ].size(), activeFileId);
 
                 std::sort(fileIds.begin(), fileIds.end());
-                for(int idx = 0; idx<fileIds.size(); idx++){
+                for(int idx = 0; idx<fileIds.size()-1; idx++){
                     int id = fileIds[idx];
                     DBFile* db_file = new DBFile(path, uint32_t(id), method, blockSize, typ);
                     files.insert(std::make_pair(id, db_file));
