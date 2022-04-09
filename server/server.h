@@ -17,7 +17,7 @@ class Server{
     int server_fd;
 private:
     Epoll* epoll;
-    RequestHandler* requestHandler;
+    RequestHandler* _requestHandler;
 
 public:
 

@@ -36,7 +36,7 @@ class Config{
          false, DefaultMergeThreshold, DefaultMergeCheckInterval, DefaultCacheCapacity);
     }
 
-    static Config BuildConfig(std::string configPath){
+    static Config BuildConfig(const std::string& configPath){
         CConfigParser* configParser = new CConfigParser();
         configParser->Parser(configPath.c_str());
         std::string addr = configParser->GetDefConfig("config", "Addr", DefaultAddr);
@@ -120,7 +120,7 @@ class Config{
     string dirPath;
     FileRWMethod rWMethod;
     DataIndexMode indexMode;
-    uint64_t blockSize;
+    uint64_t blockSize;// db文件的最大容量
     uint32_t maxKeySize;
     uint32_t maxValueSize;
     bool sync;

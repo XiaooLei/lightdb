@@ -14,7 +14,7 @@ namespace lightdb{
 struct  Meta{
     std::string key;
     std::string value;
-    std::string extra;
+    std::string extra;// 对于hash等类型，需要添加extra信息才能准确保存对应的entry信息，例如对于hash的某个key，hash中保存了一个unordered_map<std::string, std::string>。需要另外的extra，表明从这个unordered_map中找哪个field对应的value，才能从这个unordered_map中找出对应的entry
     uint32_t keySize;
     uint32_t valueSize;
     uint32_t extraSize;
@@ -27,15 +27,17 @@ struct  Meta{
 
 };
 
+// 包含一个k-v对的所有信息，entry会被写入到db文件中，即数据文件中
+// 写入数据文件的entry的格式为：crc32、 keysize、valuesize、extraSize、state、state、timeStamp、txId、key、value、extra。crc32至txId组成entryhead
 class Entry{
     public:
     Meta* meta;
 
-    uint16_t state;
+    uint16_t state;// state的高8位表示value类型（string、list、hash、set、zset），低8位表示操作类型，即对各个value类型的操作，例如stringset、stringrem
 
     uint32_t crc32;
 
-    uint64_t txId;
+    uint64_t txId;// entry的事务Id
 
     uint64_t timeStamp;
 
@@ -86,10 +88,12 @@ class Entry{
         return 0;
     }
 
+    // 获取value类型
     uint16_t GetType(){
         return state>>8;
     }
 
+    // 获取操作类型，因为mark存储在state的低位，并且mark的数值不会超过127，所以state和127相与即可得到mark
     uint16_t GetMark(){
         return state & (127);
     }
@@ -105,16 +109,12 @@ class Entry{
 
     // NewEntryNoExtra create a new entry without extra info.
     static Entry* NewEntryNoExtra(std::string key, std::string value, DataType type, OperationType mark){
-        uint16_t state;
-        state = state | (type<<8);
-        state = state | mark;
-        auto timeNow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-        return new Entry(key, value, "", state, timeNow.count());
+        return NewEntryNow(key, value, "", type, mark);
     }
 
     // NewEntryWithExpire create a new Entry with expired info.
     static Entry* NewEntryWithExpire(std::string key, std::string value, uint64_t deadline, DataType type, OperationType mark){
-        uint16_t state;
+        uint16_t state = 0;
         state = state | (type<<8);
         state = state | mark;
         return new Entry(key, value, "", state, deadline);

@@ -6,14 +6,13 @@
 namespace lightdb{
 
 /*
- * load
- *
- * */
+ * 遍历所有类型的db文件，建立索引，每次打开数据库的时候都要进行一遍恢复索引的操作
+ */
 Status LightDB::loadIdxFromFiles(){
     for(int dataType=0; dataType<DataStructureNum; dataType++){
         printf("********buildIndex********\n");
         std::vector<uint32_t> fileIds;
-        std::map<int,DBFile*> dbFiles;
+        std::map<uint32_t, DBFile*> dbFiles;
 
         //archived files
         for(auto it=archivedFiles[dataType].begin(); it!=archivedFiles[dataType].end(); it++){
@@ -24,6 +23,7 @@ Status LightDB::loadIdxFromFiles(){
         //active files
         DBFile* activeFile = getActiveFile(static_cast<DataType>(dataType));
         dbFiles.insert(std::make_pair(activeFile->Id, activeFile));
+        fileIds.push_back(activeFile->Id);
 
         sort(fileIds.begin(), fileIds.end());
 
@@ -31,9 +31,9 @@ Status LightDB::loadIdxFromFiles(){
             uint32_t fid = fileIds[i];
             DBFile* df = dbFiles[fid];
             int64_t offset = 0;
-            for(;offset < config->blockSize;){
+            for(; offset < config->blockSize; ){
                 Entry e;
-                Status s = df->Read(e);
+                Status s = df->Read(offset, e);
                 if(s.Code() == kEndOfFile){
                     break;
                 }
@@ -44,15 +44,15 @@ Status LightDB::loadIdxFromFiles(){
                 }
 
                 Indexer* indexer = new Indexer();
-                indexer->meta = e.meta;
+                indexer->meta = new Meta();
                 indexer->fileId = fid;
                 indexer->offset = offset;
                 //printf("build index, set offset key:%s, offset:%d \n", e.meta->key.c_str(), indexer->offset);
 
-                offset+=e.Size();
+                offset += e.Size();
                 df->SetOffset(offset);
                 if(e.meta->key.size() > 0){
-                    buildIndex(&e, indexer, true);
+                    buildIndex(&e, indexer);
                 }
 
             }
@@ -61,14 +61,19 @@ Status LightDB::loadIdxFromFiles(){
     return Status::OK();
 }
 
-Status LightDB::buildIndex(Entry* entry, Indexer* indexer, bool isOpen){
-    if(config->indexMode == KeyValueMemMode && entry->GetType() == String){
-        indexer->meta->value = entry->meta->value;
-        indexer->meta->valueSize = entry->meta->valueSize;
-    }
+// 只在打开数据库，遍历所有数据文件进行索引恢复时使用，往db文件追加entry时，也会对entry建立索引，但是不会用这个函数，会使用strset系列函数
+Status LightDB::buildIndex(Entry* entry, Indexer* indexer){
     //printf("Type:%d \n",entry->GetType());
     switch(entry->GetType()){
         case String:
+            indexer->meta->key = entry->meta->key;
+            /* indexer->meta->keySize = entry->meta->keySize; */
+            /* indexer->meta->extra = entry->meta->extra; */
+            /* indexer->meta->extraSize = entry->meta->extraSize; */
+            if (config->indexMode == KeyValueMemMode) {
+                indexer->meta->value = entry->meta->value;
+                /* indexer->meta->valueSize = entry->meta->valueSize; */
+            }
             buildStringIndex(indexer, entry);
             break;
         case List:
@@ -82,6 +87,8 @@ Status LightDB::buildIndex(Entry* entry, Indexer* indexer, bool isOpen){
             break;
         case ZSet:
             buildZSetIndex(entry);
+            break;
+        default:
             break;
     }
     return Status::OK();
@@ -107,6 +114,8 @@ void LightDB::buildStringIndex(Indexer* indexer,Entry* entry){
             }else{
                 expires[String][indexer->meta->key] = entry->timeStamp;
             }
+        default:
+            break;
     }
 }
 
@@ -168,6 +177,8 @@ void LightDB::buildListIndex(Entry *entry) {
 
         case ListLClear:
             listIdx.indexes->LClear(entry->meta->key);
+        default:
+            break;
     }
 
 }
@@ -196,6 +207,8 @@ void LightDB::buildHashIndex(Entry *entry) {
             }else{
                 expires[Hash][entry->meta->key] = entry->timeStamp;
             }
+        default:
+            break;
     }
 }
 
@@ -223,6 +236,8 @@ void LightDB::buildSetIndex(Entry *entry) {
             }else{
                 expires[Set][key] = entry->timeStamp;
             }
+        default:
+            break;
     }
 }
 
@@ -249,6 +264,8 @@ void LightDB::buildZSetIndex(Entry *entry) {
             }else{
                 expires[ZSet][key] = entry->timeStamp;
             }
+        default:
+            break;
     }
 
 }

@@ -11,7 +11,7 @@
 #include "epoll.h"
 namespace lightdb{
 
-    Epoll::Epoll(int listen_fd):listen_fd(listen_fd),requestHandler(nullptr){
+    Epoll::Epoll(int listen_fd): requestHandler(nullptr), _listen_fd(listen_fd){
         epollFd = epoll_create(MAX_CONN);
         if(epollFd == -1){
             printf("Failed to create epoll context.%s", strerror(errno));
@@ -25,7 +25,7 @@ namespace lightdb{
             printf("Epoll Error : %d\n", errno);
             exit( EXIT_FAILURE );
         }
-        cur_fds = 1;
+        cur_fds++;
     }
 
     void Epoll::SetRequestHandler(RequestHandler* requestHandler){
@@ -40,64 +40,58 @@ namespace lightdb{
         }
         struct sockaddr_in cliaddr;
         for(int i = 0; i<count; i++){
-            if(evs[i].data.fd == listen_fd && cur_fds < MAX_POLL){
+            if(evs[i].data.fd == _listen_fd && cur_fds < MAX_POLL){
                 int len = sizeof(struct sockaddr_in);
-                int conn_fd = accept(listen_fd, (struct sockaddr*)&cliaddr, reinterpret_cast<socklen_t *>(&len));
-                if(conn_fd < 0){
-                    printf("Accept Error : %d\n", errno);
-                    exit( EXIT_FAILURE );
+                int conn_fd = 0;
+                while ((conn_fd = accept(_listen_fd, (struct sockaddr*)&cliaddr, reinterpret_cast<socklen_t *>(&len))) > 0) {
+                    printf( "Server get from client !\n");
+                    AddConn(conn_fd);
                 }
-                printf( "Server get from client !\n"/*,  inet_ntoa(cliaddr.sin_addr), cliaddr.sin_port */);
-                AddConn(conn_fd);
-                write(conn_fd, "\n>>>", 4);
-                continue;
             }
-            //todo handle command from client!
+            else {
+                char buf[MAX_LINE];
+                memset(buf, '\0', sizeof(buf));
+                int nread = read(evs[i].data.fd, buf, sizeof(buf));
+                if( nread<=0 ){
+                    CloseAndDel(evs[i].data.fd);
+                    continue;
+                }
 
-            char buf[MAX_LINE];
-            memset(buf, '\0', sizeof(buf));
-            int nread = read(evs[i].data.fd, buf, sizeof(buf));
-            if( nread<=0 ){
-                close(evs[i].data.fd);
-                DelEvent(evs[i].data.fd);
-                continue;
+                if(strncmp(buf, "quit", 4) == 0){
+                    printf("close connection \n");
+                    CloseAndDel(evs[i].data.fd);
+                    continue;
+                }
+
+                std::string request;
+                request.assign(buf, nread);
+                std::string resp = this->requestHandler->HandleCmd(request, evs[i].data.fd);
+                // 接下来将命令运行结果写回给客户端？
             }
-            printf("msg from client :%s \n", buf);
-            if(strncmp(buf, "quit", 4) == 0){
-                printf("close connection \n");
-                close(evs[i].data.fd);
-            }
-
-            std::string request;
-            request.assign(buf, nread - 2);
-//            if(this->requestHandler != nullptr) {
-//                std::cout<<"request handler"<<std::endl;
-//            }else{
-//                printf("null ptr   ");
-//            }
-            std::string resp = this->requestHandler->HandleCmd(request, evs[i].data.fd);
-
         }
     }
 
 
-    int Epoll::AddConn(int conn_fd) {
+    void Epoll::AddConn(int conn_fd) {
         struct epoll_event ev;
-        ev.events = EPOLLIN | EPOLLET;		//!> accept Read!
+        ev.events = EPOLLIN | EPOLLOUT;		// accept Read!
         ev.data.fd = conn_fd;
         if(epoll_ctl(epollFd, EPOLL_CTL_ADD, conn_fd, &ev) < 0){
-            printf("Epoll Error : %d\n", errno);
+            printf("Epoll Add Error : %d\n", errno);
             exit( EXIT_FAILURE );
         }
-        cur_fds ++;
+        cur_fds++;
+        return;
     }
 
-    int Epoll::DelEvent(int fd) {
+    void Epoll::CloseAndDel(int fd) {
+        close(fd);
         epoll_event ev;
-        epoll_ctl( epollFd, EPOLL_CTL_DEL, fd, &ev);	//!> 删除计入的fd
+        epoll_ctl( epollFd, EPOLL_CTL_DEL, fd, &ev);	//删除加入的fd
         --cur_fds;
         //todo
-        return -1;
+        /* return -1; */
+        return;
     }
 
 }

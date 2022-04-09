@@ -55,12 +55,11 @@ inline double stringToDouble(std::string str, bool& suc){
 
 //用空格分割字符串
 inline void splitStrBySpace(std::string text, std::vector<std::string>& words){
-        size_t pos = 0;
         std::string word = "";
         for(auto c : text){
             std::string res;
             if(c == ' '){
-                if(!word.size() == 0){
+                if(word.size() != 0){
                     words.push_back(word);
                 }
                 word = "";
@@ -69,11 +68,12 @@ inline void splitStrBySpace(std::string text, std::vector<std::string>& words){
                 word += c;
             }
         }
-        if(!word.size() == 0) {
+        if(word.size() != 0) {
             words.push_back(word);
         }
 }
 
+// 去掉s中首尾的del子字符串
 inline std::string& Strim(std::string &s, const std::string & del)
 {
     if (s.empty())
