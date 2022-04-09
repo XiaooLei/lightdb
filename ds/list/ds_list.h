@@ -16,6 +16,7 @@ class List;
 // List is the implementation of doubly linked list.
 class List{
     public:
+    // 每个key 对应一个链表
     std::unordered_map<std::string,std::list<std::string>> record;
 
     public:
@@ -25,7 +26,7 @@ class List{
 
     // LPush insert all the specified values at the head of the list stored at key.
     // If key does not exist, it is created as empty list before performing the push operations.
-    // return the number of eliments in the list after the operation
+    // return the number of elements in the list after the operation
     int LPush(std::string key, std::string val){
         if(!LKeyExist(key)){
             record.insert(make_pair("key", std::list<std::string>()));
@@ -101,7 +102,7 @@ class List{
     // count > 0: Remove elements equal to element moving from head to tail.
     // count < 0: Remove elements equal to element moving from tail to head.
     // count = 0: Remove all elements equal to element.
-    // return the number of eliment removed in the list stored at the key
+    // return the number of element removed in the list stored at the key
     int LRem(std::string key, std::string val, int count){
         int res = 0;
         if(record.find(key) == record.end()){
@@ -118,7 +119,7 @@ class List{
         }
 
         if(count>0){
-            for(auto it = record[key].begin(); it!=record[key].end()&&count>0;it++){
+            for(auto it = record[key].begin(); it!=record[key].end() && count>0;it++){
                 if(it->compare(val) == 0){
                     record[key].erase(it);
                     count--;
@@ -128,7 +129,8 @@ class List{
         }
 
         if(count<0){
-            for(auto it = record[key].rbegin(); it!=record[key].rend()&&count<0; it++){
+            // 从尾到头遍历，用反向迭代器
+            for(auto it = record[key].rbegin(); it!=record[key].rend() && count<0; it++){
                 if(it->compare(val) == 0){
                     record[key].erase(it.base());
                     count++;
@@ -150,7 +152,7 @@ class List{
     }
 
     // LClear clear a specified key for List.
-    // return the number of eliment of the list in this operation
+    // return the number of element of the list in this operation
     int LClear(std::string key){
         if(!LKeyExist(key)){
             return 0;

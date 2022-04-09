@@ -61,6 +61,7 @@ namespace lightdb{
                         if (kv.size() != 2) {
                             throw runtime_error("ini format error");
                         }
+                        // 去除k、v中头尾的空格
                         string k = Strim(kv[0], " ");
                         string v = Strim(kv[1], " ");
                         if (cCurSection.empty()) {

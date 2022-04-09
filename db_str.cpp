@@ -18,11 +18,15 @@ namespace lightdb{
         if(!s.ok()){
             return s;
         }
+        expires[String].erase(key);
         s = SetIndexer(e);
         if(!s.ok()){
             return s;
         }
-        cache->put(key, value);
+        // KeyValueMemMode的k-v对不用放到cache中，因为value已经存放到indexer中了
+        if(config->indexMode == KeyOnlyMemMode) {
+            cache->put(key, value);
+        }
         return Status::OK();
     }
 
@@ -58,10 +62,13 @@ namespace lightdb{
             return s;
         }
         expires[String][key] = deadline;
+        if(config->indexMode == KeyOnlyMemMode) {
+            cache->put(key, value);
+        }
         return Status::OK();
     }
 
-    // Get get the value of key. If the key does suc is set to be false
+    // Get get the value of key. If the key doesn't exist suc is set to be false
     Status LightDB::Get(std::string key, std::string& value, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
@@ -84,7 +91,7 @@ namespace lightdb{
 
     // GetSet set key to value and returns the old value stored at key.
     // If the key not exist, return an err.
-    Status LightDB::GetSet(std::string key, std::string& oldValue, std::string newValue, bool& suc){
+    Status LightDB::GetSet(std::string key, std::string& oldValue, const std::string& newValue, bool& suc){
         Status s;
         s = Get(key, oldValue, suc);
         if(!s.ok()){
@@ -94,6 +101,7 @@ namespace lightdb{
     }
 
     // MSet set multiple keys to multiple values
+    // 对于存在的k-v对，直接跳过。否则追加到数据文件中，并对其建立索引
     Status LightDB::MSet(std::vector<std::string> values){
         Status s;
         int argSize = values.size();
@@ -142,14 +150,16 @@ namespace lightdb{
             if(!s.ok()){
                 return s;
             }
-            cache->put(keys[i], vals[i]);
+            if(config->indexMode == KeyOnlyMemMode) {
+                cache->put(keys[i], vals[i]);
+            }
         }
 
         return Status::OK();
     }
 
     // MGet get the values of all the given keys
-    Status LightDB::MGet(std::vector<std::string> keys, std::vector<std::string>& values, std::vector<bool>& sucs){
+    Status LightDB::MGet(const std::vector<std::string>& keys, std::vector<std::string>& values, std::vector<bool>& sucs){
         Status s;
         for(int i = 0; i < keys.size(); i++){
             s = CheckKeyValue(keys[i], "");
@@ -209,6 +219,9 @@ namespace lightdb{
         }
         suc = strIdx.indexes->erase(key);
         expires[String].erase(key);
+        if(config->indexMode == KeyOnlyMemMode) {
+            cache->remove(key);
+        }
         return Status::OK();
     }
 
@@ -225,11 +238,22 @@ namespace lightdb{
         }
         uint64_t deadline = getCurrentTimeStamp() + duration * 1000;
         Entry* e = Entry::NewEntryWithExpire(key, value, deadline, String, StringExpire);
+        
         s = store(e);
         if(!s.ok()){
             return s;
         }
+
+        s = SetIndexer(e);
+        if(!s.ok()){
+            return s;
+        }
+
         expires[String][key] = deadline;
+
+        if(config->indexMode == KeyOnlyMemMode) {
+            cache->put(key, value);
+        }
         return Status::OK();
     }
 
@@ -248,19 +272,17 @@ namespace lightdb{
     }
 
 
+    // 根据保存模式，如果是KeyValueMemMode，那么Indexer中就要保存entry->value以及entry->extra
     Status LightDB::SetIndexer(Entry* entry){
         DBFile* activeFile = getActiveFile(String);
         Meta* tmp_meta = new Meta();
         tmp_meta->key = entry->meta->key;
-        tmp_meta->value = entry->meta->value;
 
         Indexer* idx = new Indexer(tmp_meta, activeFile->Id, static_cast<int64_t>(activeFile->WriteOffset - entry->Size()));
-        //printf("activeFile->Offset :%d \n", activeFile->WriteOffset - entry->Size());
-        //printf("set indexer: idx.offset:%d \n", idx->offset - entry->Size());
+        //printf("set indexer: idx.offset:%d \n", idx->offset);
         if( config->indexMode == KeyValueMemMode ){
             idx->meta->value = entry->meta->value;
         }
-        //printf("indexer put(key:%s) \n", entry->meta->key.c_str());
         strIdx.indexes->put(entry->meta->key, *idx);
         return Status::OK();
     }
@@ -299,6 +321,7 @@ namespace lightdb{
 
         if(config->indexMode == KeyOnlyMemMode){
             suc = true;
+            // cache只用于value为string类型的数据
             bool cached = cache->get(key, value);
             if(cached){
                 return Status::OK();
@@ -316,6 +339,7 @@ namespace lightdb{
             }
             value = entry.meta->value;
             //printf("read value:%s \n", value.c_str());
+            // 从lrucache中读到entry后，要将这个节点移动到链表头部
             cache->put(key, value);
             return Status::OK();
         }

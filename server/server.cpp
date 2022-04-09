@@ -9,7 +9,7 @@ namespace lightdb{
     const int QUEUE_SIZE = 20;
 
     void Server::SetRequestHandler(RequestHandler* requestHandler){
-        this->requestHandler = requestHandler;
+        this->_requestHandler = requestHandler;
     }
 
 
@@ -42,10 +42,10 @@ namespace lightdb{
 
     int Server::Loop() {
         //todo
-        this->epoll = new Epoll(server_fd);
-        this->epoll->SetRequestHandler(this->requestHandler);
-        while(1){
-            this->epoll->EpollWait();
+        epoll = new Epoll(server_fd);
+        epoll->SetRequestHandler(_requestHandler);
+        while(true){
+            epoll->EpollWait();
         }
     }
 

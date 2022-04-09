@@ -26,18 +26,21 @@ Status LightDB::Open(Config* config){
         return s;
     }
 
-    //set active files for writing
+    //set active files for writing 每种不同类型的value都有一个活跃数据文件
     for(auto it = activeFileIds.begin(); it!=activeFileIds.end(); it++){
+        // it->first是数据类型的型号（0-4），it->second是文件Id，注意是Id，即DBFile的Id，不是fileid
         DBFile* af = new DBFile(config->dirPath, it->second, config->rWMethod, config->blockSize, it->first);
         activeFiles.insert(std::make_pair(it->first, af));
     }
 
-    for(int i = 0; i<DataStructureNum; i++){
+    // expires是每个key的过期时间，同时包含了每个key的所属类型（0-4）
+    for(int i = 0; i < DataStructureNum; i++){
         expires.insert(std::make_pair(uint16_t(i), std::unordered_map<std::string, uint64_t>()));
     }
 
     cache = new LRUCache(config->cacheCapacity);
 
+    // 遍历所有类型的db文件，建立索引，每种类型都有相应的存储索引信息的结构
     s = this->loadIdxFromFiles();
     if(!s.ok()){
         return s;
@@ -54,7 +57,7 @@ Status LightDB::Open(Config* config){
     return Status::OK();
 }
 
-//check if the key and values exceed the  length limitation
+//check if the key or value exceed the length limitation
 Status LightDB::CheckKeyValue(string key, string value){
     int keyLength = key.size();
     if(keyLength == 0){
@@ -69,7 +72,7 @@ Status LightDB::CheckKeyValue(string key, string value){
     return Status::OK();
 }
 
-//check if the key and values exceed the  length limitation
+//check if the key or values exceed the length limitation
 Status LightDB::CheckKeyValue(string key, vector<string> values){
     int keyLength = key.size();
     if(keyLength == 0){
@@ -91,7 +94,7 @@ DBFile* LightDB::getActiveFile(DataType dataType) {
     return activeFiles[dataType];
 }
 
-//check if the key is expired, if expired or the key specified does not exist,return true, else return false
+// if the key is exist and expired, return true and erase indexer and expires element, else return false
 bool LightDB::CheckExpired(string key, DataType dataType){
     if(expires[dataType].find(key) == expires[dataType].end()){
         return false;
@@ -104,19 +107,27 @@ bool LightDB::CheckExpired(string key, DataType dataType){
             case String:
                 e = Entry::NewEntryNoExtra(key, "", String, StringRem);
                 strIdx.indexes->erase(key);
+                break;
             case List:
                 e = Entry::NewEntryNoExtra(key, "", List, ListLClear);
                 listIdx.indexes->LClear(key);
+                break;
             case Hash:
                 e = Entry::NewEntryNoExtra(key, "", Hash, HashHClear);
                 hashIdx.indexes->HClear(key);
+                break;
             case Set:
                 e = Entry::NewEntryNoExtra(key, "", Set, SetSClear);
                 setIdx.indexes->SClear(key);
+                break;
             case ZSet:
                 e = Entry::NewEntryNoExtra(key, "", ZSet, ZSetZClear);
                 sortedSetIdx.indexes->ZClear(key);
+                break;
+            default:
+                break;
         }
+        // 删除操作即为追加一条entry，只不过value为空，这样就意味着要删除这个key对应的所有entry
         store(e);
         expires[dataType].erase(key);
         return true;
@@ -152,7 +163,7 @@ Status LightDB::Merge(){
     std::string mergePath = config->dirPath + "/"  +mergeDirName + "/";
     CreateDir(mergePath.c_str());
     WaitGroup wg;
-    wg.Add( DataStructureNum - 4);
+    wg.Add( DataStructureNum);
 
     dump(wg);
     //todo
@@ -163,6 +174,7 @@ Status LightDB::Merge(){
     return Status::OK();
 }
 
+// 各个value类型中，对应的entry都是保存std::string key和std::string value，而不会保存list、hash等。例如value类型为list时，每个key都会对应一个list，这个list中的所有string都会和key分别组成一对，存放到一个entry中，而不会把key和对应的整个list存放到一个entry中
 void LightDB::dump(WaitGroup& wg){
     std::string path = config->dirPath + "/" + mergeDirName;
     for(int idx = List; idx < DataStructureNum; idx++){
@@ -196,7 +208,7 @@ void LightDB::dump(WaitGroup& wg){
         }
     }
     printf("Main threading \n");
-    wg.Wait();
+    /* wg.Wait(); */
     return;
 }
 
@@ -223,6 +235,8 @@ void LightDB::dumpInternal(WaitGroup& wg, std::string path, DataType eType){
             break;
         case ZSet:
             s = dumpZSet(mergeFiles, path);
+            break;
+        default:
             break;
     }
     if(!s.ok()){
@@ -252,9 +266,9 @@ Status LightDB::dumpStore(vector<DBFile*>& mergeFiles, std::string mergePath, En
     //get the last file of the type
     Status s;
     DBFile* df = mergeFiles[mergeFiles.size()-1];
-    if(df->Offset > config->blockSize){
+    if(df->WriteOffset > config->blockSize){
         //free the last file
-        delete(df);
+        /* delete(df); */
         df = new DBFile(mergePath, df->Id+1, config->rWMethod, config->blockSize, e->GetType());
         mergeFiles.push_back(df);
     }
@@ -281,7 +295,7 @@ void LightDB::mergeString(WaitGroup& wg){
         s.Report();
     }
 
-    auto archFiles = mergeFiles[String];
+    std::unordered_map<uint32_t, DBFile*> archFiles = mergeFiles[String];
     int maxFileId = 0;
     for(auto it = archFiles.begin(); it!=archFiles.end(); it++){
         if(it->first > maxFileId){
@@ -295,12 +309,14 @@ void LightDB::mergeString(WaitGroup& wg){
     int size = archivedFiles[String].size();
 
 
+    // 从不活跃数据文件中选出未进行merge的文件，对它们进行merge。临时目录中可能存在一些merged db文件，这可能是因为上次数据库进行merge时，发生宕机了，就会有一些merged db文件残留在临时目录中，没来得及移出临时目录，这些残留的merged db文件不应参与到这次merge。这次merge完成后，新的merged db文件会和这些残留的上次的merged db文件一起移动到父目录，临时目录就会被清空了
     for(auto it = archivedFiles[String].begin(); it!=archivedFiles[String].end(); it++){
         if(archFiles.find(it->first) == archFiles.end()){
+            fileIds.push_back(it->first);   
         }
-        //todo
-        fileIds.push_back(it->first);
     }
+
+    // 从小到大遍历不活跃的数据文件，对其进行merge
     sort(fileIds.begin(), fileIds.end());
 
     for(int i = 0; i<fileIds.size(); i++){
@@ -332,10 +348,13 @@ void LightDB::mergeString(WaitGroup& wg){
                 strIdx.indexes->put(entry->meta->key, idx);
             }
         }
-        //delete older dbFile
-        dbFile->Close();
-        std::remove((config->dirPath + "/" + dbFile->FileName()).c_str());
+        //delete older archivedFiles
+        std::string oldfilename = dbFile->FileName();
+        delete(dbFile);
+        std::remove((config->dirPath + "/" + oldfilename).c_str());
     }
+
+    // 把merge出的db文件移出临时目录，移到父目录中，这样临时目录就是空的了
     for(auto file : archFiles){
         char buf[50];
         sprintf(buf, "%09d.data.str", file.first);
@@ -353,11 +372,12 @@ void LightDB::mergeString(WaitGroup& wg){
 
 
 
+// 只有mergestring时使用这个函数
 Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
     Status s;
     uint64_t offset = 0;
-    for(;;){
-        printf("offset ------:%d \n", offset);
+    while (offset < df->WriteOffset) {
+        printf("offset ------:%lu \n", offset);
         Entry* e = new Entry();
         s = df->Read(offset, *e);
         if(!s.ok()){
@@ -373,28 +393,29 @@ Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
 
         offset += e->Size();
     }
+    return s;
 }
 
+// 只有mergestring时使用这个函数，fileid和offset是entry所在文件的Id和在这个文件中的偏移量
 bool LightDB::validEntry(Entry* e, int64_t offset, uint32_t fileId){
     if(e == nullptr){
         return false;
     }
 
     if(expires[String].find(e->meta->key) != expires[String].end() &&
-    expires[String][e->meta->key] > getCurrentTimeStamp()){
-        return true;
+    expires[String][e->meta->key] < getCurrentTimeStamp()){
+        return false;
     }
 
-    if(e->GetMark() == StringSet){
+    if(e->GetMark() == StringSet || e->GetMark() == StringExpire){
         Indexer indexer;
         bool get = strIdx.indexes->get(e->meta->key, indexer);
         if(!get){
             return false;
         }
-        if(indexer.meta->key.compare(e->meta->key) == 0){
-            if(indexer.offset == offset && indexer.fileId == fileId){
+        if(indexer.offset == offset && indexer.fileId == fileId){
+                // 每个key对应的indexer包含了这个key最新的value，所以只要entry->offset和对应的indexer->offset相等，就能说明这个entry是最新的，那么这个entry就有效
                 return true;
-            }
         }
     }
 
@@ -402,6 +423,7 @@ bool LightDB::validEntry(Entry* e, int64_t offset, uint32_t fileId){
 }
 
 
+// 为db的不活跃数据文件建立DBFile实例，并获取db的活跃数据文件的Id号
 Status LightDB::loadDBFiles(DataType dataType){
     Status s;
     ArchivedFiles archFiles;

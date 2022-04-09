@@ -23,9 +23,9 @@ private:
     RequestHandler* requestHandler;
 
     int epollFd;
-    int listen_fd;
+    int _listen_fd;
     struct epoll_event evs[MAX_POLL];
-    int cur_fds = 0;
+    int cur_fds = 0;// 当前epoll监听的fd数目
 
 public:
 
@@ -35,9 +35,9 @@ public:
 
     void EpollWait();
 
-    int AddConn(int conn_fd);
+    void AddConn(int conn_fd);
 
-    int DelEvent(int fd);
+    void CloseAndDel(int fd);
 
 
     int HandleNewConn(int fd);

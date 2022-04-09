@@ -62,7 +62,7 @@ namespace lightdb{
         return 0;
     }
 
-    char* LightdbClient::RemoteAddress() {
+    const char* LightdbClient::RemoteAddress() {
         return remoteAddress.c_str();
     }
 

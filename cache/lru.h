@@ -14,14 +14,16 @@ struct DLinkedNode {
 
 class LRUCache {
 private:
+    // 用map快速定位节点在链表中的位置
     unordered_map<string, DLinkedNode*> cache;
+    // 用双向链表实现LRU
     DLinkedNode* head;
     DLinkedNode* tail;
     int size;
     int capacity;
 
 public:
-    LRUCache(int _capacity): capacity(_capacity), size(0) {
+    LRUCache(int _capacity): size(0), capacity(_capacity) {
         // 使用伪头部和伪尾部节点
         head = new DLinkedNode();
         tail = new DLinkedNode();
@@ -29,8 +31,18 @@ public:
         tail->prev = head;
     }
     
-    bool get(string key, string& value){
-        if (!cache.count(key)) {
+    void remove(const string& key) {
+        if (cache.find(key) == cache.end()) {
+            return;
+        }
+        
+        removeNode(cache[key]);
+        return;
+    }
+
+
+    bool get(const string& key, string& value){
+        if (cache.find(key) == cache.end()) {
             return false;
         }
         // 如果 key 存在，先通过哈希表定位，再移到头部
@@ -40,17 +52,17 @@ public:
         return true;
     }
     
-    void put(string key, string value) {
+    void put(const string& key, const string& value) {
         if (!cache.count(key)) {
             // 如果 key 不存在，创建一个新的节点
             DLinkedNode* node = new DLinkedNode(key, value);
             // 添加进哈希表
             cache[key] = node;
             // 添加至双向链表的头部
-            addToHead(node);
+            addToHead(node);// 新加入的节点是最新使用的，所以要移动到头部
             ++size;
             if (size > capacity) {
-                // 如果超出容量，删除双向链表的尾部节点
+                // 如果超出容量，删除双向链表的尾部节点，因为尾部的节点最近最久未使用
                 DLinkedNode* removed = removeTail();
                 // 删除哈希表中对应的项
                 cache.erase(removed->key);
@@ -63,7 +75,7 @@ public:
             // 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
             DLinkedNode* node = cache[key];
             node->value = value;
-            moveToHead(node);
+            moveToHead(node);// 因为刚刚使用过了，所以要放在链表头部
         }
     }
 

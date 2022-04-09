@@ -79,11 +79,11 @@ class LightDB{
 
     Status Get(std::string key, std::string& value, bool& suc);
 
-    Status GetSet(std::string key, std::string& oldValue, std::string newValue, bool& suc);
+    Status GetSet(std::string key, std::string& oldValue, const std::string& newValue, bool& suc);
 
     Status MSet(std::vector<std::string> values);
 
-    Status MGet(std::vector<std::string> keys, std::vector<std::string>& values, std::vector<bool>& sucs);
+    Status MGet(const std::vector<std::string>& keys, std::vector<std::string>& values, std::vector<bool>& sucs);
 
     Status Append(std::string key, std::string value, int& length);
 
@@ -221,7 +221,7 @@ class LightDB{
     //idx
     Status loadIdxFromFiles();
 
-    Status buildIndex(Entry* entry, Indexer* indexer, bool isOpen);
+    Status buildIndex(Entry* entry, Indexer* indexer);
 
     void buildStringIndex(Indexer* indexer,Entry* entry);
 
@@ -234,16 +234,18 @@ class LightDB{
     void buildZSetIndex(Entry* entry);
 
     private:
+    // 每种数据类型都有相应的存储索引的结构
     HashIdx hashIdx;
     ListIdx listIdx;
     SetIdx  setIdx;
     StrIdx strIdx;
     SortedSetIdx sortedSetIdx;
     std::unordered_map<uint16_t,std::unordered_map<uint32_t,DBFile*>> archivedFiles;
-    std::unordered_map<uint16_t,DBFile*> activeFiles;
+    // uint16_t是value的型号，uint32_t是文件Id，注意不是fileid
+    std::unordered_map<uint16_t,DBFile*> activeFiles;// activeFiles->first是数据类型的型号（0-4），activeFiles->second是文件实例
     Config* config;
-    std::unordered_map<uint16_t,std::unordered_map<std::string,uint64_t>> expires;
-    LRUCache* cache;
+    std::unordered_map<uint16_t,std::unordered_map<std::string,uint64_t>> expires;// uint16_t是value的类型号（0-4），std::string是key，uint64_t是过期时间
+    LRUCache* cache;// 只用于value类型为string的数据，每次添加k-v对的
     bool isMerging;
     
 };

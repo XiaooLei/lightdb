@@ -33,6 +33,7 @@ public:
         }
     }
 
+    // 找到第一个key大于等于target key的节点，如果找不到，返回尾节点
     StrSkipListNode* find(std::string key) {
         StrSkipListNode *p = head;
         for (int i = level - 1; i >= 0; --i) {
@@ -46,16 +47,15 @@ public:
     
     bool get(std::string key, Indexer& val) {
         StrSkipListNode *p = find(key);
-        //printf("key: %s \n", key.c_str());
-        //printf("p-> key:%s \n", p->key.c_str());
+        // 可能是尾节点或者第一个大于key的节点，所以需要判断找到的节点的key是否等于target key
         bool exist = p->key.compare(key) == 0;
         if(exist){
             val = p->val;
-            //printf("buttom get, key:%s fileId:%d, offset:%d  p->value:%s \n", key.c_str(), p->val.fileId, p->val.offset, p->val.meta->value.c_str());
         }
         return exist;
     }
     
+    // 如果key存在，就更新对应的Indexer，否则在StrSkipList中插入一个StrSkipListNode
     void put(std::string key, Indexer val) {
         //if key exist
         StrSkipListNode* pointer = find(key);
