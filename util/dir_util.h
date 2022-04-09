@@ -15,7 +15,7 @@ int CreateDir(const char *sPathName)
     for(i=1; i<len; i++){
         if(DirName[i]=='/'){
             DirName[i] = 0;
-            if(access(DirName, NULL)!=0){
+            if(access(DirName, 0)!=0){
                 if(mkdir(DirName, 0755)==-1){
                     printf("mkdir   error\n");
                     return -1;

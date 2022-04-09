@@ -20,8 +20,7 @@ namespace lightdb {
 
         Task(){};
 
-        Task(CmdFunc* cmdFunc, LightDB* lightDb, std::vector<std::string>& args, int conn_fd):cmdFunc(cmdFunc), lightDb(lightDb),
-        args(args), conn_fd(conn_fd){}
+        Task(CmdFunc* cmdFunc, LightDB* lightDb, const std::vector<std::string>& args, int conn_fd): cmdFunc(cmdFunc), lightDb(lightDb), args(args), conn_fd(conn_fd){}
     };
 
     struct RespTask{

@@ -191,7 +191,6 @@ namespace lightdb{
             }
         });
         respThread.detach();
-
     }
 
 
@@ -241,6 +240,8 @@ namespace lightdb{
                 zsetTaskQueue.Enqueue(task);
                 break;
             }
+            default:
+                break;
         }
 
         return "";

@@ -1,0 +1,99 @@
+lightdb支持存储五种不同的value，即str、list、hash、set、zset，每种value都有一个活跃数据文件，即数据追加文件
+
+数据文件增加并merge后，各个数据文件的Id是按时间顺序递增的，但并不是连续的，也不是从0开始增长的
+
+将string类型的索引放在跳表中是为了便于进行前缀扫描和范围扫描
+
+每个entry都是用各类操作追加到db文件中的，例如string类型的entry是用strset操作追加到文件中的，不光要将entry追加到db文件中，还要在对应的索引中对entry建立对应的索引
+
+
+对于value为string类型的情况，会使用lrucache，如果config->indexmode == KeyOnlyMemMode，那么每次加入一个entry时，都要加入到cache中。读数据时，先从cache中找，如果找不到，再从db文件中找
+
+
+
+加入一个entry
+每次store(entry)时，都要执行setindexer，如果该entry没有过期时间，那么就要expires[data_type].erase(key)，否则执行expires[data_type][key] = new_expire_time
+如果value是string类型，那么还要再加一句
+        if(config->indexMode == KeyOnlyMemMode) {
+            cache->put(key, value);
+        }
+
+
+读entry
+判断索引中是否包含对应的indexer，不包含则读取失败。再检查是否过期，过期则读取失败。如果config->indexmode为KeyValueMemMode，那么直接从indexer中读取。否则从cache中读取，如果cache中不存在，那么从db文件中读取。如果value类型为string，那么在读取完成之后，还要加上一句
+        if(config->indexMode == KeyOnlyMemMode) {
+            cache->put(key,value);       
+        }
+
+
+删除key对应的entry
+往activefile中加入一个value为空的entry，并且从value类型对应的索引中删除对应的index，从expires字典序中删除key对应的节点。如果value是string，那么还要加上一句
+        if(config->indexMode == KeyOnlyMemMode) {
+            cache->remove(key);       
+        }
+
+
+
+
+
+
+在mergestring中，判断从db文件中读出的entry是否有效的依据：如果在过期字典中并且过期了，那么无效。如果在indexer表中找不到entry.key对应的indexer，那么无效。如果找到了对应的indexer，但是indexer->offset、indexer->id和entry的offset或者id不一致，那么无效。否则有效
+
+
+
+
+
+server层
+server_fd是LT模式，其余客户端fd是ET模式
+
+对于客户端发送来的请求，是串行的
+客户端发送来的请求，会根据value类型被存放到不同的任务队列中
+所有命令处理的结果，不分value的类型，都会存放到结果队列中，每个结果都记录了应该返回的客户端和返回信息
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+已经过验证的文件
+db_str.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+一些应该修改的地方
+1、DBFile的构造函数的参数列表中，blocksize没使用，可以丢弃掉
+lightdb.cpp:41行的lseek(_fd,0l,SEEK_SET)作用是什么？
+
+
+3、db_file.cpp->buildinternal的208行todo，如果是megerDir，应该怎么做，参考rosedb
+
+4、merge函数中，waitgroup的用法是否正确？
+
+5、Indexer的meta中，keysize、valuesize、indexsize都没用上，可以换另外一种数据结构替换meta。indexer是不是只有value为string类型在用？并且Indexer->meta中只有value在用，其余成员是不是可以丢弃？
+

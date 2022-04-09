@@ -19,35 +19,11 @@ private:
     int size = 0;
 
 public:
-    void Enqueue(E& e){
-        std::unique_lock<std::mutex> lk(mtx);
-        queue.push(e);
-        size++;
-        cv.notify_all();
-    }
+    void Enqueue(const E& e);
 
-    bool Dequeue(E& e){
-        std::unique_lock<std::mutex> lk(mtx);
-        while(size <= 0) {
-            if (size <= 0) {
-                cv.wait(lk);
-            }
-        }
-        e = queue.front();
-        queue.pop();
-        size--;
-        return true;
-    }
+    bool Dequeue(E& e);
 
-    bool Empty(){
-        std::unique_lock<std::mutex> lk(mtx);
-        bool res = size == 0;
-        return res;
-    }
-
+    bool Empty();
 };
-
-
 }
-
 #endif //MYPROJECT_SAFEQUEUE_H

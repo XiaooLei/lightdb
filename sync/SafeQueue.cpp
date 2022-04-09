@@ -14,12 +14,13 @@ namespace lightdb{
             }
         }
         e = queue.front();
+        queue.pop();
         size--;
         return true;
     }
 
     template<class E>
-    void SafeQueue<E>::Enqueue(E& e) {
+    void SafeQueue<E>::Enqueue(const E& e) {
         std::unique_lock<std::mutex> lk(mtx);
         queue.push(e);
         size++;
@@ -28,6 +29,7 @@ namespace lightdb{
 
     template<class E>
     bool SafeQueue<E>::Empty() {
+        // 因为用到了size，可能会和Enqueue或者Dequeue竞争，所以要加锁
         std::unique_lock<std::mutex> lk(mtx);
         bool res = size == 0;
         return res;

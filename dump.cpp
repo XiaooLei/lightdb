@@ -17,6 +17,7 @@ namespace lightdb{
                 }
             }
         }
+        return s;
     }
 
     Status LightDB::dumpHash(vector<DBFile*>& mergeFiles, std::string path) {
@@ -33,6 +34,7 @@ namespace lightdb{
                 }
             }
         }
+        return s;
     }
 
     Status LightDB::dumpSet(vector<DBFile*>& mergeFiles, std::string path) {
@@ -49,6 +51,7 @@ namespace lightdb{
                 }
             }
         }
+        return s;
     }
 
     Status LightDB::dumpZSet(vector<DBFile*>& mergeFiles, std::string path) {

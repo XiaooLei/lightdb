@@ -1,0 +1,524 @@
+[
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/MyProject.dir/storage/db_file.cpp.o",
+            "../storage/db_file.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../storage/db_file.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/MyProject.dir/db_zset.cpp.o",
+            "../db_zset.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../db_zset.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/server/cmd/cmd_zset.cpp.o",
+            "../server/cmd/cmd_zset.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/cmd/cmd_zset.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "-v",
+            "-o",
+            "CMakeFiles/cmTC_8bdea.dir/CMakeCCompilerABI.c.o",
+            "../../../../../../../../../../../../usr/share/cmake-3.18/Modules/CMakeCCompilerABI.c"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build/CMakeFiles/CMakeTmp",
+        "file": "../../../../../../../../../../../../usr/share/cmake-3.18/Modules/CMakeCCompilerABI.c"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestWrite.dir/db_list.cpp.o",
+            "../db_list.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../db_list.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/MyProject.dir/server/epoll.cpp.o",
+            "../server/epoll.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/epoll.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestRead.dir/server/server.cpp.o",
+            "../server/server.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/server.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestWrite.dir/benchmark/TestWrite.cpp.o",
+            "../benchmark/TestWrite.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../benchmark/TestWrite.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/MyProject.dir/dump.cpp.o",
+            "../dump.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../dump.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/db_str.cpp.o",
+            "../db_str.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../db_str.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestRead.dir/server/cmd/cmd_list.cpp.o",
+            "../server/cmd/cmd_list.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/cmd/cmd_list.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-v",
+            "-o",
+            "CMakeFiles/cmTC_94ccb.dir/CMakeCXXCompilerABI.cpp.o",
+            "../../../../../../../../../../../../usr/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build/CMakeFiles/CMakeTmp",
+        "file": "../../../../../../../../../../../../usr/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/config/configParser.cpp.o",
+            "../config/configParser.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../config/configParser.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/MyProject.dir/server/main.cpp.o",
+            "../server/main.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/main.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/server/cmd/LightdbRequestHandler.cpp.o",
+            "../server/cmd/LightdbRequestHandler.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/cmd/LightdbRequestHandler.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/cc",
+            "-c",
+            "CMakeCCompilerId.c"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build/CMakeFiles/3.18.4/CompilerIdC",
+        "file": "CMakeCCompilerId.c"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/MyProject.dir/idx.cpp.o",
+            "../idx.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../idx.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/server/cmd/cmd.cpp.o",
+            "../server/cmd/cmd.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/cmd/cmd.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestRead.dir/benchmark/TestRead.cpp.o",
+            "../benchmark/TestRead.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../benchmark/TestRead.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/server/cmd/cmd_set.cpp.o",
+            "../server/cmd/cmd_set.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/cmd/cmd_set.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "CMakeCXXCompilerId.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build/CMakeFiles/3.18.4/CompilerIdCXX",
+        "file": "CMakeCXXCompilerId.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestRead.dir/server/cmd/cmd_hash.cpp.o",
+            "../server/cmd/cmd_hash.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/cmd/cmd_hash.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/server/cmd/cmd_str.cpp.o",
+            "../server/cmd/cmd_str.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../server/cmd/cmd_str.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestRead.dir/db_hash.cpp.o",
+            "../db_hash.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../db_hash.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestRead.dir/db_set.cpp.o",
+            "../db_set.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../db_set.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestListLPush.dir/benchmark/list/benchmark_LPush.cpp.o",
+            "../benchmark/list/benchmark_LPush.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../benchmark/list/benchmark_LPush.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/TestWrite.dir/lightdb.cpp.o",
+            "../lightdb.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../lightdb.cpp"
+    },
+    {
+        "arguments": [
+            "/usr/bin/c++",
+            "-c",
+            "-std=c++11",
+            "-pthread",
+            "-std=c++11",
+            "-w",
+            "-g",
+            "-fexceptions",
+            "-Wall",
+            "-fpermissive",
+            "-std=gnu++14",
+            "-o",
+            "CMakeFiles/MyProject.dir/sync/CTimer.cpp.o",
+            "../sync/CTimer.cpp"
+        ],
+        "directory": "/media/wx/Data/Books/Lang/C++/C++\u9879\u76ee/db/lightdb/build",
+        "file": "../sync/CTimer.cpp"
+    }
+]

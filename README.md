@@ -27,10 +27,10 @@ int main(){
     Config config = Config::DefaultConfig();
     lightdb->Open(&config);
 
-    //1kw 次写
+    //1kw次写
     uint64_t start_t = getCurrentTimeStamp();
     int keys = 10000;
-    int values_per_list = 100;
+    int values_per_list = 1000;
     for(int i = 0; i < keys; i++){
         std::string key = "listkey-" + to_string(i);
         for(int i = 0; i < values_per_list; i++) {
@@ -134,7 +134,6 @@ int main(){
 |  command   | qps  | 数据量  | keys  | values_per_zset|
 |  ----  | ----  | ---- |----| ---- |
 | SAdd  | 586510 | 100w |1000 | 1000|
-
 
 
 

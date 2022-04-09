@@ -33,7 +33,7 @@ namespace lightdb{
 
         int Close();
 
-        char* RemoteAddress();
+        const char* RemoteAddress();
 
     };
 

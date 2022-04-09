@@ -12,7 +12,7 @@ namespace lightdb{
 
 struct SkipListNode {
 	double score;
-    std::set<std::string> members;
+    std::set<std::string> members;// 注意，member是string的集合
 	std::vector<SkipListNode *> level;
 	SkipListNode (double _score, int sz=32) : score(_score), level(sz, nullptr) {}
 };
@@ -21,7 +21,7 @@ struct SkipListNode {
 class Skiplist {
 private:
     SkipListNode *head, *tail;
-    int level, length;
+    int level, length;// level表示当前跳表的层数，不包含头节点的层数，因为是从第0层开始算的，所以从第0层至level - 1层才有效
 
     SkipListNode* curNodePtr;
     std::set<std::string>::iterator curMemberPtr;
@@ -34,13 +34,14 @@ public:
     Skiplist() {
         level = length = 0;
         tail = new SkipListNode(INT_MAX, 0);
-        head = new SkipListNode(INT_MAX);
+        head = new SkipListNode(INT_MAX);// 头结点有32层
         for (int i = 0; i < MAXL; ++i) { 
         	head->level[i] = tail;
         }
     }
 
-    SkipListNode* find(int score) {
+    // 从跳表中找出第一个分数大于等于score的节点，如果不存在，返回tail
+    SkipListNode* find(double score) {
         SkipListNode *p = head;
         for (int i = level - 1; i >= 0; --i) {
             while (p->level[i] && p->level[i]->score < score) {
@@ -51,7 +52,7 @@ public:
         return p;
     }
     
-    bool search(int target, std::string member) {
+    bool search(double target, std::string member) {
         SkipListNode *p = find(target);
         if(p->score != target){
             return false;
@@ -63,7 +64,7 @@ public:
 
     }
 
-    bool scoreExist(int target){
+    bool scoreExist(double target){
         SkipListNode* p = find(target);
         return p->score == target;
     }
@@ -88,8 +89,12 @@ public:
         //printf("level:%d \n",level);
         int lv = randomLevel();
         if (lv > level) {
-            lv = ++level;
-            update[lv - 1] = head; 
+            /* lv = ++level; */
+            /* update[lv - 1] = head; */ 
+            for (int i = level; i < lv; i++) {
+                update[i] = head;
+            }
+            level = lv;
         }
         //printf("randon_level %d \n", lv);
         SkipListNode *newNode = new SkipListNode(score, lv);
@@ -190,6 +195,7 @@ public:
         return curNodePtr->score;
     }
 
+    // 当前节点所指向的string或者下一个节点的第一个string
     std::string CurMember(){
         if(curMemberPtr == curNodePtr->members.end()){
             curNodePtr = curNodePtr->level[0];
