@@ -12,7 +12,7 @@
 #include "cmd/requestHandler.h"
 
 #define MAX_CONN 200
-#define MAX_POLL 1000 * 1000
+#define MAX_POLL 10000
 #define MAX_LINE 1000
 
 namespace lightdb{
