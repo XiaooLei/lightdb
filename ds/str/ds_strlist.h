@@ -12,10 +12,7 @@ struct StrSkipListNode {
 	StrSkipListNode (std::string key, Indexer val,int sz=32) : key(key), val(val),level(sz, nullptr) {
 	    //printf("node created, level size %d \n", level.size());
 	}
-	StrSkipListNode(const StrSkipListNode& node){
-	    this->key = node.key;
-	    this->val = node.val;
-	}
+	StrSkipListNode(const StrSkipListNode& node): key(node.key), val(node.val){}
 };
 
 class StrSkiplist {

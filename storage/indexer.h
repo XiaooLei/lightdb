@@ -11,7 +11,9 @@ typedef struct Indexer{
     int64_t offset;
 
     /* Indexer():meta(nullptr), fileId(0), offset(0){} */
-    Indexer():meta(), fileId(0), offset(0){}
+    Indexer(): fileId(0), offset(0){
+        meta = new Meta();
+    }
 
     Indexer(Meta* meta, uint32_t fileId, int64_t offset):meta(meta), fileId(fileId), offset(offset){
         /* if(meta!= nullptr) { */
@@ -36,6 +38,7 @@ typedef struct Indexer{
         /* if(idx.meta!= nullptr) { */
             /* this->meta = new Meta(); */
             /* this->allocated = true; */
+        meta = new Meta();
         meta->key = idx.meta->key;
         meta->value = idx.meta->value;
         meta->extra = idx.meta->extra;
