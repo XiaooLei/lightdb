@@ -19,9 +19,9 @@ namespace lightdb {
     }
 
     Status get(LightDB *db, std::vector<std::string> args, std::string &resp){
-        for(auto arg : args){
-            printf("arg: %s \n", arg.c_str());
-        }
+//        for(auto arg : args){
+//            printf("arg: %s \n", arg.c_str());
+//        }
         if(args.size() != 1){
             resp = "wrong num of args";
             return Status::OK();

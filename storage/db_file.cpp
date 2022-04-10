@@ -112,7 +112,7 @@ namespace lightdb{
                     break;
                 }
             }else if(nread == 0){
-                printf("end of file \n");
+                //printf("end of file \n");
                 return Status::EndOfFile(this->_fileName);
             }
             nleft -= nread;
@@ -216,7 +216,7 @@ namespace lightdb{
             }
         }
 
-        printf("start build---\n");
+        //printf("start build---\n");
 
         for(uint16_t typ = 0; typ<5; typ++){
             if(eType!=All && typ != eType){

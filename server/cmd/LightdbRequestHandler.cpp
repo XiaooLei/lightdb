@@ -144,7 +144,7 @@ namespace lightdb{
                 Task task;
                 bool get = this->strTaskQueue.Dequeue(task);
 
-                printf("fetch task:%d \n args:", task.conn_fd);
+                //printf("fetch task:%d \n args:", task.conn_fd);
                 for(auto arg : task.args){
                     std::cout<< arg << std::endl;
                 }
@@ -185,9 +185,8 @@ namespace lightdb{
             RespTask respTask;
             while(true) {
                 respQueue.Dequeue(respTask);
-                printf("consume respTask, conn_fd:%d, resp:%s \n", respTask.conn_fd, respTask.resp.c_str());
+                //printf("consume respTask, conn_fd:%d, resp:%s \n", respTask.conn_fd, respTask.resp.c_str());
                 write(respTask.conn_fd, respTask.resp.c_str(), respTask.resp.size());
-                write(respTask.conn_fd, "\n>>>", 4);
             }
         });
         respThread.detach();
@@ -195,13 +194,12 @@ namespace lightdb{
 
 
     std::string LightdbRequestHandler::HandleCmd(std::string request, int conn_fd) {
-        printf("request:%s  \n", request.c_str());
+        //printf("request:%s  \n", request.c_str());
         std::vector<std::string> cmdAndArgs;
         splitStrBySpace(request, cmdAndArgs);
         if(cmdAndArgs.size() == 0){
             return "";
         }
-        printf("size: %d \n", cmdAndArgs.size());
         std::string cmd = cmdAndArgs[0];
         std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
         CmdFunc* handler = GetCmdFunction(cmd);
@@ -211,11 +209,8 @@ namespace lightdb{
         cmdAndArgs.erase(cmdAndArgs.begin());
         std::string resp;
 
-        printf("lightdb null :%d \n", this->lightDb == nullptr);
-
         //这里整一个队列
         DataType type = cmdDataTypeMap[cmd];
-        printf("despatch, type:%d, cmd:%s \n", type, cmd.c_str());
         switch (type) {
             case Hash:{
                 Task task(handler, this->lightDb, cmdAndArgs, conn_fd);

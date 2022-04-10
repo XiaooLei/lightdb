@@ -11,7 +11,7 @@ int main(){
     lightdb->Open(&config);
 
     uint64_t start_t = lightdb::getCurrentTimeStamp();
-    double times = 500000;
+    double times = 100;
     for(int i = 0; i < times; i++){
         std::string key = "key-" + to_string(i);
         std::string value = "value-" + to_string(i);

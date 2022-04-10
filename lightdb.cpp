@@ -7,7 +7,6 @@ namespace lightdb{
 LightDB::LightDB(){}
 
 void runMerge(LightDB* lightdb){
-    printf("trying to merge ---\n");
     lightdb->Merge();
 }
 
@@ -43,17 +42,16 @@ Status LightDB::Open(Config* config, bool merge){
     if(!s.ok()){
         return s;
     }
-    //printf("checkInterval :%d \n", config->mergeCheckInterval);
+
     if(merge) {
         CTimer *cTimer = new CTimer();
         std::thread mergeThread(
                 [&](LightDB *lightDb, int mergeCheckInterval, CTimer *cTimer) {
-                    //printf("check interval1 :%d \n", mergeCheckInterval);
                     cTimer->AsyncLoop(mergeCheckInterval, runMerge, lightDb);
                 }, this, this->config->mergeCheckInterval, cTimer);
         mergeThread.detach();
-        printf("定时器设置完毕\n");
     }
+    printf("[INFO][LightDB Engine Opened] \n");
     return Status::OK();
 }
 
@@ -153,7 +151,7 @@ Status LightDB::store(Entry* entry){
 }
 
 Status LightDB::Merge(){
-    printf("trying to merge---\n");
+    printf("[INFO][Merge thread start to work.]\n");
     if(isMerging){
         return Status::IsMergingErr();
     }
@@ -169,8 +167,7 @@ Status LightDB::Merge(){
             },
             this);
     mergeStringThread.join();
-    this->mergeString();
-    printf("all merge end \n");
+    printf("[INFO][all merge end]\n");
     isMerging = false;
     return Status::OK();
 }
@@ -183,35 +180,25 @@ void LightDB::dump(){
     std::thread* dumpSetThread;
     std::thread* dumpZSetThread;
     for(int idx = List; idx < DataStructureNum; idx++){
-        //printf("lalala \n");
         switch (idx){
             case List: {
                 dumpListThread = new std::thread([](LightDB *p, string path) {
                     p->dumpInternal(path, List); }, this, path);
-                //先串行
-                //todo debug
-                //dumpInternal(wg, path, List);
                 break;
             }
             case Hash: {
-                //todo debug 先串行
                 dumpHashThread = new std::thread ([](LightDB *p, string path) {
                     p->dumpInternal(path, Hash); }, this, path);
-                //dumpInternal(wg, path, Hash);
                 break;
             }
             case Set: {
-                //todo debug 先串行
                 dumpSetThread = new std::thread ([](LightDB *p, string path) {
                     p->dumpInternal(path, Set); }, this, path);
-                //dumpInternal(wg, path, Set);
                 break;
             }
             case ZSet:
-                //todo debug 先串行
                 dumpZSetThread = new std::thread ([](LightDB* p, string path){
                     p->dumpInternal(path, ZSet);}, this, path);
-                //dumpInternal(wg, path, ZSet);
                 break;
         }
     }
@@ -223,13 +210,11 @@ void LightDB::dump(){
     delete dumpHashThread;
     delete dumpSetThread;
     delete dumpZSetThread;
-    printf("Main threading \n");
-    /* wg.Wait(); */
     return;
 }
 
 void LightDB::dumpInternal(std::string path, DataType eType){
-    printf("begin dump ! type:%d \n", eType);
+    //printf("begin dump ! type:%d \n", eType);
     Status s;
     //todo 先去除mergeThreshold Check
     //if(archivedFiles[eType].size() + 1 < config->mergeThreshold){
@@ -258,7 +243,6 @@ void LightDB::dumpInternal(std::string path, DataType eType){
     if(!s.ok()){
         printf("dump err,code: %d\n", s.Code());
     }
-
     //remove old archive files
     for(auto it : this->archivedFiles[eType] ){
         std::remove( (config->dirPath + "/" + it.second->FileName()).c_str());
@@ -272,7 +256,6 @@ void LightDB::dumpInternal(std::string path, DataType eType){
         rename( (path + "/" + mgFile->FileName()).c_str(), (config->dirPath + "/" + mgFile->FileName()).c_str());
     }
 
-    //printf("dump end, type:%d \n", eType);
 }
 
 
@@ -295,7 +278,7 @@ Status LightDB::dumpStore(vector<DBFile*>& mergeFiles, std::string mergePath, En
 
 
 void LightDB::mergeString(){
-    printf("begin merge string **!!!!!!\n");
+    printf("[INFO][begin to merge string..]\n");
     //todo 先关闭mergeThreshold Check
 //    if(archivedFiles[String].size() < config->mergeThreshold){
 //        return;
@@ -320,7 +303,7 @@ void LightDB::mergeString(){
 
     vector<int> fileIds;
     //skip the merged Files;
-    printf("str File no %d \n", archivedFiles[String].size());
+    //printf("str File no %d \n", archivedFiles[String].size());
     int size = archivedFiles[String].size();
 
     int archFilesSize = archFiles.size();
@@ -364,12 +347,9 @@ void LightDB::mergeString(){
             idx.fileId = rewriteFileId;
             idx.offset = rewriteDF->WriteOffset - entry->Size();
             if(config->indexMode == KeyValueMemMode){
-                /* idx.meta = new Meta(); */
-                /* idx.allocated = true; */
                 idx.meta->value = entry->meta->value;
             }
             newStrSkipList->put(entry->meta->key, idx);
-            //}
         }
         //delete older archivedFiles
         std::string oldfilename = dbFile->FileName();
@@ -413,7 +393,6 @@ Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
     Status s;
     uint64_t offset = 0;
     while (offset < df->WriteOffset) {
-        //printf("offset ------:%lu \n", offset);
         Entry* e = new Entry();
         s = df->Read(offset, *e);
         if(!s.ok()){
@@ -423,7 +402,6 @@ Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
             return s;
         }
         if(validEntry(e, offset, df->Id)){
-            //printf("valid entry !!!! \n");
             entries.push_back(e);
         }
 

@@ -10,7 +10,7 @@ namespace lightdb{
  */
 Status LightDB::loadIdxFromFiles(){
     for(int dataType=0; dataType<DataStructureNum; dataType++){
-        printf("********buildIndex********\n");
+        //printf("********buildIndex********\n");
         std::vector<uint32_t> fileIds;
         std::map<uint32_t, DBFile*> dbFiles;
 

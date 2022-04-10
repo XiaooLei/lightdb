@@ -42,13 +42,10 @@ namespace lightdb{
         for(int i = 0; i<count; i++){
             if(evs[i].data.fd == _listen_fd && cur_fds < MAX_POLL){
                 int len = sizeof(struct sockaddr_in);
-                int conn_fd = 0;
-                while ((conn_fd = accept(_listen_fd, (struct sockaddr*)&cliaddr, reinterpret_cast<socklen_t *>(&len))) > 0) {
-                    printf( "Server get from client !\n");
-                    AddConn(conn_fd);
-                }
-            }
-            else {
+                int conn_fd = accept(_listen_fd, (struct sockaddr*)&cliaddr, reinterpret_cast<socklen_t *>(&len));
+                printf( "[INFO][New client connected!]\n");
+                AddConn(conn_fd);
+            }else{
                 char buf[MAX_LINE];
                 memset(buf, '\0', sizeof(buf));
                 int nread = read(evs[i].data.fd, buf, sizeof(buf));
@@ -56,7 +53,6 @@ namespace lightdb{
                     CloseAndDel(evs[i].data.fd);
                     continue;
                 }
-
                 if(strncmp(buf, "quit", 4) == 0){
                     printf("close connection \n");
                     CloseAndDel(evs[i].data.fd);

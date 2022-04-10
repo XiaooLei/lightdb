@@ -36,6 +36,7 @@ namespace lightdb{
             std::cout << "listen socket err" << std::endl;
             exit(EXIT_FAILURE);
         }
+        printf("[INFO]start to listen on port %d \n", port);
         //todo
         return 0;
     }
