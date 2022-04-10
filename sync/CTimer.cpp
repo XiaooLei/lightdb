@@ -46,7 +46,7 @@ bool CTimer::Start(unsigned int msTime, std::function<void()> task, bool bLoop, 
             }
 
             while (!m_bTryExpired && (number == -1 || number > m_nCount)) {
-                printf("number:%d \n", number);
+                //printf("number:%d \n", number);
                 m_ThreadCon.wait_for(m_ThreadLock, std::chrono::milliseconds(msTime));  //休眠
                 if (!m_bTryExpired) {
                     task();     //执行任务

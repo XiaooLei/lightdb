@@ -61,9 +61,6 @@ public:
     
     // 如果key存在，就更新对应的Indexer，否则在StrSkipList中插入一个StrSkipListNode
     void put(std::string key, Indexer val) {
-        if(key == "key-0"){
-            printf("就是这个key出了bug啊。。。\n");
-        }
         //if key exist
         StrSkipListNode* pointer = find(key);
         if(pointer && pointer->key.compare(key) == 0){

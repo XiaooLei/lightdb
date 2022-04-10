@@ -27,9 +27,9 @@ typedef std::unordered_map<uint16_t,uint32_t> FileIds;
 
 inline Status PosixError(const std::string& context, int error_number) {
   if (error_number == ENOENT) {
-    return Status::NotFound(context, strerror(error_number));
+    return Status::NotFound(context, "fileNotFound, code:" + std::to_string(error_number));
   } else {
-    return Status::IOError(context, strerror(error_number));
+    return Status::IOError(context, "IOError, code:" + std::to_string(error_number));
   }
 }
 

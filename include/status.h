@@ -28,7 +28,9 @@ class Status{
     Status(Code code, const std::string& msg, const std::string& msg2){
         assert(code != kOk);
         this->code = code;
-        std::string res =  msg + ":"+ msg2;
+        std::string res;
+        res =  msg + ":";
+        res = res + msg2;
         state_ = res;
     }
 
@@ -122,7 +124,7 @@ public:
         return Status(kZMemberNotExist, "zset member not exist err", member);
     }
 
-    static Status NotFound(const std::string& msg, const std::string& msg2 = "") {
+    static Status NotFound(const std::string& msg, const std::string& msg2) {
         return Status(kNotFound, msg, msg2);
     }
 
@@ -130,7 +132,7 @@ public:
         return Status(kZInvalidRank,"","");
     }
 
-    static Status IOError(const std::string& msg, const std::string& msg2 = "") {
+    static Status IOError(const std::string& msg, const std::string& msg2) {
         return Status(kIOError, msg, msg2);
     }
 

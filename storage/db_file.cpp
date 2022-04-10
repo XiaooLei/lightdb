@@ -22,7 +22,7 @@ namespace lightdb{
             {4, "%09d.data.zset"},
     };
 
-    DBFile::DBFile(std::string path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType):Id(fileId){
+    DBFile::DBFile(std::string path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType):Id(fileId),_fileName(""){
         char buf[20];
         memset(buf, '\0', sizeof(buf));
         sprintf(buf, DBFileFormatNames[eType].c_str(), fileId);

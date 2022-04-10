@@ -24,14 +24,7 @@ struct  Meta{
     {
     }
     Meta():key(""),value(""),extra(""),keySize(0),valueSize(0),extraSize(0){};
-    ~Meta(){
-        if(key == "key-0"){
-            printf("stop here \n");
-        }
-        //printf("key:%s, value:%s \n", key.c_str(), value.c_str());
-        //printf("释放Meta \n");
-    }
-
+    ~Meta(){}
 };
 
 // 包含一个k-v对的所有信息，entry会被写入到db文件中，即数据文件中

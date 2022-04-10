@@ -245,7 +245,9 @@ void TestMerge(){
     Status s;
     Config config = Config::DefaultConfig();
     lightdb->Open(&config);
-    s = lightdb->Merge();
+    while(true) {
+        s = lightdb->Merge();
+    }
     if(!s.ok()){
         s.Report();
     }

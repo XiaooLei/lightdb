@@ -15,10 +15,26 @@ typedef struct Indexer{
         meta = new Meta();
     }
 
-    Indexer(Meta* meta, uint32_t fileId, int64_t offset):meta(meta), fileId(fileId), offset(offset){
+
+    Indexer(Meta* meta, uint32_t fileId, int64_t offset):fileId(fileId), offset(offset){
         /* if(meta!= nullptr) { */
         /*     allocated = true; */
         /* } */
+        if(meta != nullptr){
+            this->meta = new Meta();
+            *this->meta = *meta;
+        }
+    }
+
+    Indexer& operator=(const Indexer& indexer){
+        if(indexer.meta!= nullptr){
+            this->meta = new Meta();
+            *this->meta = *indexer.meta;
+        }else{
+            this->meta = nullptr;
+        }
+        this->fileId = indexer.fileId;
+        this->offset = indexer.offset;
     }
 
     ~Indexer(){
