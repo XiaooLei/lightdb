@@ -5,15 +5,14 @@
 
 namespace lightdb{
 
-LightDB::LightDB(){
-}
+LightDB::LightDB(){}
 
 void runMerge(LightDB* lightdb){
     printf("trying to merge ---\n");
     lightdb->Merge();
 }
 
-Status LightDB::Open(Config* config){
+Status LightDB::Open(Config* config, bool merge){
     Status s;
 
     this->config = config;
@@ -46,14 +45,16 @@ Status LightDB::Open(Config* config){
         return s;
     }
     printf("checkInterval :%d \n", config->mergeCheckInterval);
-    CTimer* cTimer = new CTimer();
-    std::thread mergeThread(
-            [&](LightDB* lightDb, int mergeCheckInterval, CTimer* cTimer) {
-                printf("check interval1 :%d \n", mergeCheckInterval);
-                cTimer->AsyncLoop(mergeCheckInterval, runMerge, lightDb);
-            }, this, this->config->mergeCheckInterval, cTimer);
-    mergeThread.detach();
-    printf("定时器设置完毕\n");
+    if(merge) {
+        CTimer *cTimer = new CTimer();
+        std::thread mergeThread(
+                [&](LightDB *lightDb, int mergeCheckInterval, CTimer *cTimer) {
+                    printf("check interval1 :%d \n", mergeCheckInterval);
+                    cTimer->AsyncLoop(mergeCheckInterval, runMerge, lightDb);
+                }, this, this->config->mergeCheckInterval, cTimer);
+        mergeThread.detach();
+        printf("定时器设置完毕\n");
+    }
     return Status::OK();
 }
 
@@ -162,58 +163,82 @@ Status LightDB::Merge(){
     // create a temporary directory for storing the new db files.
     std::string mergePath = config->dirPath + "/"  +mergeDirName + "/";
     CreateDir(mergePath.c_str());
-    WaitGroup wg;
-    wg.Add( DataStructureNum);
+    dump();
+    //todo 先串行测试string
+//    std::thread mergeStringThread(
+//            [](LightDB* p){
+//                p->mergeString();
+//            },
+//            this);
+//    mergeStringThread.join();
 
-    dump(wg);
-    //todo
-    mergeString(wg);
-    wg.Wait();
+    this->mergeString();
+
+    //sleep(20);
     printf("all dump end \n");
     isMerging = false;
     return Status::OK();
 }
 
 // 各个value类型中，对应的entry都是保存std::string key和std::string value，而不会保存list、hash等。例如value类型为list时，每个key都会对应一个list，这个list中的所有string都会和key分别组成一对，存放到一个entry中，而不会把key和对应的整个list存放到一个entry中
-void LightDB::dump(WaitGroup& wg){
+void LightDB::dump(){
     std::string path = config->dirPath + "/" + mergeDirName;
+    std::thread* dumpListThread;
+    std::thread* dumpHashThread;
+    std::thread* dumpSetThread;
+    std::thread* dumpZSetThread;
     for(int idx = List; idx < DataStructureNum; idx++){
         //printf("lalala \n");
         switch (idx){
             case List: {
-                std::thread dumpThread([&](LightDB *p) { p->dumpInternal(wg, path, List); }, this);
-                dumpThread.detach();
+                dumpListThread = new std::thread([](LightDB *p, string path) {
+                    printf("p == null :%d \n", p == nullptr);
+                    p->dumpInternal(path, List); }, this, path);
                 //先串行
-                //todo
+                //todo debug
                 //dumpInternal(wg, path, List);
                 break;
             }
             case Hash: {
-                std::thread dumpThread([&](LightDB *p) { p->dumpInternal(wg, path, Hash); }, this);
-                dumpThread.detach();
+                //todo debug 先串行
+                dumpHashThread = new std::thread ([](LightDB *p, string path) {
+                    printf("p == null :%d \n", p == nullptr);
+                    p->dumpInternal(path, Hash); }, this, path);
                 //dumpInternal(wg, path, Hash);
                 break;
             }
             case Set: {
-                std::thread dumpThread([&](LightDB *p) { p->dumpInternal(wg, path, Set); }, this);
-                dumpThread.detach();
+                //todo debug 先串行
+                dumpSetThread = new std::thread ([](LightDB *p, string path) {
+                    printf("p == null :%d \n", p == nullptr);
+                    p->dumpInternal(path, Set); }, this, path);
                 //dumpInternal(wg, path, Set);
                 break;
             }
             case ZSet:
-                std::thread dumpThread([&](LightDB* p){p->dumpInternal(wg, path, ZSet);}, this);
+                //todo debug 先串行
+                dumpZSetThread = new std::thread ([](LightDB* p, string path){
+                    printf("p == null :%d \n", p == nullptr);
+                    p->dumpInternal(path, ZSet);}, this, path);
                 //dumpInternal(wg, path, ZSet);
-                dumpThread.detach();
                 break;
         }
     }
+    dumpListThread->join();
+    dumpHashThread->join();
+    dumpSetThread->join();
+    dumpZSetThread->join();
+    delete dumpListThread;
+    delete dumpHashThread;
+    delete dumpSetThread;
+    delete dumpZSetThread;
     printf("Main threading \n");
     /* wg.Wait(); */
     return;
 }
 
-void LightDB::dumpInternal(WaitGroup& wg, std::string path, DataType eType){
-    //printf("begin dump ! type:%d \n", eType);
+void LightDB::dumpInternal(std::string path, DataType eType){
+    printf("begin dump ! type:%d \n", eType);
     Status s;
     //todo 先去除mergeThreshold Check
     //if(archivedFiles[eType].size() + 1 < config->mergeThreshold){
@@ -257,7 +282,6 @@ void LightDB::dumpInternal(WaitGroup& wg, std::string path, DataType eType){
     }
 
     //printf("dump end, type:%d \n", eType);
-    wg.Done();
 }
 
 
@@ -279,7 +303,7 @@ Status LightDB::dumpStore(vector<DBFile*>& mergeFiles, std::string mergePath, En
 
 
 
-void LightDB::mergeString(WaitGroup& wg){
+void LightDB::mergeString(){
 
     //todo 先关闭mergeThreshold Check
 //    if(archivedFiles[String].size() < config->mergeThreshold){
@@ -308,10 +332,10 @@ void LightDB::mergeString(WaitGroup& wg){
     printf("str File no %d \n", archivedFiles[String].size());
     int size = archivedFiles[String].size();
 
-
+    int archFilesSize = archFiles.size();
     // 从不活跃数据文件中选出未进行merge的文件，对它们进行merge。临时目录中可能存在一些merged db文件，这可能是因为上次数据库进行merge时，发生宕机了，就会有一些merged db文件残留在临时目录中，没来得及移出临时目录，这些残留的merged db文件不应参与到这次merge。这次merge完成后，新的merged db文件会和这些残留的上次的merged db文件一起移动到父目录，临时目录就会被清空了
     for(auto it = archivedFiles[String].begin(); it!=archivedFiles[String].end(); it++){
-        if(archFiles.find(it->first) == archFiles.end()){
+        if(it->first >= maxFileId){
             fileIds.push_back(it->first);   
         }
     }
@@ -319,8 +343,11 @@ void LightDB::mergeString(WaitGroup& wg){
     // 从小到大遍历不活跃的数据文件，对其进行merge
     sort(fileIds.begin(), fileIds.end());
 
+    //merge的时候需要建立新的索引；
+    StrSkiplist* newStrSkipList = new StrSkiplist();
+
     for(int i = 0; i<fileIds.size(); i++){
-        DBFile* dbFile = archivedFiles[String][i];
+        DBFile* dbFile = archivedFiles[String][fileIds[i]];
         vector<Entry*> validEntries;
         s = FindValidEntries(validEntries, dbFile);
 
@@ -342,11 +369,16 @@ void LightDB::mergeString(WaitGroup& wg){
 
             //update index
             Indexer idx;
-            if(this->strIdx.indexes->get(entry->meta->key, idx)){
-                idx.fileId = rewriteFileId;
-                idx.offset = rewriteDF->WriteOffset - entry->Size();
-                strIdx.indexes->put(entry->meta->key, idx);
+            //if(this->strIdx->indexes->get(entry->meta->key, idx)){
+            idx.fileId = rewriteFileId;
+            idx.offset = rewriteDF->WriteOffset - entry->Size();
+            if(config->indexMode == KeyValueMemMode){
+                idx.meta = new Meta();
+                idx.allocated = true;
+                idx.meta->value = entry->meta->value;
             }
+            newStrSkipList->put(entry->meta->key, idx);
+            //}
         }
         //delete older archivedFiles
         std::string oldfilename = dbFile->FileName();
@@ -354,7 +386,9 @@ void LightDB::mergeString(WaitGroup& wg){
         std::remove((config->dirPath + "/" + oldfilename).c_str());
     }
 
+
     // 把merge出的db文件移出临时目录，移到父目录中，这样临时目录就是空的了
+    this->strIdx.mtx.lock();//移动文件的时候需要阻塞
     for(auto file : archFiles){
         char buf[50];
         sprintf(buf, "%09d.data.str", file.first);
@@ -365,8 +399,18 @@ void LightDB::mergeString(WaitGroup& wg){
         }
     }
     //reload dbFiles;
-    this->loadDBFiles(String);
-    wg.Done();
+    //this->loadDBFiles(String);
+
+    //merge完成之后把新的索引设置到lightdb对象
+    this->strIdx.indexes = newStrSkipList;
+    //把新的索引更新到旧索引中
+    for(newStrSkipList->Begin(); !newStrSkipList->End(); newStrSkipList->Next()){
+        std::string key;
+        Indexer value;
+        newStrSkipList->CurIterKeyValue(key, value);
+        strIdx.indexes->put(key, value);
+    }
+    this->strIdx.mtx.unlock(); //新索引建立完成，可以解锁了
     return;
 }
 
@@ -377,7 +421,7 @@ Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
     Status s;
     uint64_t offset = 0;
     while (offset < df->WriteOffset) {
-        printf("offset ------:%lu \n", offset);
+        //printf("offset ------:%lu \n", offset);
         Entry* e = new Entry();
         s = df->Read(offset, *e);
         if(!s.ok()){
@@ -387,7 +431,7 @@ Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
             return s;
         }
         if(validEntry(e, offset, df->Id)){
-            printf("valid entry !!!! \n");
+            //printf("valid entry !!!! \n");
             entries.push_back(e);
         }
 
@@ -409,6 +453,9 @@ bool LightDB::validEntry(Entry* e, int64_t offset, uint32_t fileId){
 
     if(e->GetMark() == StringSet || e->GetMark() == StringExpire){
         Indexer indexer;
+        if(e->meta->value == "value-352931"){
+            printf("出事了\n");
+        }
         bool get = strIdx.indexes->get(e->meta->key, indexer);
         if(!get){
             return false;

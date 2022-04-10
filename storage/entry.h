@@ -23,7 +23,14 @@ struct  Meta{
     key(key), value(value), extra(extra), keySize(keySize), valueSize(valueSize), extraSize(extraSize)
     {
     }
-    Meta(){};
+    Meta():key(""),value(""),extra(""),keySize(0),valueSize(0),extraSize(0){};
+    ~Meta(){
+        if(key == "key-0"){
+            printf("stop here \n");
+        }
+        //printf("key:%s, value:%s \n", key.c_str(), value.c_str());
+        //printf("释放Meta \n");
+    }
 
 };
 

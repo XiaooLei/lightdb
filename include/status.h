@@ -20,58 +20,38 @@ enum Code {kOk, kIOError, kNotFound, kEndOfFile, kKeyNotExist, kKeyExpiredErr, k
 //用来存储异常信息
 class Status{
     private:
-    char* state_;
-
+    std::string state_ = "";
+    Code code;
 
     //定义：code:每一种错误对应一个code
     //msg,用来描述错误类型, msg2,用来描述错误相关的具体信息
     Status(Code code, const std::string& msg, const std::string& msg2){
         assert(code != kOk);
-        const uint32_t len1 = static_cast<uint32_t>(msg.size());
-        const uint32_t len2 = static_cast<uint32_t>(msg2.size());
-        const uint32_t size = len1 + (len2 ? (2 + len2) : 0);
-        char* result = (char *)malloc(size + 5);
-        memcpy(result, &size, sizeof(size));
-        result[4] = static_cast<char>(code);
-        memcpy(result + 5, msg.data(), len1);
-        if (len2) {
-            result[5 + len1] = ':';
-            result[6 + len1] = ' ';
-            memcpy(result + 7 + len1, msg2.data(), len2);
-        }
-        state_ = result;
+        this->code = code;
+        std::string res =  msg + ":"+ msg2;
+        state_ = res;
     }
 
 
     public:
-    Status(): state_(nullptr){}
+    Status(): state_(""),code(kOk){}
 public:
     //copy constructor of Status
     Status(const Status& s){
-        state_ = nullptr;
-        if(s.state_!= nullptr) {
-            state_ = (char*)malloc(sizeof(s.state_));
-            memcpy(this->state_, s.state_, sizeof(s.state_));
-        }
+        code = s.code;
+        state_ = s.state_;
     }
     ~Status(){
-        if(state_!= nullptr) {
-            //todo 解决的内存泄漏问题
-            //free(state_);
-        }
+
     }
 
 
     Code Code(){
-        if(state_ == nullptr){
-            return kOk;
-        }
-        int32_t ret = static_cast<int32_t>(state_[4]);
-        return static_cast<lightdb::Code>(ret);
+        return this->code;
     }
 
     void Report(){
-        printf("msg:%s \n",state_);
+        printf("msg:%s \n",state_.c_str());
     }
     
 
@@ -163,7 +143,7 @@ public:
     }
     
 
-    bool ok() const { return (state_ == nullptr); }
+    bool ok() const { return code == 0; }
 
 
     

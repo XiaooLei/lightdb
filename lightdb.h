@@ -25,15 +25,15 @@ class LightDB{
     public:
     LightDB();
 
-    Status Open(Config* config);
+    Status Open(Config* config, bool merge = false);
 
     Status Merge();
 
-    void dump(WaitGroup& wg);
+    void dump();
 
     Status dumpStore(vector<DBFile*>& mergeFiles, std::string mergePath, Entry* e);
 
-    void mergeString(WaitGroup& wg);
+    void mergeString();
 
     Status loadDBFiles(DataType dataType);
 
@@ -41,7 +41,7 @@ class LightDB{
 
     Status FindValidEntries(std::vector<Entry*>& entries, DBFile* df);
 
-    void dumpInternal(WaitGroup& wg, std::string path, DataType eType);
+    void dumpInternal(std::string path, DataType eType);
 
     Status dumpList(vector<DBFile*>& mergeFiles, std::string path);
 
@@ -247,6 +247,7 @@ class LightDB{
     std::unordered_map<uint16_t,std::unordered_map<std::string,uint64_t>> expires;// uint16_t是value的类型号（0-4），std::string是key，uint64_t是过期时间
     LRUCache* cache;// 只用于value类型为string的数据，每次添加k-v对的
     bool isMerging;
+
     
 };
 

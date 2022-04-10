@@ -12,12 +12,19 @@ struct StrSkipListNode {
 	StrSkipListNode (std::string key, Indexer val,int sz=32) : key(key), val(val),level(sz, nullptr) {
 	    //printf("node created, level size %d \n", level.size());
 	}
+	StrSkipListNode(const StrSkipListNode& node){
+	    this->key = node.key;
+	    this->val = node.val;
+	}
 };
 
 class StrSkiplist {
 private:
     StrSkipListNode *head, *tail;
     int level, length;
+
+    StrSkipListNode* iteraterNodePointer;
+
 public:
 	static constexpr int MAXL = 32;
     static constexpr int P = 4;
@@ -57,6 +64,9 @@ public:
     
     // 如果key存在，就更新对应的Indexer，否则在StrSkipList中插入一个StrSkipListNode
     void put(std::string key, Indexer val) {
+        if(key == "key-0"){
+            printf("就是这个key出了bug啊。。。\n");
+        }
         //if key exist
         StrSkipListNode* pointer = find(key);
         if(pointer && pointer->key.compare(key) == 0){
@@ -111,6 +121,7 @@ public:
         }
         while (level > 0 && head->level[level - 1] == tail) --level;
         --length;
+        delete p;
         return true;
     }
 
@@ -119,6 +130,24 @@ public:
         while (lv < MAXL && (rand() & S) < PS) ++lv;
         return lv;
     }
+
+    void Begin(){
+        iteraterNodePointer = head->level[0];
+    }
+
+    void CurIterKeyValue(std::string& curKey, Indexer & curValue){
+        curKey = iteraterNodePointer->key;
+        curValue = iteraterNodePointer->val;
+    }
+
+    void Next(){
+        iteraterNodePointer = iteraterNodePointer->level[0];
+    }
+
+    bool End(){
+        return iteraterNodePointer->level[0] == nullptr;
+    }
+
 };
 
 struct StrIdx{

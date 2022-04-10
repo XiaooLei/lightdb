@@ -34,6 +34,7 @@ namespace lightdb{
         //cout<< filePath <<endl;
         _fd = open(filePath.c_str(), O_RDWR|O_APPEND|O_CREAT);
         if( _fd < 0){
+            printf("file:%s ", filePath.c_str());
             perror("open file failed, the reason is");
             exit (errno);
         }
@@ -218,6 +219,9 @@ namespace lightdb{
         printf("start build---\n");
 
         for(uint16_t typ = 0; typ<5; typ++){
+            if(eType!=All && typ != eType){
+                continue;
+            }
             std::unordered_map<uint32_t, DBFile*> files;
             std::vector<int> fileIds = fileIdsMap[typ];
             uint32_t activeFileId = 0;

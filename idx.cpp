@@ -45,6 +45,7 @@ Status LightDB::loadIdxFromFiles(){
 
                 Indexer* indexer = new Indexer();
                 indexer->meta = new Meta();
+                indexer->allocated = true;
                 indexer->fileId = fid;
                 indexer->offset = offset;
                 //printf("build index, set offset key:%s, offset:%d \n", e.meta->key.c_str(), indexer->offset);

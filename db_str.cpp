@@ -206,6 +206,7 @@ namespace lightdb{
 
     // Remove remove the value stored at key.
     Status LightDB::Remove(std::string key, bool& suc){
+        std::lock_guard<std::mutex> lockGuard(this->strIdx.mtx);
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -274,6 +275,7 @@ namespace lightdb{
 
     // 根据保存模式，如果是KeyValueMemMode，那么Indexer中就要保存entry->value以及entry->extra
     Status LightDB::SetIndexer(Entry* entry){
+        std::lock_guard<std::mutex> lockGuard(this->strIdx.mtx);
         DBFile* activeFile = getActiveFile(String);
         Meta* tmp_meta = new Meta();
         tmp_meta->key = entry->meta->key;
@@ -284,10 +286,12 @@ namespace lightdb{
             idx->meta->value = entry->meta->value;
         }
         strIdx.indexes->put(entry->meta->key, *idx);
+        //上一行实际上拷贝了新的idx，这里要delete旧的idx
         return Status::OK();
     }
 
     bool LightDB::StrExist(std::string key){
+        std::lock_guard<std::mutex> lockGuard(this->strIdx.mtx);
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -301,6 +305,7 @@ namespace lightdb{
 
 
     Status LightDB::getVal(std::string key, std::string& value, bool& suc){
+        std::lock_guard<std::mutex> lockGuard(this->strIdx.mtx);
         Status s;
         Indexer idx;
         bool get = strIdx.indexes->get(key, idx);
