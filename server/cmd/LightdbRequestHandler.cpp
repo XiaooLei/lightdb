@@ -143,12 +143,6 @@ namespace lightdb{
             while(true) {
                 Task task;
                 bool get = this->strTaskQueue.Dequeue(task);
-
-                //printf("fetch task:%d \n args:", task.conn_fd);
-                for(auto arg : task.args){
-                    std::cout<< arg << std::endl;
-                }
-
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
                 Status s = handler(task.lightDb, task.args, resp);
@@ -194,7 +188,6 @@ namespace lightdb{
 
 
     std::string LightdbRequestHandler::HandleCmd(std::string request, int conn_fd) {
-        //printf("request:%s  \n", request.c_str());
         std::vector<std::string> cmdAndArgs;
         splitStrBySpace(request, cmdAndArgs);
         if(cmdAndArgs.size() == 0){

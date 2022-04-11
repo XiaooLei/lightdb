@@ -13,21 +13,17 @@ using namespace std;
 namespace lightdb
 {
 
-class CConfigParser
+class ConfigParser
 {
 public:
-    CConfigParser();
-    ~CConfigParser();
+    ConfigParser();
+    ~ConfigParser();
 public:
     bool Parser(const string & cFilePath);
-    bool HasSection(const string & cSection);
-    int GetSections(vector<string> & vecSections);
-    int GetKeys(const string & strSection, vector<string> & vec);
-    const map<string, string> * GetSectionConfig(const string & cSection);
-    string GetConfig(const string & cSection, const string & cKey);
-    string GetDefConfig(const string & cSection, const string & cKey, const string & cDef);
+    string GetConfig(const string & Key, bool& exist);
+    string GetDefConfig(const string & Key, const string & Def);
 private:
-    map<string, map<string, string> *> m_mpConfigData;
+    map<string, string> _configData;
 };
 
 }

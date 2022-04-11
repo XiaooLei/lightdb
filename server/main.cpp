@@ -5,12 +5,16 @@
 #include "server.h"
 #include "cmd/LightdbRequestHandler.h"
 
-int main(){
-
+int main(int argc, char *argv[]){
+    if(argc != 2){
+        printf("wrong args count\n");
+        exit(0);
+    }
     lightdb::Server* server = new lightdb::Server();
 
     lightdb::LightDB* lightdb = new lightdb::LightDB();
-    lightdb::Config config = lightdb::Config::DefaultConfig();
+    lightdb::Config config = lightdb::Config::BuildConfig(argv[1]);
+    config.InitDirs();
     lightdb->Open(&config, true);
 
     lightdb::RequestHandler* requestHandler = new lightdb::LightdbRequestHandler(lightdb);

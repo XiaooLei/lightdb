@@ -40,7 +40,6 @@ namespace lightdb{
     Status LightDB::dumpSet(vector<DBFile*>& mergeFiles, std::string path) {
         //printf("dumping Set \n");
         Status s;
-        //printf("Set Size :%d \n", setIdx.indexes->record.size());
         for(auto it = setIdx.indexes->record.begin(); it!=setIdx.indexes->record.end(); it++){
             std::string key = it->first;
             for(auto it2 = setIdx.indexes->record[key].begin(); it2!=setIdx.indexes->record[key].end(); it2++){

@@ -10,7 +10,7 @@ namespace lightdb{
  */
 Status LightDB::loadIdxFromFiles(){
     for(int dataType=0; dataType<DataStructureNum; dataType++){
-        //printf("********buildIndex********\n");
+
         std::vector<uint32_t> fileIds;
         std::map<uint32_t, DBFile*> dbFiles;
 
@@ -46,7 +46,6 @@ Status LightDB::loadIdxFromFiles(){
                 Indexer* indexer = new Indexer();
                 indexer->fileId = fid;
                 indexer->offset = offset;
-                //printf("build index, set offset key:%s, offset:%d \n", e.meta->key.c_str(), indexer->offset);
 
                 offset += e.Size();
                 df->SetOffset(offset);
@@ -182,7 +181,6 @@ void LightDB::buildHashIndex(Entry *entry) {
         return;
     }
     std::string key = entry->meta->key;
-    //printf("Mark:%d \n",entry->GetMark());
     switch (entry->GetMark()) {
         case HashHSet:
             hashIdx.indexes->HSet(entry->meta->key, entry->meta->extra, entry->meta->value);

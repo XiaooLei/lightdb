@@ -18,7 +18,7 @@ Status LightDB::Open(Config* config, bool merge){
 
     //load the db files from disk
     FileIds activeFileIds;
-    s = Build(config->dirPath, config->rWMethod, config->blockSize, archivedFiles, activeFileIds);
+    s = Build(config->dirPath + "/" + "data", config->rWMethod, config->blockSize, archivedFiles, activeFileIds);
     if(!s.ok()){
         return s;
     }
@@ -26,7 +26,7 @@ Status LightDB::Open(Config* config, bool merge){
     //set active files for writing 每种不同类型的value都有一个活跃数据文件
     for(auto it = activeFileIds.begin(); it!=activeFileIds.end(); it++){
         // it->first是数据类型的型号（0-4），it->second是文件Id，注意是Id，即DBFile的Id，不是fileid
-        DBFile* af = new DBFile(config->dirPath, it->second, config->rWMethod, config->blockSize, it->first);
+        DBFile* af = new DBFile(config->dataPath, it->second, config->rWMethod, config->blockSize, it->first);
         activeFiles.insert(std::make_pair(it->first, af));
     }
 
@@ -138,7 +138,7 @@ Status LightDB::store(Entry* entry){
     Status s;
     DBFile* activeFile = this->getActiveFile(static_cast<DataType>(entry->GetType()));
     if(activeFile->WriteOffset > config->blockSize) {
-        DBFile* newActiveFile = new DBFile(config->dirPath, activeFile->Id + 1, config->rWMethod, config->blockSize, entry->GetType());
+        DBFile* newActiveFile = new DBFile(config->dataPath, activeFile->Id + 1, config->rWMethod, config->blockSize, entry->GetType());
         this->activeFiles[entry->GetType()] = newActiveFile;
         this->archivedFiles[entry->GetType()].insert(std::make_pair(activeFile->Id, activeFile));
         activeFile = newActiveFile;
@@ -158,7 +158,7 @@ Status LightDB::Merge(){
     isMerging = true;
 
     // create a temporary directory for storing the new db files.
-    std::string mergePath = config->dirPath + "/"  +mergeDirName + "/";
+    std::string mergePath = config->dirPath + "/data/"  +mergeDirName + "/";
     CreateDir(mergePath.c_str());
     dump();
     std::thread mergeStringThread(
@@ -174,7 +174,7 @@ Status LightDB::Merge(){
 
 // 各个value类型中，对应的entry都是保存std::string key和std::string value，而不会保存list、hash等。例如value类型为list时，每个key都会对应一个list，这个list中的所有string都会和key分别组成一对，存放到一个entry中，而不会把key和对应的整个list存放到一个entry中
 void LightDB::dump(){
-    std::string path = config->dirPath + "/" + mergeDirName;
+    std::string path = config->dataPath + "/" + mergeDirName;
     std::thread* dumpListThread;
     std::thread* dumpHashThread;
     std::thread* dumpSetThread;
@@ -284,7 +284,7 @@ void LightDB::mergeString(){
 //        return;
 //    }
 
-    std::string mergePath = config->dirPath + "/" + mergeDirName;
+    std::string mergePath = config->dataPath + "/" + mergeDirName;
     ArchivedFiles mergeFiles;
     FileIds tmp;
     Status s = BuildType(mergePath, config->rWMethod, config->blockSize, mergeFiles, tmp, String);

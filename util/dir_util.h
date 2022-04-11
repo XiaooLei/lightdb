@@ -7,7 +7,7 @@
 
 namespace lightdb{
 
-int CreateDir(const char *sPathName)
+inline int CreateDir(const char *sPathName)
 {
     char DirName[256];
     strcpy(DirName, sPathName);

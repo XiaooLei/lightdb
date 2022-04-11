@@ -180,6 +180,7 @@ namespace lightdb{
         // 每种类型包含的文件id，注意不是fileid
         std::unordered_map<uint16_t,std::vector<int>> fileIdsMap;
         if((dir = opendir(path.c_str())) == NULL){
+            printf("path:%s\n", path.c_str());
             perror("Open dir error...");
             exit(1);
         }

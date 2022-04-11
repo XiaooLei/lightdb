@@ -189,7 +189,7 @@ namespace lightdb{
         if(!s.ok()){
             return s;
         }
-        
+
         std::string oldValue;
         bool exist;
         s = Get(key, oldValue, exist);
