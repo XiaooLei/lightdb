@@ -58,11 +58,9 @@ namespace lightdb{
                     CloseAndDel(evs[i].data.fd);
                     continue;
                 }
-
                 std::string request;
                 request.assign(buf, nread);
                 std::string resp = this->requestHandler->HandleCmd(request, evs[i].data.fd);
-                // 接下来将命令运行结果写回给客户端？
             }
         }
     }
@@ -70,7 +68,7 @@ namespace lightdb{
 
     void Epoll::AddConn(int conn_fd) {
         struct epoll_event ev;
-        ev.events = EPOLLIN | EPOLLOUT;		// accept Read!
+        ev.events = EPOLLIN;	// accept Read!
         ev.data.fd = conn_fd;
         if(epoll_ctl(epollFd, EPOLL_CTL_ADD, conn_fd, &ev) < 0){
             printf("Epoll Add Error : %d\n", errno);

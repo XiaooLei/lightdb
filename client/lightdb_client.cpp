@@ -23,7 +23,7 @@ namespace lightdb{
         server.sin_family = AF_INET;
         server.sin_port = htons(PORT);
         server.sin_addr = *((struct in_addr *)he->h_addr);
-        if(connect(socket_fd, (struct sockaddr *)&server, sizeof(server))==-1)
+        if(connect(socket_fd, (struct sockaddr *)&server, sizeof(server)) < 0)
         {
             printf("connect() error\n");
             exit(1);

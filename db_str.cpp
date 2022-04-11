@@ -281,6 +281,7 @@ namespace lightdb{
         tmp_meta->key = entry->meta->key;
 
         Indexer* idx = new Indexer(tmp_meta, activeFile->Id, static_cast<int64_t>(activeFile->WriteOffset - entry->Size()));
+        delete tmp_meta;
         //printf("set indexer: idx.offset:%d \n", idx->offset);
         if( config->indexMode == KeyValueMemMode ){
             idx->meta->value = entry->meta->value;
