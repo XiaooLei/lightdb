@@ -1,7 +1,4 @@
 //
-// Created by 9 on 2022/2/27.
-//
-//
 //  CTimer.cpp
 //  ZJCrossCpp
 //

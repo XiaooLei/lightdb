@@ -31,17 +31,17 @@ namespace lightdb{
         _fileName = fileName;
 
         std::string filePath = path + "/" + fileName;
-        //cout<< filePath <<endl;
+
         _fd = open(filePath.c_str(), O_RDWR|O_APPEND|O_CREAT);
         if( _fd < 0){
             printf("file:%s ", filePath.c_str());
             perror("open file failed, the reason is");
             exit (errno);
         }
+
         WriteOffset = lseek(_fd, 0l, SEEK_END);
         // 当open时，如果使用了O_APPEND，那么无论lseek把文件指针指向何处，当write时，都会从文件的结尾处写入
         lseek(_fd, 0l, SEEK_SET);
-        //printf("WriteOffset :%d \n", WriteOffset );
         if(WriteOffset == -1){
             printf("error occurred : errno :%d \n", errno);
             exit(-1);
@@ -93,6 +93,10 @@ namespace lightdb{
         }
         offset += entry.meta->extraSize;
 
+        uint32_t crc = CRC_Compute(entry.meta->value);
+        if(crc != entry.crc32){
+            return Status::InvalidCrcErr(entry.meta->key);
+        }
         return Status::OK();
     }
 
@@ -135,7 +139,6 @@ namespace lightdb{
         while(size > 0){
             // 因为文件是以追加方式打开的，所以数据只可能追加到文件末尾
             ssize_t write_size = write(_fd, data, size);
-            //printf("write_size %d \n", write_size);
             if(write_size < 0){
                 if(errno == EINTR){
                     write_size = 0;
@@ -156,14 +159,6 @@ namespace lightdb{
     void DBFile::SetOffset(int64_t offset){
         this->Offset = offset;
     }
-
-    /* bool DBFile::Close(){ */
-    /*     if(close(this->_fd)){ */
-    /*     Sync(); */
-    /*         return true; */
-    /*     } */
-    /*     return false; */
-    /* } */
 
     void DBFile::Sync(){
         syncfs(this->_fd);

@@ -14,7 +14,8 @@ enum Code {kOk, kIOError, kNotFound, kEndOfFile, kKeyNotExist, kKeyExpiredErr, k
            kLInvalidIndex, kLInvalidRange, kLPivotNotExist,            //List
            kSmemberNotExist, kWrongNumberOfArgs,                       //Set
            kZMemberNotExist,kZInvalidRank,                             //ZSet
-           kIsMering
+           kIsMering,
+           kInvalidCrc
            };
 
 //用来存储异常信息
@@ -143,7 +144,10 @@ public:
     static Status IsMergingErr(){
         return Status(kIsMering, "the db is merging files", "");
     }
-    
+
+    static Status InvalidCrcErr(const std::string& key){
+        return Status(kInvalidCrc, "crc check failed","");
+    }
 
     bool ok() const { return code == 0; }
 

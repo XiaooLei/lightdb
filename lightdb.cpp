@@ -386,8 +386,6 @@ void LightDB::mergeString(){
     return;
 }
 
-
-
 // 只有mergestring时使用这个函数
 Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
     Status s;

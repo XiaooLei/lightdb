@@ -189,17 +189,18 @@ namespace lightdb{
         if(!s.ok()){
             return s;
         }
+        
         std::string oldValue;
         bool exist;
         s = Get(key, oldValue, exist);
         if(!s.ok()){
             return s;
         }
+
         if(!exist){
             oldValue = "";
         }
         std::string newValue = oldValue + value;
-        //printf("new value :%s \n", newValue.c_str());
         length = newValue.size();
         return StrSet(key, newValue);
     }
@@ -282,12 +283,14 @@ namespace lightdb{
 
         Indexer* idx = new Indexer(tmp_meta, activeFile->Id, static_cast<int64_t>(activeFile->WriteOffset - entry->Size()));
         delete tmp_meta;
-        //printf("set indexer: idx.offset:%d \n", idx->offset);
+
         if( config->indexMode == KeyValueMemMode ){
             idx->meta->value = entry->meta->value;
         }
+
         strIdx.indexes->put(entry->meta->key, *idx);
         //上一行实际上拷贝了新的idx，这里要delete旧的idx
+        delete idx;
         return Status::OK();
     }
 
@@ -310,15 +313,16 @@ namespace lightdb{
         Status s;
         Indexer idx;
         bool get = strIdx.indexes->get(key, idx);
-        //printf("get: %d \n", get);
         if(!get){
             suc = false;
             return Status::OK();
         }
+
         bool expired = CheckExpired(key, String);
         if(expired){
             return Status::OK();
         }
+
         if(config->indexMode == KeyValueMemMode){
             value = idx.meta->value;
             suc = true;
@@ -338,13 +342,11 @@ namespace lightdb{
                 df = archivedFiles[String][idx.fileId];
             }
             Entry entry;
-            //printf("read offset: %d \n", idx.offset);
             s = df->Read(idx.offset, entry);
             if(!s.ok()){
                 return s;
             }
             value = entry.meta->value;
-            //printf("read value:%s \n", value.c_str());
             // 从lrucache中读到entry后，要将这个节点移动到链表头部
             cache->put(key, value);
             return Status::OK();

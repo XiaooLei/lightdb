@@ -9,9 +9,7 @@ struct StrSkipListNode {
 	std::string key;
     Indexer val;
 	std::vector<StrSkipListNode *> level;
-	StrSkipListNode (std::string key, Indexer val,int sz=32) : key(key), val(val),level(sz, nullptr) {
-	    //printf("node created, level size %d \n", level.size());
-	}
+	StrSkipListNode (std::string key, Indexer val,int sz=32) : key(key), val(val),level(sz, nullptr) {}
 	StrSkipListNode(const StrSkipListNode& node): key(node.key), val(node.val){}
 };
 
@@ -69,17 +67,11 @@ public:
         }
 
         std::vector<StrSkipListNode *> update(MAXL);
-        //printf("update size %d \n", update.size());
         StrSkipListNode *p = head;
-        //printf("level:%d \n",level);
         for (int i = level - 1; i >= 0; --i) {
-            //printf("aaa\n");
-            //printf("level size:%d, i:%d \n",p->level.size(),i);
             while (p->level[i] && p->level[i]->key.compare(key) > 0) {
-                //printf("level size:%d, i:%d \n",p->level.size(),i);
                 p = p->level[i];
             }
-            //printf("i :%d \n",i);
             update[i] = p;
         }
         int lv = randomLevel();

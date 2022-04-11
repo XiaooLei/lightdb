@@ -1,4 +1,4 @@
-#include "../../lightdb.h"
+#include "lightdb.h"
 using namespace lightdb;
 int main(){
     LightDB* lightdb = new lightdb::LightDB();

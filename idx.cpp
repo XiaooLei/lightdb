@@ -44,8 +44,6 @@ Status LightDB::loadIdxFromFiles(){
                 }
 
                 Indexer* indexer = new Indexer();
-                /* indexer->meta = new Meta(); */
-                /* indexer->allocated = true; */
                 indexer->fileId = fid;
                 indexer->offset = offset;
                 //printf("build index, set offset key:%s, offset:%d \n", e.meta->key.c_str(), indexer->offset);
@@ -64,16 +62,11 @@ Status LightDB::loadIdxFromFiles(){
 
 // 只在打开数据库，遍历所有数据文件进行索引恢复时使用，往db文件追加entry时，也会对entry建立索引，但是不会用这个函数，会使用strset系列函数
 Status LightDB::buildIndex(Entry* entry, Indexer* indexer){
-    //printf("Type:%d \n",entry->GetType());
     switch(entry->GetType()){
         case String:
             indexer->meta->key = entry->meta->key;
-            /* indexer->meta->keySize = entry->meta->keySize; */
-            /* indexer->meta->extra = entry->meta->extra; */
-            /* indexer->meta->extraSize = entry->meta->extraSize; */
             if (config->indexMode == KeyValueMemMode) {
                 indexer->meta->value = entry->meta->value;
-                /* indexer->meta->valueSize = entry->meta->valueSize; */
             }
             buildStringIndex(indexer, entry);
             break;
@@ -102,7 +95,6 @@ void LightDB::buildStringIndex(Indexer* indexer,Entry* entry){
     }
     switch (entry->GetMark()) {
         case StringSet:
-            //printf("string put, key:%s, value:%s, offset:%d \n", indexer->meta->key.c_str(), indexer->meta->value.c_str(), indexer->offset);
             indexer->meta->value = entry->meta->value;
             strIdx.indexes->put(indexer->meta->key, *indexer);
             break;
@@ -194,7 +186,6 @@ void LightDB::buildHashIndex(Entry *entry) {
     switch (entry->GetMark()) {
         case HashHSet:
             hashIdx.indexes->HSet(entry->meta->key, entry->meta->extra, entry->meta->value);
-            //printf("hashBuildIndex, key:%s, value:%s \n", entry->meta->key.c_str(), entry->meta->value.c_str());
             break;
         case HashHDel:
             hashIdx.indexes->HDel(entry->meta->key, entry->meta->extra);

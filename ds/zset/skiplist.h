@@ -83,25 +83,19 @@ public:
             while (p->level[i] && p->level[i]->score < score) {
                 p = p->level[i];
             }
-            //printf("p :%f i:%d \n", p->score, i);
             update[i] = p;
         }
-        //printf("level:%d \n",level);
         int lv = randomLevel();
         if (lv > level) {
-            /* lv = ++level; */
-            /* update[lv - 1] = head; */ 
             for (int i = level; i < lv; i++) {
                 update[i] = head;
             }
             level = lv;
         }
-        //printf("randon_level %d \n", lv);
         SkipListNode *newNode = new SkipListNode(score, lv);
         newNode->members.insert(member);
         for (int i = lv - 1; i >= 0; --i) {
             p = update[i];
-            //printf("update: %f , i:%d \n",p->score, i);
             newNode->level[i] = p->level[i];
             p->level[i] = newNode;
         }
@@ -150,7 +144,6 @@ public:
     }
 
     int rank(std::string member,double target_score){
-        //printf("target_score:%f \n",target_score);
         SkipListNode* p = head;
         int rank = 0;
         while(p&&p->level[0]->score<target_score){
@@ -164,7 +157,6 @@ public:
             }
             rank++;
         }
-        //printf("rank %d \n",rank);
         return rank;
     }
 
@@ -221,7 +213,6 @@ public:
     bool End(){
         return curNodePtr->level[0] == nullptr;
     }
-
 
 };
 

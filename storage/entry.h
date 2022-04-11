@@ -77,14 +77,13 @@ class Entry{
     }
 
     int Decode(std::string& buf){
+        crc32 = DecodeFixed32(buf.c_str());
         meta->keySize = DecodeFixed32(buf.c_str() + 4);
-        //printf("decoded keysize :%d \n", meta->keySize);
         meta->valueSize = DecodeFixed32(buf.c_str() + 8);
         meta->extraSize = DecodeFixed32(buf.c_str() + 12);
         state = DecodeFixed16(buf.c_str() + 16);
         timeStamp = DecodeFixed64(buf.c_str() + 18);
         txId = DecodeFixed64(buf.c_str() + 22);
-        //printf("after decode, keysize:%d valuesize %d extrasize %d \n", meta->keySize, meta->valueSize, meta->extraSize);
         return 0;
     }
 
