@@ -51,6 +51,16 @@ Status LightDB::Open(Config* config, bool merge){
                 }, this, this->config->mergeCheckInterval, cTimer);
         mergeThread.detach();
     }
+    printf("**         **   *******   **       ***********  \n"
+                  "**         **   **   **   **           **       \n"
+                  "**         **   **   **   **           **       \n"
+                  "**         **   *******   ********     **       \n"
+                  "**         **        **   **     *     **       \n"
+                  "**         **   *    **   **     *     **       \n"
+                  "********   **   *******   **     *     **       \n\n"
+           );
+
+
     printf("[INFO][LightDB Engine Opened] \n");
     return Status::OK();
 }
@@ -253,7 +263,7 @@ void LightDB::dumpInternal(std::string path, DataType eType){
 
     //rename merge files, copy merge file to dir path
     for(auto mgFile : mergeFiles){
-        rename( (path + "/" + mgFile->FileName()).c_str(), (config->dirPath + "/" + mgFile->FileName()).c_str());
+        rename( (path + "/" + mgFile->FileName()).c_str(), (config->dataPath + "/" + mgFile->FileName()).c_str());
     }
 
 }
@@ -366,7 +376,7 @@ void LightDB::mergeString(){
         sprintf(buf, "%09d.data.str", file.first);
         std::string name;
         name.assign(buf);
-        if(rename((mergePath + "/" + name).c_str(), (config->dirPath + "/" + name).c_str()) < 0){
+        if(rename((mergePath + "/" + name).c_str(), (config->dataPath + "/" + name).c_str()) < 0){
             printf("rename error\n");
         }
     }
