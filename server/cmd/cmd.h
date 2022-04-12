@@ -4,7 +4,7 @@
 #include "../../lightdb.h"
 
 namespace lightdb {
-    typedef Status CmdFunc(LightDB* db, std::vector<std::string> args, std::string& res);
+    typedef void CmdFunc(LightDB* db, std::vector<std::string> args, std::string& res);
 
     void addExecCommand(std::string cmd, CmdFunc cmdFunc);
 

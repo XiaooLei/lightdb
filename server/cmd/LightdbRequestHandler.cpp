@@ -91,11 +91,7 @@ namespace lightdb{
                 bool get = this->hashTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
-                Status s = handler(task.lightDb, task.args, resp);
-                if (!s.ok()) {
-                    resp = "Internal Error: ";
-                    resp.append(to_string(s.Code()));
-                }
+                handler(task.lightDb, task.args, resp);
                 RespTask respTask(task.conn_fd, resp);
                 this->respQueue.Enqueue(respTask);
             }
@@ -109,11 +105,7 @@ namespace lightdb{
                 bool get = this->setTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
-                Status s = handler(task.lightDb, task.args, resp);
-                if (!s.ok()) {
-                    resp = "Internal Error: ";
-                    resp.append(to_string(s.Code()));
-                }
+                handler(task.lightDb, task.args, resp);
                 RespTask respTask(task.conn_fd, resp);
                 this->respQueue.Enqueue(respTask);
             }
@@ -127,11 +119,7 @@ namespace lightdb{
                 bool get = this->listTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
-                Status s = handler(task.lightDb, task.args, resp);
-                if (!s.ok()) {
-                    resp = "Internal Error: ";
-                    resp.append(to_string(s.Code()));
-                }
+                handler(task.lightDb, task.args, resp);
                 RespTask respTask(task.conn_fd, resp);
                 this->respQueue.Enqueue(respTask);
             }
@@ -145,11 +133,7 @@ namespace lightdb{
                 bool get = this->strTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
-                Status s = handler(task.lightDb, task.args, resp);
-                if (!s.ok()) {
-                    resp = "Internal Error: ";
-                    resp.append(to_string(s.Code()));
-                }
+                handler(task.lightDb, task.args, resp);
                 RespTask respTask(task.conn_fd, resp);
                 this->respQueue.Enqueue(respTask);
             }
@@ -163,11 +147,7 @@ namespace lightdb{
                 bool get = this->zsetTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
-                Status s = handler(task.lightDb, task.args, resp);
-                if (!s.ok()) {
-                    resp = "Internal Error: ";
-                    resp.append(to_string(s.Code()));
-                }
+                handler(task.lightDb, task.args, resp);
                 RespTask respTask(task.conn_fd, resp);
                 this->respQueue.Enqueue(respTask);
             }
