@@ -22,8 +22,6 @@ int main(int argc, char* argv[]){
     printf("successfully connected to lighted, address:%s \n", lightdbClient.RemoteAddress());
     while(true){
         printf("(%s:%d)>", lightdbClient.RemoteAddress(), port);
-        std::string resp;
-
         std::string request;
         std::getline(std::cin, request);
         if(request.size() == 0){
@@ -34,11 +32,12 @@ int main(int argc, char* argv[]){
             lightdbClient.Close();
             exit(0);
         }
+        Response resp;
         if(lightdbClient.Execute(request, resp) < 0){
             printf("err occur\n");
             exit(0);
         }
-        printf("%s\n", resp.c_str());
+        printf("%s\n", resp.GetContent().c_str());
     }
 
 }

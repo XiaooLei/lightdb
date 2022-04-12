@@ -233,6 +233,10 @@ class LightDB{
 
     void buildZSetIndex(Entry* entry);
 
+    std::string getDirPath(){
+        return this->config->dirPath;
+    }
+
     private:
     // 每种数据类型都有相应的存储索引的结构
     HashIdx hashIdx;

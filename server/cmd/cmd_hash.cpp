@@ -3,11 +3,13 @@
 //
 
 #include "cmd.h"
+#include "Response.h"
+
 namespace lightdb{
-Status hSet(LightDB* db, std::vector<std::string> args, std::string& res){
+Status hSet(LightDB* db, std::vector<std::string> args, std::string& resp){
     Status s;
     if(args.size() != 3){
-        res = "wrong num of args";
+        resp = "wrong num of args";
         return Status::OK();
     }
     int count;
@@ -15,14 +17,15 @@ Status hSet(LightDB* db, std::vector<std::string> args, std::string& res){
     if(!s.ok()){
         return s;
     }
-    res = to_string(count);
+    resp = to_string(count);
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
-Status hSetNx(LightDB* db, std::vector<std::string> args, std::string& res){
+Status hSetNx(LightDB* db, std::vector<std::string> args, std::string& resp){
     Status s;
     if(args.size()!=3){
-        res = "wrong num of args";
+        resp = "wrong num of args";
         return Status::OK();
     }
     bool suc;
@@ -30,7 +33,8 @@ Status hSetNx(LightDB* db, std::vector<std::string> args, std::string& res){
     if(!s.ok()){
         return s;
     }
-    res = to_string(suc);
+    resp = to_string(suc);
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
@@ -45,6 +49,7 @@ Status hGet(LightDB* db, std::vector<std::string> args, std::string& resp){
     if(!suc){
         resp = "(nil)";
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
@@ -64,6 +69,7 @@ Status hGetAll(LightDB* db, std::vector<std::string> args, std::string& resp){
         resp.append(to_string(i + 1) + ") ");
         resp.append(vals[i] + "\n");
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
@@ -80,13 +86,14 @@ Status hMSet(LightDB* db, std::vector<std::string> args, std::string& resp){
         return s;
     }
     resp = "OK";
+    resp = Response::ResponseWrap(s.Code(), resp);
     Status::OK();
 }
 
-Status hMGet(LightDB* db, std::vector<std::string> args, std::string& res){
+Status hMGet(LightDB* db, std::vector<std::string> args, std::string& resp){
     Status s;
     if(args.size() <=1 ){
-        res = "wrong num of args";
+        resp = "wrong num of args";
         return Status::OK();
     }
     std::string key = args[0];
@@ -98,15 +105,16 @@ Status hMGet(LightDB* db, std::vector<std::string> args, std::string& res){
         return s;
     }
     for(int i = 0; i < vals.size(); i++){
-        res.append(to_string(i + 1));
-        res.append(") ");
+        resp.append(to_string(i + 1));
+        resp.append(") ");
         if(sucs[i]){
-            res.append(vals[i]);
+            resp.append(vals[i]);
         }else{
-            res.append("(nil)");
+            resp.append("(nil)");
         }
-        res.append("\n");
+        resp.append("\n");
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
@@ -129,11 +137,13 @@ Status hDel(LightDB* db, std::vector<std::string> args, std::string& resp){
     }
     resp.append("(integer) ");
     resp.append(to_string(count));
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
 
 Status hKeyExist(LightDB* db, std::vector<std::string> args, std::string& resp){
+    Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
         return Status::OK();
@@ -144,10 +154,12 @@ Status hKeyExist(LightDB* db, std::vector<std::string> args, std::string& resp){
     }else{
         resp = "0";
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
 Status hExist(LightDB* db, std::vector<std::string> args, std::string& resp){
+    Status s;
     if(args.size() != 2){
         resp = "wrong num of args";
         return Status::OK();
@@ -158,10 +170,12 @@ Status hExist(LightDB* db, std::vector<std::string> args, std::string& resp){
     }else{
         resp = "0";
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
 Status hLen(LightDB* db, std::vector<std::string> args, std::string& resp){
+    Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
         return Status::OK();
@@ -169,6 +183,7 @@ Status hLen(LightDB* db, std::vector<std::string> args, std::string& resp){
     int len = db->HLen(args[0]);
     resp.append("(integer) ");
     resp.append(to_string(len));
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
@@ -188,10 +203,12 @@ Status hKeys(LightDB* db, std::vector<std::string> args, std::string& resp){
     }else{
         resp = "(empty list or set)";
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
 Status hVals(LightDB* db, std::vector<std::string> args, std::string& resp){
+    Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
         return Status::OK();
@@ -206,35 +223,41 @@ Status hVals(LightDB* db, std::vector<std::string> args, std::string& resp){
     }else{
         resp = "(empty list or set)";
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
 Status hClear(LightDB* db, std::vector<std::string> args, std::string& resp){
+    Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
+        resp = Response::ResponseWrap(s.Code(), resp);
         return Status::OK();
     }
-    Status s;
     int count = 0;
     s = db->HClear(args[0], count);
     if(!s.ok()){
+        resp = Response::ResponseWrap(s.Code(), s.Message());
         return s;
     }
     resp.append("(integer) ");
     resp.append(to_string(count));
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
 Status hExpire(LightDB* db, std::vector<std::string> args, std::string& resp){
+    Status s;
     if(args.size() != 2){
         resp = "wrong num of args";
+        resp = Response::ResponseWrap(s.Code(), resp);
         return Status::OK();
     }
-    Status s;
     int count = 0;
     bool suc;
     s = db->HExpire(args[0], strtoull(args[1].c_str(), nullptr, 10), suc);
     if(!s.ok()){
+        resp = Response::ResponseWrap(s.Code(), s.Message());
         return s;
     }
     if(suc){
@@ -242,18 +265,21 @@ Status hExpire(LightDB* db, std::vector<std::string> args, std::string& resp){
     }else{
         resp = "(integer) 0";
     }
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 
 Status hTTL(LightDB* db, std::vector<std::string> args, std::string& resp){
+    Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
+        resp = Response::ResponseWrap(s.Code(), resp);
         return Status::OK();
     }
-    Status s;
     int64_t ttl = db->HTTL(args[0]);
     resp.append("(integer) ");
     resp.append(to_string(ttl));
+    resp = Response::ResponseWrap(s.Code(), resp);
     return Status::OK();
 }
 

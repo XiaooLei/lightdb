@@ -34,7 +34,7 @@ namespace lightdb{
     }
 
 
-    int LightdbClient::Execute(std::string request, std::string &resp) {
+    int LightdbClient::Execute(std::string request, Response& response) {
         if(!connected){
             return -1;
         }
@@ -50,7 +50,8 @@ namespace lightdb{
             exit(1);
         }
         buf[num]='\0';
-        resp.assign(buf);
+        std::string respJson(buf);
+        response.Decode(respJson);
         return 0;
     }
 

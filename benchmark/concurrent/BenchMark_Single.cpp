@@ -11,11 +11,11 @@ int main(){
     double times = 100000;
 
     uint64_t start_t = getCurrentTimeStamp();
-    std::string resp;
+    Response resp;
     std::vector<std::string> resps;
     for(int i = 0; i < times; i++){
         lightdbClient.Execute("test", resp);
-        resps.push_back(resp);
+        resps.push_back(resp.GetContent());
     }
     lightdbClient.Close();
     uint64_t end_t = lightdb::getCurrentTimeStamp();

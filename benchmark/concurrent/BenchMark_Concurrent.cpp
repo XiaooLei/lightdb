@@ -38,12 +38,12 @@ int main(int argc, char *argv[]){
         std::thread clientThread([&](){
             LightdbClient* client = &clients[i];
             for(int j = 0; j < timesPerClient; j++) {
-                std::string resp;
+                Response resp;
                 if (client->Execute("get keya", resp) < 0) {
                     printf("execute failed");
                     continue;
                 }
-                resps.push_back(resp);
+                resps.push_back(resp.GetContent());
             }
         });
         clientThread.join();

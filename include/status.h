@@ -56,6 +56,10 @@ public:
     void Report(){
         printf("msg:%s \n",state_.c_str());
     }
+
+    std::string Message(){
+        return this->state_;
+    }
     
 
     static Status OK() { return Status(); }
