@@ -27,7 +27,7 @@ namespace lightdb{
             }
         }
 
-        int Connect(std::string address);
+        int Connect(std::string address, int port);
 
         int Execute(std::string request, std::string& resp);
 

@@ -6,15 +6,22 @@
 #include "lightdb_client.h"
 #include <iostream>
 using namespace lightdb;
-int main(){
+int main(int argc, char* argv[]){
     LightdbClient lightdbClient;
-    if(lightdbClient.Connect("127.0.0.1") < 0){
+    if( argc != 3){
+        printf("wrong args count \n");
+        exit(0);
+    }
+    char* address = argv[1];
+    int port = atoi(argv[2]);
+
+    if(lightdbClient.Connect(address, port) < 0){
         printf("connect failed");
         exit(0);
     }
     printf("successfully connected to lighted, address:%s \n", lightdbClient.RemoteAddress());
     while(true){
-        printf("(%s:10000)>", lightdbClient.RemoteAddress());
+        printf("(%s:%d)>", lightdbClient.RemoteAddress(), port);
         std::string resp;
 
         std::string request;

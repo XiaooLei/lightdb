@@ -7,7 +7,7 @@
 using namespace lightdb;
 int main(){
     LightdbClient lightdbClient;
-    lightdbClient.Connect("127.0.0.1");
+    lightdbClient.Connect("127.0.0.1", 10000);
     double times = 100000;
 
     uint64_t start_t = getCurrentTimeStamp();

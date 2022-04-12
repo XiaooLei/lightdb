@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
     server->SetRequestHandler(requestHandler);
     lightdb::init_all();
 
-    server->Listen(10000);
+    server->Listen(config.port);
     server->Loop();
     delete server;
 }

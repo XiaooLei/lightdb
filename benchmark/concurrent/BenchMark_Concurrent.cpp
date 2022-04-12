@@ -10,15 +10,17 @@
 
 using namespace lightdb;
 int main(int argc, char *argv[]){
-    if(argc != 4){
+    if(argc != 5){
         printf("wrong args, only %d args provided \n", argc);
         exit(0);
     }
     std::string address;
     address.assign(argv[1]);
 
-    int ConcurrentNum = atoi(argv[2]);
-    int timesPerClient = atoi(argv[3]);
+    int port = atoi(argv[2]);
+
+    int ConcurrentNum = atoi(argv[3]);
+    int timesPerClient = atoi(argv[4]);
 
     std::vector<LightdbClient> clients;
 
@@ -26,7 +28,7 @@ int main(int argc, char *argv[]){
         clients.push_back(LightdbClient());
     }
     for(int i = 0; i < ConcurrentNum; i++){
-        clients[i].Connect(address);
+        clients[i].Connect(address, port);
     }
 
     uint64_t start_t = getCurrentTimeStamp();

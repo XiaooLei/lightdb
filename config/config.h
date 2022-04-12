@@ -8,7 +8,7 @@
 using namespace std;
 namespace lightdb{
 
-const string DefaultAddr = "127.0.0.1:5200";
+const int DefaultPort = 10000;
 const string DefaultDirPath = "/tmp/test/lightdb";
 const uint32_t DefaultBlockSize = 500  * 1024;// * 1024;
 const uint32_t DefaultMaxKeySize = uint32_t(1 * 1024 * 1024);
@@ -23,10 +23,10 @@ class Config{
     public:
     Config(){}
 
-    Config(string addr, string dirPath, FileRWMethod rWMethod, DataIndexMode indexMode, 
+    Config(int port, string dirPath, FileRWMethod rWMethod, DataIndexMode indexMode,
     uint64_t blockSize, uint32_t maxKeySize, uint32_t maxValueSize, 
     bool sync, int mergeThreshold, uint64_t mergeCheckInterval,int cacheCapacity):
-    addr(addr), dirPath(dirPath), rWMethod(rWMethod), indexMode(indexMode),
+    port(port), dirPath(dirPath), rWMethod(rWMethod), indexMode(indexMode),
     blockSize(blockSize), maxKeySize(maxKeySize), maxValueSize(maxValueSize),
      sync(sync), mergeThreshold(mergeThreshold), mergeCheckInterval(mergeCheckInterval),cacheCapacity(cacheCapacity){
         dataPath = dirPath + "/data";
@@ -34,7 +34,7 @@ class Config{
 
     //默认配置
     static Config DefaultConfig(){
-        return Config(DefaultAddr, DefaultDirPath, FileIO, KeyOnlyMemMode,
+        return Config(DefaultPort, DefaultDirPath, FileIO, KeyOnlyMemMode,
          DefaultBlockSize, DefaultMaxKeySize, DefaultMaxValueSize,
          false, DefaultMergeThreshold, DefaultMergeCheckInterval, DefaultCacheCapacity);
     }
@@ -42,7 +42,8 @@ class Config{
     static Config BuildConfig(const std::string& configPath){
         ConfigParser* configParser = new ConfigParser();
         configParser->Parser(configPath.c_str());
-        std::string addr = configParser->GetDefConfig("Addr", DefaultAddr);
+        std::string portStr = configParser->GetDefConfig("Port", to_string(DefaultPort));
+        int port = stoi(portStr);
         std::string dirPath = configParser->GetDefConfig( "DirPath", DefaultDirPath);
         std::string fileRwMethodStr = configParser->GetDefConfig( "FileRWMethod", "FileIO");
         FileRWMethod fileRwMethod;
@@ -90,7 +91,7 @@ class Config{
         std::string cacheCapacityStr = configParser->GetDefConfig("CacheCapacity", to_string(DefaultCacheCapacity));
         int cacheCapacity;
         cacheCapacity = stoi(cacheCapacityStr);
-        return Config(addr, dirPath, fileRwMethod, dataIndexMode,
+        return Config(port, dirPath, fileRwMethod, dataIndexMode,
                       blockSize, maxKeySize, maxValueSize,
                       sync, mergeThreshold, mergeCheckInterval, cacheCapacity);
     }
@@ -103,7 +104,7 @@ class Config{
     }
 
     public:
-    string addr;
+    int port;
     string dirPath;
     string dataPath;
     FileRWMethod rWMethod;

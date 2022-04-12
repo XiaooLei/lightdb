@@ -8,7 +8,7 @@
 
 namespace lightdb{
 
-    int LightdbClient::Connect(std::string address) {
+    int LightdbClient::Connect(std::string address, int port) {
         if((he=gethostbyname(address.c_str()))==NULL)
         {
             printf("gethostbyname() error\n");
@@ -21,7 +21,7 @@ namespace lightdb{
         }
         bzero(&server,sizeof(server));
         server.sin_family = AF_INET;
-        server.sin_port = htons(PORT);
+        server.sin_port = htons(port);
         server.sin_addr = *((struct in_addr *)he->h_addr);
         if(connect(socket_fd, (struct sockaddr *)&server, sizeof(server)) < 0)
         {
