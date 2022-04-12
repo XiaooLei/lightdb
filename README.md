@@ -1,9 +1,33 @@
 # lightdb
 
 
-测试说明：在clone代码编译测试之后，需要先创建目录/tmp/lightdb 作为数据文件存储目录
 
-编译：clone之后，执行./build.sh
+## 快速开始 
+
+### 编译 
+clone之后，执行./build.sh
+
+### 运行
+
+#### Server
+编译完成后，cd build 进入build文件夹，执行下面的命令开始执行
+
+```sh
+./LightDBServer ../lightdb.conf 
+```
+这里的参数为配置文件路径，可以根据自己的喜好自由配置
+
+#### Client
+同样在build文件夹中，运行
+
+```sh
+./Client 127.0.0.1 5200 # 第一个参数为连接的server的IP， 第二个参数为端口号
+```
+
+
+
+## 基准测试
+
 
 下面是压力测试实际表现，测试数据量均为100w。
 

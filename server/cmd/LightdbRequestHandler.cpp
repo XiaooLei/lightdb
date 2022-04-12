@@ -197,7 +197,9 @@ namespace lightdb{
         std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
         CmdFunc* handler = GetCmdFunction(cmd);
         if(handler == nullptr){
-            return "no such command";
+            RespTask respTask(conn_fd, "no such command");
+            this->respQueue.Enqueue(respTask);
+            return "";
         }
         cmdAndArgs.erase(cmdAndArgs.begin());
         std::string resp;
