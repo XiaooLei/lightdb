@@ -13,7 +13,7 @@
 
 void TestRaftJson(){
     std::string raftConfig;
-    int fd = open("raft.json", O_RDWR|O_APPEND|O_CREAT);
+    int fd = open("raft.json", O_RDWR|O_CREAT);
     char buf[20];
     memset(buf, '\n', sizeof(buf));
     for(;;){
@@ -38,6 +38,8 @@ void TestRaftJson(){
     printf("%s \n", host1->valuestring);
 
     printf("index:%d \n", cJSON_GetObjectItem(server1, "index")->valueint);
+
+    printf("me:%d \n", cJSON_GetObjectItem(raftJson, "me")->valueint);
 
 }
 

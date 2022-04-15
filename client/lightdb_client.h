@@ -10,7 +10,10 @@
 #include <string>
 #include <netdb.h>
 #include <cstring>
+#include <set>
+#include <map>
 #include "../server/cmd/Response.h"
+#include "../server/cmd/Request.h"
 
 namespace lightdb{
 
@@ -31,7 +34,7 @@ namespace lightdb{
 
         int Connect(std::string address, int port);
 
-        int Execute(std::string request, Response& response);
+        int Execute(Request request, Response& response);
 
         int Close();
 

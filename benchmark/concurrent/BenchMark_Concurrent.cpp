@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
             LightdbClient* client = &clients[i];
             for(int j = 0; j < timesPerClient; j++) {
                 Response resp;
-                if (client->Execute("get keya", resp) < 0) {
+                if (client->Execute(Request(ReadReq, "get keya"), resp) < 0) {
                     printf("execute failed");
                     continue;
                 }

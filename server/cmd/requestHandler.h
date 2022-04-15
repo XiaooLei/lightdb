@@ -9,17 +9,13 @@
 #include "cmd.h"
 namespace lightdb {
 
-    class RequestHandler {
+class RequestHandler {
+public:
 
-    private:
-        LightDB* lightDb;
-
-    public:
-
-        virtual std::string HandleCmd(std::string request, int conn_fd) = 0;
+    virtual std::string HandleCmd(std::string request, int conn_fd) = 0;
 
 
-    };
+};
 
 }
 

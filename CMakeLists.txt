@@ -16,6 +16,10 @@ add_executable(LightDBServer  lightdb.cpp db_hash.cpp db_list.cpp db_set.cpp db_
         include/common.h include/status.h include/types.h storage/db_file.h storage/entry.h idx.cpp sync/CTimer.h sync/CTimer.cpp sync/waitGroup.h dump.cpp server/epoll.h server/epoll.cpp server/server.h server/server.cpp server/main.cpp
         server/cmd/cmd_hash.cpp server/cmd/cmd_list.cpp server/cmd/cmd_set.cpp server/cmd/cmd_str.cpp server/cmd/cmd_zset.cpp server/cmd/cmd.h server/cmd/cmd.cpp server/cmd/requestHandler.h server/cmd/LightdbRequestHandler.cpp server/cmd/LightdbRequestHandler.h
         server/cmd/Response.h server/cmd/Response.cpp
+        server/cmd/Request.h server/cmd/Request.cpp
+        server/cmd/RaftHandler.h server/cmd/RaftHandler.cpp
+        client/lightdb_client.h client/lightdb_client.cpp
+        raft/raft.h raft/raftDataStructures.h raft/rpcClient.h
         util/cJson/cJSON.h util/cJson/cJSON.cpp
         config/configParser.h config/configParser.cpp sync/SafeQueue.h )
 
@@ -30,6 +34,7 @@ add_executable(TestWrite lightdb.cpp db_hash.cpp db_list.cpp db_set.cpp db_str.c
         include/common.h include/status.h include/types.h storage/db_file.h storage/entry.h idx.cpp sync/CTimer.h sync/CTimer.cpp sync/waitGroup.h dump.cpp server/epoll.h server/epoll.cpp server/server.h server/server.cpp
         server/cmd/cmd_hash.cpp server/cmd/cmd_list.cpp server/cmd/cmd_set.cpp server/cmd/cmd_str.cpp server/cmd/cmd_zset.cpp server/cmd/cmd.h server/cmd/cmd.cpp server/cmd/requestHandler.h server/cmd/LightdbRequestHandler.cpp server/cmd/LightdbRequestHandler.h
         server/cmd/Response.h server/cmd/Response.cpp
+        server/cmd/Request.h server/cmd/Request.cpp
         util/cJson/cJSON.h util/cJson/cJSON.cpp
         config/configParser.h config/configParser.cpp sync/SafeQueue.h benchmark/str/TestWrite.cpp)
 
@@ -38,6 +43,7 @@ add_executable(TestRead lightdb.cpp db_hash.cpp db_list.cpp db_set.cpp db_str.cp
         include/common.h include/status.h include/types.h storage/db_file.h storage/entry.h idx.cpp sync/CTimer.h sync/CTimer.cpp sync/waitGroup.h dump.cpp server/epoll.h server/epoll.cpp server/server.h server/server.cpp
         server/cmd/cmd_hash.cpp server/cmd/cmd_list.cpp server/cmd/cmd_set.cpp server/cmd/cmd_str.cpp server/cmd/cmd_zset.cpp server/cmd/cmd.h server/cmd/cmd.cpp server/cmd/requestHandler.h server/cmd/LightdbRequestHandler.cpp server/cmd/LightdbRequestHandler.h
         server/cmd/Response.h server/cmd/Response.cpp
+        server/cmd/Request.h server/cmd/Request.cpp
         util/cJson/cJSON.h util/cJson/cJSON.cpp
         config/configParser.h config/configParser.cpp sync/SafeQueue.h benchmark/str/TestRead.cpp)
 
@@ -46,20 +52,27 @@ add_executable(TestListLPush lightdb.cpp db_hash.cpp db_list.cpp db_set.cpp db_s
         include/common.h include/status.h include/types.h storage/db_file.h storage/entry.h idx.cpp sync/CTimer.h sync/CTimer.cpp sync/waitGroup.h dump.cpp server/epoll.h server/epoll.cpp server/server.h server/server.cpp
         server/cmd/cmd_hash.cpp server/cmd/cmd_list.cpp server/cmd/cmd_set.cpp server/cmd/cmd_str.cpp server/cmd/cmd_zset.cpp server/cmd/cmd.h server/cmd/cmd.cpp server/cmd/requestHandler.h server/cmd/LightdbRequestHandler.cpp server/cmd/LightdbRequestHandler.h
         server/cmd/Response.h server/cmd/Response.cpp
+        server/cmd/Request.h server/cmd/Request.cpp
         util/cJson/cJSON.h util/cJson/cJSON.cpp
         config/configParser.h config/configParser.cpp sync/SafeQueue.h  benchmark/list/benchmark_LPush.cpp)
 
 add_executable(Client client/lightdb_client.h client/lightdb_client.cpp client/cli.cpp
+        client/cluster_client.h client/cluster_client.cpp
         server/cmd/Response.h server/cmd/Response.cpp
+        server/cmd/Request.h server/cmd/Request.cpp
         util/cJson/cJSON.h util/cJson/cJSON.cpp)
 
 add_executable(BenchMarkSingleClient client/lightdb_client.h client/lightdb_client.cpp util/time.h benchmark/concurrent/BenchMark_Single.cpp
         server/cmd/Response.h server/cmd/Response.cpp
+        server/cmd/Request.h server/cmd/Request.cpp
         util/cJson/cJSON.h util/cJson/cJSON.cpp)
 
 add_executable(BenchMarkConcurrent client/lightdb_client.h client/lightdb_client.cpp util/time.h benchmark/concurrent/BenchMark_Concurrent.cpp
         server/cmd/Response.h server/cmd/Response.cpp
+        server/cmd/Request.h server/cmd/Request.cpp
         util/cJson/cJSON.h util/cJson/cJSON.cpp)
+
+add_executable(test_cJson util/cJson/test_cJson.cpp util/cJson/cJSON.h util/cJson/cJSON.cpp)
 
 
 

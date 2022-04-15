@@ -45,6 +45,11 @@ public:
         bool res = size == 0;
         return res;
     }
+
+    int Size(){
+        std::unique_lock<std::mutex> lk(mtx);
+        return queue.size();
+    }
 };
 }
 #endif //MYPROJECT_SAFEQUEUE_H

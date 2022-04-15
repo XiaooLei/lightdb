@@ -22,7 +22,7 @@ public:
 
     void Encode(std::string &bytes);
 
-    void Decode(const std::string &bytes);
+    int Decode(const std::string &bytes);
 
     static std::string ResponseWrap(int RespCode, const std::string& respContent) {
         Response response(RespCode, respContent);

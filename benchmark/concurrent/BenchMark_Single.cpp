@@ -14,7 +14,7 @@ int main(){
     Response resp;
     std::vector<std::string> resps;
     for(int i = 0; i < times; i++){
-        lightdbClient.Execute("test", resp);
+        lightdbClient.Execute(Request(ReadReq, "test"), resp);
         resps.push_back(resp.GetContent());
     }
     lightdbClient.Close();

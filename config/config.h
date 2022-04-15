@@ -39,7 +39,7 @@ class Config{
          false, DefaultMergeThreshold, DefaultMergeCheckInterval, DefaultCacheCapacity);
     }
 
-    static Config BuildConfig(const std::string& configPath){
+    static Config BuildConfig(const std::string configPath){
         ConfigParser* configParser = new ConfigParser();
         configParser->Parser(configPath.c_str());
         std::string portStr = configParser->GetDefConfig("Port", to_string(DefaultPort));

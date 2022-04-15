@@ -13,10 +13,19 @@ namespace lightdb{
         bytes = cJSON_Print(cJson);
     }
 
-    void Response::Decode(const std::string &bytes) {
+    int Response::Decode(const std::string &bytes) {
         cJSON* cJson = cJSON_Parse(bytes.c_str());
-        this->respCode = cJSON_GetObjectItem(cJson, "RespCode")->valueint;
-        this->respContent = cJSON_GetObjectItem(cJson, "RespContent")->valuestring;
+        cJSON* respCodeJson = cJSON_GetObjectItem(cJson, "RespCode");
+        if(respCodeJson == nullptr){
+            return -1;
+        }
+        this->respCode = respCodeJson->valueint;
+        cJSON* respContentJson = cJSON_GetObjectItem(cJson, "RespContent");
+        if(respContentJson == nullptr){
+            return -1;
+        }
+        this->respContent = respContentJson->valuestring;
+        return 0;
     }
 
 

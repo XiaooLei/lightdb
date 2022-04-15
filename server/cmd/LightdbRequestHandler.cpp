@@ -160,6 +160,9 @@ namespace lightdb{
             while(true) {
                 respQueue.Dequeue(respTask);
                 //printf("consume respTask, conn_fd:%d, resp:%s \n", respTask.conn_fd, respTask.resp.c_str());
+                if(respTask.conn_fd == -1){
+                    continue;
+                }
                 write(respTask.conn_fd, respTask.resp.c_str(), respTask.resp.size());
             }
         });
