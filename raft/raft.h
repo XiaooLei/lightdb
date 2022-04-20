@@ -225,8 +225,6 @@ public:
     }
 
 
-
-
     void persist(){
         RaftPersist raftPersist = {getCurTerm(), getVotedFor(), logs};
         raftPersist.persist(raftPersistDir + "/" + "raftPersist.json");

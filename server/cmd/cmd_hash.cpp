@@ -204,8 +204,10 @@ void hKeys(LightDB* db, std::vector<std::string> args, std::string& resp){
     bool exist = db->HKeys(args[0], keys);
     if(exist){
         for(int i = 0; i<keys.size(); i++){
-            resp.append(to_string(i+1));
-            resp.append(keys[i] + "\n");
+            if(i!=0){
+                resp.append( "\n");
+            }
+            resp.append(to_string(i+1) + ")" + keys[i] );
         }
     }else{
         resp = "(empty list or set)";
@@ -223,8 +225,10 @@ void hVals(LightDB* db, std::vector<std::string> args, std::string& resp){
     bool exist = db->HVals(args[0], vals);
     if(exist){
         for(int i = 0; i<vals.size(); i++){
-            resp.append(to_string(i+1));
-            resp.append(vals[i] + "\n");
+            if(i!=0) {
+                resp.append( "\n");
+            }
+            resp.append(to_string(i+1) + ")" + vals[i] );
         }
     }else{
         resp = "(empty list or set)";

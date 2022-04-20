@@ -221,7 +221,6 @@ typedef struct raftPersist{
             logEntry.decode(entry_bytes);
             logs.push_back(logEntry);
         }
-
     }
 
 

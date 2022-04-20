@@ -9,17 +9,20 @@ namespace lightdb{
         Status s;
         s = CheckKeyValue(key, field);
         if(!s.ok()){
+            res = 0;
             return s;
         }
 
         s = CheckKeyValue(key, value);
         if(!s.ok()){
+            res = 0;
             return s;
         }
 
         std::string oldValue;
         HGet(key, field, oldValue);
         if(oldValue.compare(value) == 0){
+            res = 1;
             return Status::OK();
         }
         res = hashIdx.indexes->HSet(key, field, value);
@@ -243,15 +246,15 @@ namespace lightdb{
     // HClear clear the key in hash.
     Status LightDB::HClear(std::string key, int& res){
         Status s;
-        Entry* e = Entry::NewEntryNoExtra(key, "", Hash, HashHClear);
-        s = store(e);
-        if(s.ok()){
-            return s;
-        }
         bool expired = CheckExpired(key, Hash);
         if(expired){
             res = 0;
             return Status::OK();
+        }
+        Entry* e = Entry::NewEntryNoExtra(key, "", Hash, HashHClear);
+        s = store(e);
+        if(!s.ok()){
+            return s;
         }
         res = hashIdx.indexes->HClear(key);
         return Status::OK();
@@ -270,10 +273,11 @@ namespace lightdb{
             return Status::OK();
         }
         uint64_t deadline;
-        deadline = getCurrentTimeStamp() + duration;
+        deadline = getCurrentTimeStamp() + duration * 1000;
         Entry* e = Entry::NewEntryWithExpire(key, "", deadline, Hash, HashHExpire);
         s = store(e);
-        if(s.ok()){
+        if(!s.ok()){
+            suc = false;
             return s;
         }
         expires[Hash][key] = deadline;

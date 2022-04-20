@@ -253,6 +253,7 @@ namespace lightdb{
         Entry* e = Entry::NewEntryWithExpire(key, "", deadline, Set, SetSExpire);
         s = store(e);
         if(!s.ok()){
+            suc = false;
             return s;
         }
         expires[Set][key] == deadline;

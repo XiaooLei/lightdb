@@ -60,7 +60,6 @@ namespace lightdb{
             std::string serializedResp;
             resp.Encode(serializedResp);
             WriteBack(serializedResp, conn_fd);
-
         }
         return "";
     }
