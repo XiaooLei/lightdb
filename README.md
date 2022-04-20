@@ -1,48 +1,63 @@
 # lightdb
 
 
+## Introduction
+lightdb is a distributed Key-Value data store system based on bitcask model, supporting redis-like data types(String, Hash, List, Set, ZSet) and diverse commands to access it. lightdb has the implemented the capability to deploy as a replication cluster based on Raft consensus algorithm.
 
-## 快速开始 
+### Cluster Structure
+![](imgs/cluster_structure.png)
+the image above shows the network structure when lightdb is deployed as a cluster. The Leader node in the cluster can serve the write requests while Flollower node can serve read requests.
 
-### 编译 
+### Overall Design
+
+![](imgs/overall_design.png)
+
+### Server Structure
+![](imgs/server_structure.png)
+this image above has showed the structure of the server of lightdb. with mutipule threads and safe queues to decouple the work of read, data access and write.
+
+## Quick Start
+
+### Build
 clone之后，执行./build.sh
 
-### 配置文件
+### Config File
 
-#### 存储引擎配置文件
-配置文件的后缀名为.conf，下面为一个配置文件的示例
+#### Store Configs
+The extension of the store configuration file is.conf
+the following is an example of a store configuration file
 
 ```conf
 
 #this is a config file
-#端口号
+#the port listened by the server
 Port  5204
-#目录
+#the directory path where all the files are stored
 DirPath  /tmp/test/lightdb4
-#文件访问方式，可以是FileIO 或者 MMap
+#the Files access mode，it can be set as FileIO or MMap
 FileRWMethod  FileIO
-#索引模式，可以为KeyOnlyMemMode（String类型，只有Key存在内存中）
-#或者KeyValueMemMode（表示String类型key和Value均存在内存中）
+#index mode, can be set as KeyOnlyMemMode（indicating that all keys and values of String type are store in memory）
+#or KeyValueMemMode（indicating that only keys of String type are stored in memory）
 IndexMode  KeyOnlyMemMode
-#单数据文件最大长度
+#the max size of a data file
 BlockSize  1048576
-#Key最大长度
+#max length of a key
 MaxKeySize  1024
-#Value最大长度
+#max length of value
 MaxValueSize  1048576
-#是否同步写盘
+#when Sync was set as True, the data will be synced to disk as soon as the write request was served, if the Sync was set as False, data will be be synced to disk when the OS flushed.
 Sync  False
-#日志文件合并阈值
+#
 MergeThreshold  64
-#日志文件合并检查周期
+#
 MergeCheckInterval  3600000
-#缓存最大容量
+#Max Cache Size
 CacheCapacity  1024
 
 ```
 
-#### 集群配置文件
-Lightdb是一个分布式键值对数据库，启动的时候需要指定集群配置文件，集群配置文件为json格式，后缀名为.json。下面展示一个典型的集群配置文件。
+#### Cluster Config File
+lightdb is a distributed data store system, a cluster configuration file is need to launch a lightdb server. The cluster configuration file is on json format, a typical cluster configuration file of lightdb is shown below.
 ```json
 {
   "servers":[
@@ -65,75 +80,21 @@ Lightdb是一个分布式键值对数据库，启动的时候需要指定集群�
   "me":0
 }
 ```
-该集群配置文件表明，这是一个三个节点组成的集群，本节点在集群中的角色是0号节点。
+The cluster configuration file indicates that this is a three-node cluster, and this node plays the role of node 0 in the cluster.
 
 
-### 运行服务器
-运行一个服务器需要两个参数，第一个为存储引擎配置文件路径，第二个为集群配置文件路径。
+### Launch a Server
+Two args are needed to launch a lightdb server, the first for the path of data store configuration file, the second for the path of cluster configuration file.
 
-举例：编译成功后，执行下面的命令启动一个单节点的集群，
-```sh
-./LightDBServer *.conf *.json 
-```
-这里的参数为配置文件路径，可以根据自己的喜好自由配置
+
 
 #### Client
-同样在build文件夹中，运行
-
+Run the command below to launch a Client
 ```sh
-./Client 127.0.0.1 5200 # 第一个参数为连接的server的IP， 第二个参数为端口号
+./Client 127.0.0.1 5200 # The first parameter is the IP address of the connected server, and the second parameter is the port number
 ```
 
 
-### 基准测试
-
-下面是压力测试实际表现，测试数据量均为100w。测试是将存储引擎离线执行，并没有通过客户端服务器调用
-
-#### String
-
-测试代码：
-
-|  command   | qps  | 数据量 
-|  ----  | ----  | ---- 
-| strset  | 140984 | 100w
-| strget  | 104220 | 100w
-#### List
-
-keys表示测试中list的个数， values_per_list 表示平均每个list的大小，当参与测试的list较大时， 大量的时间开销在于内存中list的维护，下面列出当两个参数变化时候的qps
-
-|  command   | qps  | 数据量  | keys  | values_per_list|
-|  ----  | ----  | ---- |----| ---- |
-| listLPush  | 167616 | 100w |10000 | 100|
-| listLPush  | 149611 | 100w |5000 | 200|
-| listLPush  | 136742 | 100w |2500 | 400|
-| listLPush  | 79472 | 100w |1000 | 1000|
-
-
-#### Set
-说明：参数keys表示测试中key的数量，参数values_per_set表示每个key的大小
-测试结果
-|  command   | qps  | 数据量  | keys  | values_per_set|
-|  ----  | ----  | ---- |----| ---- |
-| SAdd  | 502260 | 100w |10000 | 100|
-| SAdd  | 491883 | 100w |5000 | 200|
-| SAdd  | 456621 | 100w |2500 | 400|
-| SAdd  | 490677 | 100w |1000 | 1000|
-| SAdd  | 502260 | 100w |500 | 2000|
-
-#### ZSet
-测试结果
-|  command   | qps  | 数据量  | keys  | values_per_zset|
-|  ----  | ----  | ---- |----| ---- |
-| ZAdd  | 283687 | 100w |10000 | 100|
-| ZAdd  | 160102 | 100w |5000 | 200|
-| ZAdd  | 95210 | 100w |2500 | 400|
-| ZAdd  | 711743 | 100w |1000 | 1000|
-| ZAdd  | 87519 | 100w |500 | 2000|
-
-#### ZScore
-|  command   | qps  | 数据量  | keys  | values_per_zset|
-|  ----  | ----  | ---- |----| ---- |
-| ZScore  | 586510 | 100w |1000 | 1000|
 
 
 
