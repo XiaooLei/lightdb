@@ -19,7 +19,7 @@ this image above has showed the structure of the server of lightdb. with mutipul
 ## Quick Start
 
 ### Build
-clone之后，执行./build.sh
+clone the repo and run the file build.sh
 
 ### Config File
 
