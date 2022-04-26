@@ -84,12 +84,9 @@ public:
         setLastApplyed(0);
         logs.push_back(LogEntry{0, "", 0});
 
-        //readPersist
         InitialRaftPersist();
-        //todo 先删除readPersist();
-        setCurTerm(0);
-        setVotedFor(-1);
-
+        //从持久化文件中读取raft状态
+        readPersist();
 
         nextIndex = std::vector<int>(peers.size(), 1);
         matchIndex = std::vector<int>(peers.size(), 0);
@@ -239,8 +236,8 @@ public:
     void readPersist(){
         RaftPersist raftPersist;
         raftPersist.readFromPesist(raftPersistDir + "/" + "raftPersist.json");
-        currentTerm = raftPersist.currentTerm;
-        votedFor = raftPersist.votedFor;
+        setCurTerm(raftPersist.currentTerm);
+        setVotedFor(raftPersist.votedFor);
         logs = raftPersist.logs;
     }
 
@@ -253,7 +250,6 @@ public:
     }
 
     void ApplyLogs(){
-        //todo
         printf("apply logs  lastApplied:%d, commitIndex:%d ||", getLastApplied(), getCommitIndex());
         DEBUGPrint();
         for(int i = getLastApplied() + 1; i <= getCommitIndex(); i++){
@@ -275,12 +271,14 @@ public:
     }
 
     void convertToLeader(){
+        printf("convertToLeader ||");
+        DEBUGPrint();
         if(getCurState() != Candidate){
             return;
         }
         setCurState(Leader);
         int lastIndex = getLastIndex();
-        nextIndex = std::vector<int>(peers.size(), lastIndex);
+        nextIndex = std::vector<int>(peers.size(), lastIndex + 1);
         matchIndex = std::vector<int>(peers.size(), 0);
         //broadcastAppendEntries
         setLeaderOut(false);
@@ -360,18 +358,19 @@ public:
         persist();
     }
 
-    void sendRequestVote(int server, const RequestVoteArgs& args, RequestVoteReply & reply){
+    //if vote count is enough for a election success, return true
+    bool sendRequestVote(int server, const RequestVoteArgs& args, RequestVoteReply& reply){
         if(peers[server].sendRequestVote(args, reply) < 0){
-            return;
+            return false;
         }
         if(getCurState() != Candidate || args.Term != getCurTerm() || reply.Term < getCurTerm()){
-            return;
+            return false;
         }
 
         if(reply.Term > getCurTerm()){
             stepDownToFollower(reply.Term);
             persist();
-            return;
+            return false;
         }
 
         if(reply.VoteGranted){
@@ -382,8 +381,10 @@ public:
                 printf("win election, become an Leader ||");
                 DEBUGPrint();
                 reelectCond.notify_all();
+                return true;
             }
         }
+        return false;
     }
 
     void broadcastRequestVote(){
@@ -395,11 +396,11 @@ public:
             if(server == me){
                 //如果是自己，同样要检查是否选举成功
                 if(getVoteCount() == peers.size()/2 +1){
-                    //todo convert to leader
                     winElection = true;
                     printf("win election, become an Leader ||");
                     DEBUGPrint();
                     reelectCond.notify_all();
+                    break;
                 }
                 continue;
             }
@@ -408,7 +409,10 @@ public:
 //                std::thread voteThread([&, this](Raft* raft){raft->sendRequestVote(server, args, reply);}, this);
 //                voteThread.detach();
 //            }
-            sendRequestVote(server, args, reply);
+            bool enoughVote = sendRequestVote(server, args, reply);
+            if(enoughVote){
+                break;
+            }
         }
     }
 
@@ -522,7 +526,6 @@ public:
             }else{
                 setCommitIndex(lastIndex);
             }
-            //todo ApplyLogs
             ApplyLogs();
         }
 
@@ -576,7 +579,7 @@ public:
     void CheckCommit(){
         // if there exists an N such that N > commitIndex, a majority of
         // matchIndex[i] >= N, and log[N].term == currentTerm, set commitIndex = N
-        for(int n = getLastIndex(); n >= getCommitIndex(); n--){
+        for(int n = getLastIndex(); n > getCommitIndex(); n--){
             int count = 1;
             if(logs[n].Term == getCurTerm()){
                 for(int i = 0; i < peers.size(); i++){
@@ -586,6 +589,8 @@ public:
                 }
             }
             if(count > peers.size()/2 ){
+                printf("commitIndex:%d ", n);
+                DEBUGPrint();
                 setCommitIndex(n);
                 std::thread applyThread([&, this](Raft* raft){raft->ApplyLogs();}, this);
                 applyThread.detach();
@@ -634,7 +639,6 @@ public:
                         convertToCandidate(Follower);
                     } else {
                         setReelect(true);
-                        continue;
                     }
                 }
             }
