@@ -147,6 +147,7 @@ namespace lightdb{
             resp = Response::ResponseWrap(s.Code(), s.Message());
             return;
         }
+        resp = "OK";
         resp = Response::ResponseWrap(s.Code(), resp);
         return;
     }
@@ -201,6 +202,7 @@ namespace lightdb{
             resp = Response::ResponseWrap(s.Code(), s.Message());
             return;
         }
+        resp = "OK";
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 

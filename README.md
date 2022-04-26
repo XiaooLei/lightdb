@@ -27,7 +27,7 @@ clone the repo and run the file build.sh
 The extension of the store configuration file is.conf
 the following is an example of a store configuration file
 
-```conf
+```sh
 
 #this is a config file
 #the port listened by the server
@@ -47,9 +47,9 @@ MaxKeySize  1024
 MaxValueSize  1048576
 #when Sync was set as True, the data will be synced to disk as soon as the write request was served, if the Sync was set as False, data will be be synced to disk when the OS flushed.
 Sync  False
-#
+# the MergeThreshold defines the least number of files for each data structure to be merged. When the merge function runs, files will be merged only if the number of files is larger than mergethreshold.
 MergeThreshold  64
-#
+# MergeCheckInterval defines the merging period in milliseconds.
 MergeCheckInterval  3600000
 #Max Cache Size
 CacheCapacity  1024
@@ -94,6 +94,8 @@ Run the command below to launch a Client
 ./Client 127.0.0.1 5200 # The first parameter is the IP address of the connected server, and the second parameter is the port number
 ```
 
+### Acknowlegement
+the design and implemention of storage engine part of lightdb has referenced Rosedb which was written in Golang. 
 
 
 
