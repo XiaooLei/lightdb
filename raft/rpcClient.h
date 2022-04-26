@@ -21,7 +21,7 @@ public:
     }
     RpcClient():lightdb_client(nullptr), server_end_port(0), server_end_address(""), num(0){};
 
-    int sendRequestVote(RequestVoteArgs& args, RequestVoteReply& reply){
+    int sendRequestVote(const RequestVoteArgs& args, RequestVoteReply& reply){
         std::string args_bytes;
         args.encode(args_bytes);
         Request voteRequest(VoteReq, args_bytes);

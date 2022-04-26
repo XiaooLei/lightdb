@@ -110,7 +110,7 @@ public:
         std::string raftConfig(buffer.str());
         cJSON* raftConfig_json = cJSON_Parse(raftConfig.c_str());
         cJSON* servers_json = cJSON_GetObjectItem(raftConfig_json, "servers");
-        //me = cJSON_GetObjectItem(raftConfig_json, "me")->valueint;
+        me = cJSON_GetObjectItem(raftConfig_json, "me")->valueint;
         int size = cJSON_GetArraySize(servers_json);
         for(int i = 0; i < size; i++){
             RaftServer raftServer;
@@ -283,6 +283,7 @@ public:
         nextIndex = std::vector<int>(peers.size(), lastIndex);
         matchIndex = std::vector<int>(peers.size(), 0);
         //broadcastAppendEntries
+        setLeaderOut(false);
         broadcastAppendEntries();
     }
 
@@ -320,11 +321,11 @@ public:
 
 
     void DEBUGPrint(){
-        printf("[DEBUG]CurrentTimeStamp:%lu, Term:%d State:%d,VotedFor:%d, VoteCount:%d logSize:%d\n\n",
-               (getCurrentTimeStamp())%1000000, getCurTerm(), getCurState(), getVotedFor(), getVoteCount(), this->logs.size());
+        printf("[DEBUG]CurrentTimeStamp:%lu, Term:%d State:%d,VotedFor:%d, VoteCount:%d logSize:%d getLeaderOut:%d\n\n",
+               (getCurrentTimeStamp())%1000000, getCurTerm(), getCurState(), getVotedFor(), getVoteCount(), this->logs.size(), getLeaderOut());
     }
 
-    void RequestVote(RequestVoteArgs args, RequestVoteReply& reply){
+    void RequestVote(const RequestVoteArgs& args, RequestVoteReply& reply){
         printf("vote request from server %d ||", args.CandidateId);
         DEBUGPrint();
         if(args.Term < getCurTerm()){
@@ -359,7 +360,7 @@ public:
         persist();
     }
 
-    void sendRequestVote(int server, RequestVoteArgs& args, RequestVoteReply & reply){
+    void sendRequestVote(int server, const RequestVoteArgs& args, RequestVoteReply & reply){
         if(peers[server].sendRequestVote(args, reply) < 0){
             return;
         }
@@ -380,7 +381,6 @@ public:
                 winElection = true;
                 printf("win election, become an Leader ||");
                 DEBUGPrint();
-                setCurState(Leader);
                 reelectCond.notify_all();
             }
         }
@@ -390,7 +390,7 @@ public:
         if(getCurState() != Candidate){
             return;
         }
-        RequestVoteArgs args = {getCurTerm(), me, getLastIndex(), getLastTerm()};
+        RequestVoteArgs args(getCurTerm(), me, getLastIndex(), getLastTerm());
         for(int server = 0; server < peers.size(); server++){
             if(server == me){
                 //如果是自己，同样要检查是否选举成功
@@ -399,7 +399,6 @@ public:
                     winElection = true;
                     printf("win election, become an Leader ||");
                     DEBUGPrint();
-                    setCurState(Leader);
                     reelectCond.notify_all();
                 }
                 continue;
@@ -423,8 +422,7 @@ public:
             //todo 暂时对所有节点都处理，包括自己
             if(server == me){
                 CheckCommit();
-            }
-            if(server != me){
+            }else{
                 AppendEntriesArgs args;
                 {
                     std::lock_guard<std::recursive_mutex> lock(mtx);
@@ -443,6 +441,8 @@ public:
 //                }, this);
 //                sendAppendEntriesThread.detach();
                 //todo 先用串行
+                printf("append entries to server:%d ||", server);
+                DEBUGPrint();
                 this->sendAppendEntries(server, args, reply);
             }
         }
@@ -608,48 +608,36 @@ public:
             DEBUGPrint();
             switch(getCurState()){
                 case Leader:{
-                    while(true){
-                        appendEntriesCond.wait_for(reelectMtx, chrono::milliseconds (1200 * 5));
-                        if(getLeaderOut()){
-                            break;
-                        }else{
-                            broadcastAppendEntries();
-                            break;
-                        }
+                    appendEntriesCond.wait_for(reelectMtx, chrono::milliseconds (1200 * 5));
+                    if(getLeaderOut()){
+                        //skip has been converted to a follower
+                    }else{
+                        broadcastAppendEntries();
                     }
                     break;
                 }
                 case Candidate:{
-                    while(true){
-                        reelectCond.wait_for(reelectMtx, chrono::milliseconds (getElectionTimeOut()));
-                        if(winElection){
-                            convertToLeader();
-                            break;
-                        }else{
-                            convertToCandidate(Candidate);
-                            break;
-                        }
+                    reelectCond.wait_for(reelectMtx, chrono::milliseconds (getElectionTimeOut()));
+                    if(winElection){
+                        convertToLeader();
+                    }else{
+                        convertToCandidate(Candidate);
                     }
                     break;
                 }
                 case Follower:{
-                    while(true) {
-                        int electionTimeOut = getElectionTimeOut();
-                        reelectCond.wait_for(reelectMtx, chrono::milliseconds (electionTimeOut));
-                        printf("FollowerWait_for out, reelect:%d ||", getReelect());
-                        DEBUGPrint();
-                        if (getReelect()) {
-                            convertToCandidate(Follower);
-                            break;
-                        } else {
-                            setReelect(true);
-                            continue;
-                        }
+                    int electionTimeOut = getElectionTimeOut();
+                    reelectCond.wait_for(reelectMtx, chrono::milliseconds (electionTimeOut));
+                    printf("FollowerWait_for out, reelect:%d ||", getReelect());
+                    DEBUGPrint();
+                    if (getReelect()) {
+                        convertToCandidate(Follower);
+                    } else {
+                        setReelect(true);
+                        continue;
                     }
-                    break;
                 }
             }
-
         }
     }
 

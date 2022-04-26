@@ -49,6 +49,11 @@ typedef struct requestVoteArgs{
     int LastLogIndex;
     int LastLogTerm;
 
+    requestVoteArgs(){}
+
+    requestVoteArgs(const int& Term, const int& CandidateId, const int& LastLogIndex, const int& LastLogTerm):
+    Term(Term), CandidateId(CandidateId), LastLogIndex(LastLogIndex), LastLogTerm(LastLogTerm){}
+
     void encode(std::string& bytes){
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddNumberToObject(cJson, "Term", Term);
@@ -65,6 +70,9 @@ typedef struct requestVoteArgs{
         this->LastLogIndex = cJSON_GetObjectItem(cJson, "LastLogIndex")->valueint;
         this->LastLogTerm = cJSON_GetObjectItem(cJson, "LastLogTerm")->valueint;
     }
+    //copy constructor
+    requestVoteArgs(const requestVoteArgs& req):
+    Term(req.Term), CandidateId(req.CandidateId), LastLogIndex(req.LastLogIndex), LastLogTerm(req.LastLogIndex){}
 
 } RequestVoteArgs;
 
