@@ -1,11 +1,10 @@
 //
-// Created by 9 on 2022/2/27.
+// Created by xiaolei on 2022/2/27.
 //
 
 #include "lightdb.h"
 namespace lightdb{
     Status LightDB::dumpList(vector<DBFile*>& mergeFiles, std::string path) {
-        //printf("List size %d \n", listIdx.indexes->record.size());
         Status s;
         for(auto it = listIdx.indexes->record.begin(); it != listIdx.indexes->record.end(); it++){
             std::string key = it->first;
@@ -21,8 +20,6 @@ namespace lightdb{
     }
 
     Status LightDB::dumpHash(vector<DBFile*>& mergeFiles, std::string path) {
-        //printf("dumping Hash \n");
-        //printf("hash size: %d \n", hashIdx.indexes->record.size());
         Status s;
         for(auto it = hashIdx.indexes->record.begin(); it != hashIdx.indexes->record.end(); it++){
             std::string key = it->first;
@@ -38,7 +35,6 @@ namespace lightdb{
     }
 
     Status LightDB::dumpSet(vector<DBFile*>& mergeFiles, std::string path) {
-        //printf("dumping Set \n");
         Status s;
         for(auto it = setIdx.indexes->record.begin(); it!=setIdx.indexes->record.end(); it++){
             std::string key = it->first;

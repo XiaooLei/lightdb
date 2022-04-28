@@ -14,7 +14,6 @@ public:
 
     virtual std::string HandleCmd(std::string request, int conn_fd) = 0;
 
-
 };
 
 }

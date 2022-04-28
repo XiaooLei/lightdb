@@ -44,10 +44,7 @@ public:
         code = s.code;
         state_ = s.state_;
     }
-    ~Status(){
-
-    }
-
+    ~Status(){}
 
     Code Code(){
         return this->code;
@@ -154,9 +151,6 @@ public:
     }
 
     bool ok() const { return code == 0; }
-
-
-    
 
 };
 

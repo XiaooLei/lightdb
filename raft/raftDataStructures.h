@@ -1,5 +1,5 @@
 //
-// Created by 9 on 2022/4/1.
+// Created by xiaolei on 2022/4/1.
 //
 
 #ifndef MYPROJECT_RAFTDATASTRUCTURES_H
@@ -18,9 +18,6 @@ typedef struct logEntry{
     int Term;
     std::string Command;
     int conn_fd;
-
-
-    //LogEntry(const int& Term, const std::string& Command, const int& conn_fd):Term(Term), Command(Command), conn_fd(conn_fd){}
 
     void encode(std::string& str){
         cJSON* cJson = cJSON_CreateObject();
@@ -102,15 +99,17 @@ typedef struct appendEntriesArgs{
     int PrevLogIndex;
     int PrevLogTerm;
     int LeaderCommit;
+    int FirstOffset;
     std::vector<LogEntry> Entries;
 
-    void encode(std::string& bytes){
+    void encode(std::string& bytes)const{
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddNumberToObject(cJson, "Term", Term);
         cJSON_AddNumberToObject(cJson, "LeaderId", LeaderId);
         cJSON_AddNumberToObject(cJson, "PrevLogIndex", PrevLogIndex);
         cJSON_AddNumberToObject(cJson, "PrevLogTerm", PrevLogTerm);
         cJSON_AddNumberToObject(cJson, "LeaderCommit", LeaderCommit);
+        cJSON_AddNumberToObject(cJson, "FirstOffset", FirstOffset);
 
         cJSON* entries_json = NULL;
         cJSON_AddItemToObject(cJson, "Entries", entries_json = cJSON_CreateArray());
@@ -130,6 +129,7 @@ typedef struct appendEntriesArgs{
         this->PrevLogIndex = cJSON_GetObjectItem(cJson, "PrevLogIndex")->valueint;
         this->PrevLogTerm = cJSON_GetObjectItem(cJson, "PrevLogTerm")->valueint;
         this->LeaderCommit = cJSON_GetObjectItem(cJson, "LeaderCommit")->valueint;
+        this->FirstOffset = cJSON_GetObjectItem(cJson, "FirstOffset")->valueint;
         cJSON* entries_json = cJSON_GetObjectItem(cJson, "Entries");
         int size = cJSON_GetArraySize(entries_json);
         for(int i = 0; i < size; i++){
@@ -198,12 +198,14 @@ typedef struct appendEntriesReply{
 typedef struct raftPersist{
     int currentTerm;
     int votedFor;
+    int firstOffset;
     std::vector<LogEntry> logs;
 
     void Encode(std::string& bytes){
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddNumberToObject(cJson, "CurrentTerm", currentTerm);
         cJSON_AddNumberToObject(cJson, "VotedFor", votedFor);
+        cJSON_AddNumberToObject(cJson, "FirstOffset", firstOffset);
         cJSON* entries_json = NULL;
         cJSON_AddItemToObject(cJson, "Logs", entries_json = cJSON_CreateArray());
         for(auto entry : logs){
@@ -220,6 +222,7 @@ typedef struct raftPersist{
         cJSON* cJson = cJSON_Parse(bytes.c_str());
         this->currentTerm = cJSON_GetObjectItem(cJson, "CurrentTerm")->valueint;
         this->votedFor = cJSON_GetObjectItem(cJson, "VotedFor")->valueint;
+        this->firstOffset = cJSON_GetObjectItem(cJson, "FirstOffset")->valueint;
         cJSON* entries_json = cJSON_GetObjectItem(cJson, "Logs");
         int size = cJSON_GetArraySize(entries_json);
         for(int i = 0; i < size; i++){

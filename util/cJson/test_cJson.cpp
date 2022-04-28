@@ -1,5 +1,5 @@
 //
-// Created by 9 on 2022/4/1.
+// Created by xiaolei on 2022/4/1.
 //
 
 
@@ -23,8 +23,6 @@ void TestRaftJson(){
         }
         raftConfig.append(buf);
     }
-    //printf(raftConfig.c_str());
-
 
     cJSON* raftJson = cJSON_Parse(raftConfig.c_str());
     cJSON* servers = cJSON_GetObjectItem(raftJson, "servers");

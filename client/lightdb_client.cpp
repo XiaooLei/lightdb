@@ -64,7 +64,6 @@ namespace lightdb{
             printf("send() error\n");
             return -1;
         }
-        //printf("sent \n");
         struct timeval timeout={2,0};//3s
         int ret=setsockopt(socket_fd,SOL_SOCKET,SO_SNDTIMEO,(const char*)&timeout,sizeof(timeout));
         if(ret < 0){
@@ -80,7 +79,6 @@ namespace lightdb{
             printf("recv() error\n");
             return -1;
         }
-        //printf("recved \n");
         buf[num]='\0';
         std::string respJson(buf);
         //printf("resp:%s \n", respJson.c_str());

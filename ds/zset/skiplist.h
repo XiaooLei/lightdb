@@ -12,7 +12,7 @@ namespace lightdb{
 
 struct SkipListNode {
 	double score;
-    std::set<std::string> members;// 注意，member是string的集合
+    std::set<std::string> members;// member是string的集合
 	std::vector<SkipListNode *> level;
 	SkipListNode (double _score, int sz=32) : score(_score), level(sz, nullptr) {}
 };
@@ -70,7 +70,6 @@ public:
     }
     
     SkipListNode* add(double score, std::string member) {
-        //printf("score: %f \n",score);
         SkipListNode* p = find(score);
         if(p->score==score){
             p->members.insert(member);

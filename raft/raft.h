@@ -35,7 +35,7 @@ private:
 
     int me;
 
-    //持久化变量
+    //persistent state
     int currentTerm;
     int votedFor;
     std::vector<LogEntry> logs;
@@ -43,6 +43,9 @@ private:
     //volatile state on all servers;
     int commitIndex;
     int lastApplied;
+
+    //commit offset
+    int firstOffset = 0;
 
     //volatile on leaders;
     std::vector<int> nextIndex;
@@ -52,17 +55,14 @@ private:
     RaftState state;
     int voteCount;
 
-    //todo 这里是否需要一个条件变量？
     std::condition_variable_any appendEntriesCond;
     bool leaderOut;
 
-    //todo 用于协调是否发起选举
+    // 用于协调是否发起选举
     std::mutex reelectMtx;
     std::condition_variable_any reelectCond;
     bool reElect = true;
 
-    //todo 用于协调是否赢得选举
-    std::condition_variable_any winElectionCond;
     bool winElection;
 
 public:
@@ -79,17 +79,17 @@ public:
         setCurTerm(0);
         setVotedFor(-1);
         setVoteCount(0);
-        setCommitIndex(0);
-        setCommitIndex(0);
-        setLastApplyed(0);
-        logs.push_back(LogEntry{0, "", 0});
+        setCommitIndex(-1);
+        setLastApplyed(-1);
+        firstOffset = 0;
+        //logs.push_back(LogEntry{0, "", 0});
 
         InitialRaftPersist();
-        //从持久化文件中读取raft状态
+        //read raft state from persistent file
         readPersist();
 
-        nextIndex = std::vector<int>(peers.size(), 1);
-        matchIndex = std::vector<int>(peers.size(), 0);
+        nextIndex = std::vector<int>(peers.size(), 0);
+        matchIndex = std::vector<int>(peers.size(), -1);
 
 
         std::thread raftThread(
@@ -221,9 +221,12 @@ public:
         this->leaderOut = leaderOut;
     }
 
+    /*********************************************************************/
 
     void persist(){
-        RaftPersist raftPersist = {getCurTerm(), getVotedFor(), logs};
+        RaftPersist raftPersist = {getCurTerm(), getVotedFor(), firstOffset, logs};
+        //printf("persist() raft.FirstOffset:%d ||", raftPersist.firstOffset);
+        //DEBUGPrint();
         raftPersist.persist(raftPersistDir + "/" + "raftPersist.json");
     }
 
@@ -238,6 +241,7 @@ public:
         raftPersist.readFromPesist(raftPersistDir + "/" + "raftPersist.json");
         setCurTerm(raftPersist.currentTerm);
         setVotedFor(raftPersist.votedFor);
+        firstOffset = raftPersist.firstOffset;
         logs = raftPersist.logs;
     }
 
@@ -246,6 +250,9 @@ public:
     }
 
     int getLastTerm(){
+        if(getLastIndex() == -1){
+            return -1;
+        }
         return logs[getLastIndex()].Term;
     }
 
@@ -279,7 +286,7 @@ public:
         setCurState(Leader);
         int lastIndex = getLastIndex();
         nextIndex = std::vector<int>(peers.size(), lastIndex + 1);
-        matchIndex = std::vector<int>(peers.size(), 0);
+        matchIndex = std::vector<int>(peers.size(), lastIndex);
         //broadcastAppendEntries
         setLeaderOut(false);
         broadcastAppendEntries();
@@ -296,7 +303,6 @@ public:
         setCurState(Candidate);
         setCurTerm(getCurTerm() + 1);
         setVotedFor(me);
-        //todo 测试方便直接先从1开始
         setVoteCount(1);
         persist();
         std::thread broadcastRequestVoteThread([](Raft* raft) {
@@ -319,8 +325,8 @@ public:
 
 
     void DEBUGPrint(){
-        printf("[DEBUG]CurrentTimeStamp:%lu, Term:%d State:%d,VotedFor:%d, VoteCount:%d logSize:%d getLeaderOut:%d\n\n",
-               (getCurrentTimeStamp())%1000000, getCurTerm(), getCurState(), getVotedFor(), getVoteCount(), this->logs.size(), getLeaderOut());
+        printf("[DEBUG]CurrentTimeStamp:%lu, Term:%d State:%d,VotedFor:%d, VoteCount:%d logSize:%d getLeaderOut:%d, FirstOffset:%d， commitIndex:%d\n\n",
+               (getCurrentTimeStamp())%1000000, getCurTerm(), getCurState(), getVotedFor(), getVoteCount(), this->logs.size(), getLeaderOut(), firstOffset, getCommitIndex());
     }
 
     void RequestVote(const RequestVoteArgs& args, RequestVoteReply& reply){
@@ -353,7 +359,6 @@ public:
             setVotedFor(args.CandidateId);
             setReelect(false);
             reelectCond.notify_all();
-            //todo
         }
         persist();
     }
@@ -376,7 +381,7 @@ public:
         if(reply.VoteGranted){
             setVoteCount(getVoteCount() + 1);
             if(getVoteCount() == peers.size()/2 +1){
-                //todo convert to leader
+                // convert to leader
                 winElection = true;
                 printf("win election, become an Leader ||");
                 DEBUGPrint();
@@ -409,6 +414,7 @@ public:
 //                std::thread voteThread([&, this](Raft* raft){raft->sendRequestVote(server, args, reply);}, this);
 //                voteThread.detach();
 //            }
+            //go serial
             bool enoughVote = sendRequestVote(server, args, reply);
             if(enoughVote){
                 break;
@@ -423,7 +429,7 @@ public:
             return;
         }
         for(int server = 0; server < peers.size(); server++){
-            //todo 暂时对所有节点都处理，包括自己
+            //对所有节点都check commit，包括自己
             if(server == me){
                 CheckCommit();
             }else{
@@ -433,8 +439,14 @@ public:
                     args.Term = getCurTerm();
                     args.LeaderId = me;
                     args.PrevLogIndex = nextIndex[server] - 1;
-                    args.PrevLogTerm = logs[args.PrevLogIndex].Term;
+                    if(args.PrevLogIndex == -1){
+                        args.PrevLogTerm = -1;
+                    }else {
+                        printf("args.PrevLogIndex:%d \n", args.PrevLogIndex);
+                        args.PrevLogTerm = logs[args.PrevLogIndex].Term;
+                    }
                     args.LeaderCommit = getCommitIndex();
+                    args.FirstOffset = firstOffset;
                     for (int i = args.PrevLogIndex + 1; i < logs.size(); i++) {
                         args.Entries.push_back(logs[i]);
                     }
@@ -444,7 +456,7 @@ public:
 //                    raft->sendAppendEntries(server, args, reply);
 //                }, this);
 //                sendAppendEntriesThread.detach();
-                //todo 先用串行
+                // 先用串行
                 printf("append entries to server:%d ||", server);
                 DEBUGPrint();
                 this->sendAppendEntries(server, args, reply);
@@ -455,6 +467,20 @@ public:
     void AppendEntries(AppendEntriesArgs& args, AppendEntriesReply& reply){
         printf("handle append entries request ||");
         DEBUGPrint();
+
+        if(args.FirstOffset > this->firstOffset){
+            int offsetBehind = args.FirstOffset - firstOffset;
+            if(getCommitIndex()+1 >= offsetBehind) {
+                printf("update first Offset, args.FirstOffset:%d ||", args.FirstOffset);
+                DEBUGPrint();
+                this->firstOffset = args.FirstOffset;
+                logs.erase(logs.begin(), logs.begin() + offsetBehind);
+                setCommitIndex(getCommitIndex() - offsetBehind);
+                setLastApplyed(getLastApplied() - offsetBehind);
+                persist();
+            }
+        }
+
         if(args.Term < getCurTerm()){
             reply.Term = getCurTerm();
             reply.ConflictIndex = -1;
@@ -473,7 +499,6 @@ public:
         reelectCond.notify_all();
 
         int lastIndex = getLastIndex();
-        //todo
         reply.Term = getCurTerm();
         reply.Success = false;
         reply.ConflictTerm = -1;
@@ -487,7 +512,7 @@ public:
 
         //log Consistency check fails, different term at prevLogIndex
         //printf("logs size:%d, args.PrevLogIndex%d \n", logs.size(), args.PrevLogIndex);
-        int cfTerm = logs[args.PrevLogIndex].Term;
+        int cfTerm = args.PrevLogIndex == -1 ? -1 : logs[args.PrevLogIndex].Term;
         if(cfTerm!=args.PrevLogTerm) {
             reply.ConflictTerm = cfTerm;
             for (int i = args.PrevLogIndex; i>=0 && logs[i].Term == cfTerm; i--){
@@ -498,10 +523,11 @@ public:
             return;
         }
 
+        int offsetBehind = args.FirstOffset - firstOffset;
         // truncate log if an existing entry conflicts with a new one
-        int i = args.PrevLogIndex + 1; //logs index
+        int i = args.PrevLogIndex + 1 + offsetBehind; //logs index
         int j = 0; //args.entries index
-        for(; i < getLastIndex() + 1 && j < args.Entries.size();){
+        for(; i < logs.size() && j < args.Entries.size();){
             if(logs[i].Term != args.Entries[j].Term){
                 break;
             }
@@ -509,8 +535,6 @@ public:
             j++;
         }
         printf("i:%d, j:%d, logs.size:%d , args.entries.size:%d \n", i, j, logs.size(), args.Entries.size());
-        //i:1, j:0, logs.size:1 , args.entries.size:0
-        //i:1, j:2, logs.size:2 , args.entries.size:1
         DEBUGPrint();
         logs = std::vector<LogEntry>(logs.begin(), logs.begin() + i);
         args.Entries = std::vector<LogEntry>(args.Entries.begin() + j, args.Entries.end());
@@ -519,19 +543,21 @@ public:
         }
         reply.Success = true;
         //update commit index to min(leader commit, lastIndex)
-        if(args.LeaderCommit > getCommitIndex()){
+        //1.leader commit = -1, offsetBehind = 0;
+        //2.leader commit = 0， offsetBehind = 0
+
+        if(args.LeaderCommit + offsetBehind > getCommitIndex()){
             int lastIndex = getLastIndex();
-            if(args.LeaderCommit < lastIndex){
-                setCommitIndex(args.LeaderCommit);
+            if(args.LeaderCommit + offsetBehind < lastIndex){
+                setCommitIndex(args.LeaderCommit + offsetBehind);
             }else{
                 setCommitIndex(lastIndex);
             }
             ApplyLogs();
         }
-
     }
 
-    void sendAppendEntries(int server, AppendEntriesArgs& args, AppendEntriesReply& reply){
+    void sendAppendEntries(int server, const AppendEntriesArgs& args, AppendEntriesReply& reply){
         if(this->peers[server].sendAppendEntries(args, reply) < 0) {
             return;
         }
@@ -549,6 +575,8 @@ public:
             int newMatchIndex = args.PrevLogIndex + args.Entries.size();
             if(newMatchIndex > matchIndex[server]){
                 matchIndex[server] = newMatchIndex;
+                printf("update matchIndex, server:%d, matchIndex:%d ||", server, matchIndex[server]);
+                DEBUGPrint();
             }
             nextIndex[server] = matchIndex[server] + 1;
         }else if(reply.ConflictTerm < 0){
@@ -583,7 +611,7 @@ public:
             int count = 1;
             if(logs[n].Term == getCurTerm()){
                 for(int i = 0; i < peers.size(); i++){
-                    if(i != this->me && matchIndex[i] >= n){
+                    if(i != me && matchIndex[i] >= n){
                         count++;
                     }
                 }
@@ -597,11 +625,34 @@ public:
                 break;
             }
         }
+
+        for(int n = getLastIndex(); n > -1; n--){
+            bool allMatched = true;
+            for(int i = 0; i < peers.size(); i++){
+                if((i != me && matchIndex[i] < n)){
+                    allMatched = false;
+                }
+            }
+            if(allMatched){
+                printf("Truncate logs, n:%d ||", n);
+                DEBUGPrint();
+                int truncateLength = n + 1;
+                this->logs.erase(logs.begin(), logs.begin() + truncateLength);
+                for(int i = 0; i < nextIndex.size(); i++){
+                    nextIndex[i] -= truncateLength;
+                    matchIndex[i] -= truncateLength;
+                }
+                setCommitIndex(getCommitIndex() - truncateLength);
+                setLastApplyed(getLastApplied() - truncateLength);
+                firstOffset += truncateLength;
+                break;
+            }
+        }
         persist();
     }
 
     void AddLog(const std::string& command, const int& conn_fd){
-        //todo 加入日志集合
+        //add to log set
         std::lock_guard<std::recursive_mutex> lock(mtx);
         this->logs.push_back({this->getCurTerm(), command, conn_fd});
     }
@@ -645,14 +696,8 @@ public:
         }
     }
 
-
 };
 
 }
-
-
-
-
-
 
 #endif //MYPROJECT_RAFT_H

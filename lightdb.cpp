@@ -224,7 +224,6 @@ void LightDB::dump(){
 }
 
 void LightDB::dumpInternal(std::string path, DataType eType){
-    //printf("begin dump ! type:%d \n", eType);
     Status s;
     //todo 先去除mergeThreshold Check
     //if(archivedFiles[eType].size() + 1 < config->mergeThreshold){
@@ -313,7 +312,6 @@ void LightDB::mergeString(){
 
     vector<int> fileIds;
     //skip the merged Files;
-    //printf("str File no %d \n", archivedFiles[String].size());
     int size = archivedFiles[String].size();
 
     int archFilesSize = archFiles.size();

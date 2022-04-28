@@ -49,7 +49,6 @@ public:
     
     bool get(std::string key, Indexer& val) {
         StrSkipListNode *p = find(key);
-        // 可能是尾节点或者第一个大于key的节点，所以需要判断找到的节点的key是否等于target key
         bool exist = p->key.compare(key) == 0;
         if(exist){
             val = p->val;

@@ -49,7 +49,6 @@ namespace lightdb {
         SafeQueue<RespTask> respQueue;
 
 
-
     public:
 
         LightdbRequestHandler(LightDB* db):lightDb(db){

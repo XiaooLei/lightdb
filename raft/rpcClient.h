@@ -1,5 +1,5 @@
 //
-// Created by 9 on 2022/3/30.
+// Created by xiaolei on 2022/3/30.
 //
 
 #ifndef MYPROJECT_RPCCLIENT_H
@@ -40,7 +40,7 @@ public:
         return 0;
     }
 
-    int sendAppendEntries(AppendEntriesArgs& args, AppendEntriesReply& reply){
+    int sendAppendEntries(const AppendEntriesArgs& args, AppendEntriesReply& reply){
         std::string args_byte;
         args.encode(args_byte);
         if(lightdb_client->Connect(server_end_address, server_end_port) < 0){
