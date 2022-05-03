@@ -69,6 +69,8 @@ public:
 
     SafeQueue<LogEntry> ApplyQueue;
 
+    SafeQueue<int> ReplicationTaskQueue;
+
 public:
 
     Raft(std::string raftPersistDir, std::string raftConfigPath):raftPersistDir(raftPersistDir),raftConfigPath(raftConfigPath){
@@ -290,6 +292,14 @@ public:
         //broadcastAppendEntries
         setLeaderOut(false);
         broadcastAppendEntries();
+        std::thread replicationLogThread([](Raft* raft){
+            while(raft->getCurState() == Leader) {
+                int tmp;
+                raft->ReplicationTaskQueue.Dequeue(tmp);
+                raft->broadcastAppendEntries();
+            }
+        }, this);
+        replicationLogThread.detach();
     }
 
     void convertToCandidate(RaftState fromState){
@@ -620,8 +630,7 @@ public:
                 printf("commitIndex:%d ", n);
                 DEBUGPrint();
                 setCommitIndex(n);
-                std::thread applyThread([&, this](Raft* raft){raft->ApplyLogs();}, this);
-                applyThread.detach();
+                ApplyLogs();
                 break;
             }
         }
@@ -655,7 +664,12 @@ public:
         //add to log set
         std::lock_guard<std::recursive_mutex> lock(mtx);
         this->logs.push_back({this->getCurTerm(), command, conn_fd});
+        if(ReplicationTaskQueue.Empty()) {
+            int tmp = 1;
+            ReplicationTaskQueue.Enqueue(tmp);
+        }
     }
+
 
     void RunServer(){
         printf("raft server started \n");
