@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include "rpcClient.h"
 #include "../sync/SafeQueue.h"
+#include "../sync/waitGroup.h"
 
 namespace lightdb {
 
@@ -407,6 +408,8 @@ public:
             return;
         }
         RequestVoteArgs args(getCurTerm(), me, getLastIndex(), getLastTerm());
+        WaitGroup wg;
+        wg.Add(peers.size() - 1);
         for(int server = 0; server < peers.size(); server++){
             if(server == me){
                 //如果是自己，同样要检查是否选举成功
@@ -420,16 +423,15 @@ public:
                 continue;
             }
             RequestVoteReply reply;
-//            if(server != me){
-//                std::thread voteThread([&, this](Raft* raft){raft->sendRequestVote(server, args, reply);}, this);
-//                voteThread.detach();
-//            }
-            //go serial
-            bool enoughVote = sendRequestVote(server, args, reply);
-            if(enoughVote){
-                break;
+            if(server != me){
+                std::thread voteThread([server, args, &reply, &wg](Raft* raft){
+                    raft->sendRequestVote(server, args, reply);
+                    wg.Done();
+                    }, this);
+                voteThread.detach();
             }
         }
+        wg.Wait();
     }
 
     void broadcastAppendEntries(){
@@ -438,6 +440,8 @@ public:
         if(getCurState() != Leader){
             return;
         }
+        WaitGroup wg;
+        wg.Add(peers.size() - 1);
         for(int server = 0; server < peers.size(); server++){
             //对所有节点都check commit，包括自己
             if(server == me){
@@ -462,16 +466,16 @@ public:
                     }
                 }
                 AppendEntriesReply reply;
-//                std::thread sendAppendEntriesThread([&, this](Raft* raft){
-//                    raft->sendAppendEntries(server, args, reply);
-//                }, this);
-//                sendAppendEntriesThread.detach();
-                // 先用串行
-                printf("append entries to server:%d ||", server);
-                DEBUGPrint();
-                this->sendAppendEntries(server, args, reply);
+                std::thread sendAppendEntriesThread([server, args, &reply, &wg](Raft* raft){
+                    printf("append entries to server:%d ||", server);
+                    raft->DEBUGPrint();
+                    raft->sendAppendEntries(server, args, reply);
+                    wg.Done();
+                }, this);
+                sendAppendEntriesThread.detach();
             }
         }
+        wg.Wait();
     }
 
     void AppendEntries(AppendEntriesArgs& args, AppendEntriesReply& reply){
