@@ -50,7 +50,6 @@ namespace lightdb{
     }
 
     Status LightDB::dumpZSet(vector<DBFile*>& mergeFiles, std::string path) {
-        //printf("dumping ZSet \n");
         Status s;
         for(auto it = sortedSetIdx.indexes->record.begin(); it!=sortedSetIdx.indexes->record.end(); it++){
             std::string key = it->first;

@@ -56,7 +56,7 @@ public:
         return exist;
     }
     
-    // 如果key存在，就更新对应的Indexer，否则在StrSkipList中插入一个StrSkipListNode
+    // if key exist，update corresponding Indexer，or insert a StrSkipListNode
     void put(std::string key, Indexer val) {
         //if key exist
         StrSkipListNode* pointer = find(key);

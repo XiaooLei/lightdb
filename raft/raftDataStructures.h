@@ -32,14 +32,6 @@ typedef struct logEntry{
     }
 }LogEntry;
 
-
-typedef struct ApplyMsg{
-    bool CommandValid;
-    std::string Command;
-    int CommandIndex;
-};
-
-
 typedef struct requestVoteArgs{
     int Term;
     int CandidateId;

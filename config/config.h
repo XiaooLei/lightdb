@@ -18,9 +18,7 @@ const uint64_t DefaultMergeCheckInterval = 1000 * 24; //* 3600 * 1000;
 const int DefaultCacheCapacity = 0;
 
 class Config{
-
-    //构造函数
-    public:
+public:
     Config(){}
 
     Config(int port, string dirPath, FileRWMethod rWMethod, DataIndexMode indexMode,

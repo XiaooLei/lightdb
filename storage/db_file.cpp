@@ -116,7 +116,6 @@ namespace lightdb{
                     break;
                 }
             }else if(nread == 0){
-                //printf("end of file \n");
                 return Status::EndOfFile(this->_fileName);
             }
             nleft -= nread;

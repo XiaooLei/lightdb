@@ -4,7 +4,6 @@
 
 #ifndef MYPROJECT_RAFT_H
 #define MYPROJECT_RAFT_H
-
 #include <mutex>
 #include "raftDataStructures.h"
 #include <thread>
@@ -85,7 +84,6 @@ public:
         setCommitIndex(-1);
         setLastApplyed(-1);
         firstOffset = 0;
-        //logs.push_back(LogEntry{0, "", 0});
 
         InitialRaftPersist();
         //read raft state from persistent file
@@ -228,8 +226,6 @@ public:
 
     void persist(){
         RaftPersist raftPersist = {getCurTerm(), getVotedFor(), firstOffset, logs};
-        //printf("persist() raft.FirstOffset:%d ||", raftPersist.firstOffset);
-        //DEBUGPrint();
         raftPersist.persist(raftPersistDir + "/" + "raftPersist.json");
     }
 
@@ -323,9 +319,6 @@ public:
     }
 
     bool isLogUpToDate(int cLastIndex, int cLastTerm){
-        printf("isLogUpToDate, cLastIndex:%d, cLastTerm:%d, myLastIndex:%d, myLastTerm:%d ||",
-               cLastIndex, cLastTerm, getLastIndex(), getLastTerm());
-        DEBUGPrint();
         int myLastIndex = getLastIndex();
         int myLastTerm = getLastTerm();
         if(cLastTerm == myLastTerm){
@@ -352,8 +345,6 @@ public:
 
         if(args.Term > getCurTerm()){
             stepDownToFollower(args.Term);
-            printf("notify_all ||");
-            DEBUGPrint();
             appendEntriesCond.notify_all();
             setLeaderOut(true);
         }
@@ -362,8 +353,6 @@ public:
         reply.VoteGranted = false;
 
         bool logUptoDate = isLogUpToDate(args.LastLogIndex, args.LastLogTerm);
-        printf("logUptoDate :%d ||", logUptoDate);
-        DEBUGPrint();
         if( (getVotedFor() == -1 || getVotedFor() == args.CandidateId) &&
                 logUptoDate){
             reply.VoteGranted = true;
@@ -525,7 +514,6 @@ public:
         }
 
         //log Consistency check fails, different term at prevLogIndex
-        //printf("logs size:%d, args.PrevLogIndex%d \n", logs.size(), args.PrevLogIndex);
         int cfTerm = args.PrevLogIndex == -1 ? -1 : logs[args.PrevLogIndex].Term;
         if(cfTerm!=args.PrevLogTerm) {
             reply.ConflictTerm = cfTerm;
@@ -557,8 +545,6 @@ public:
         }
         reply.Success = true;
         //update commit index to min(leader commit, lastIndex)
-        //1.leader commit = -1, offsetBehind = 0;
-        //2.leader commit = 0， offsetBehind = 0
 
         if(args.LeaderCommit + offsetBehind > getCommitIndex()){
             int lastIndex = getLastIndex();

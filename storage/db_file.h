@@ -54,12 +54,7 @@ class DBFile{
 
     Status Read(uint64_t offset, Entry& entry);
 
-    /* Status Read(Entry& entry); */
-
-
     Status ReadBuf(std::string& result, uint64_t offset, uint32_t size);
-
-    /* bool Close(); */
 
     void Sync();
 

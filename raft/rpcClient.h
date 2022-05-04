@@ -25,7 +25,11 @@ public:
         std::string args_bytes;
         args.encode(args_bytes);
         Request voteRequest(VoteReq, args_bytes);
-        int isnull = lightdb_client == nullptr;
+        bool isnull;
+        isnull = this->lightdb_client == nullptr;
+        if(isnull){
+            return -3;
+        }
         if(lightdb_client->Connect(server_end_address, server_end_port) < 0){
             return -1;
         }
@@ -48,11 +52,9 @@ public:
         }
 
         Response response;
-        //printf("send append entries\n");
         if(lightdb_client->Execute(Request(AppendEntriesReq, args_byte), response) < 0){
             return -1;
         }
-        //printf("append entries resp:%s \n", response.GetContent().c_str());
         reply.decode(response.GetContent());
         //短连接请求
         lightdb_client->Close();
