@@ -5,10 +5,10 @@
 #include "cmd.h"
 namespace lightdb{
     std::map<std::string, CmdFunc*> ExecCmd;
-    void addExecCommand(std::string cmd, CmdFunc cmdFunc){
+    void addExecCommand(const std::string& cmd, CmdFunc cmdFunc){
         ExecCmd.insert(std::make_pair(cmd, cmdFunc));
     }
-    CmdFunc* GetCmdFunction(std::string cmd) {
+    CmdFunc* GetCmdFunction(const std::string& cmd) {
         if(ExecCmd.find(cmd) == ExecCmd.end()){
             return nullptr;
         }

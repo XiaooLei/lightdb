@@ -159,7 +159,6 @@ class Set{
 
 struct SetIdx{
     Set* indexes;
-    std::mutex mutex;
     SetIdx(){
         indexes = new Set();
     }

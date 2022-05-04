@@ -176,7 +176,6 @@ public:
 
 struct SortedSetIdx{
     SortedSet* indexes;
-    std::mutex mtx;
     SortedSetIdx(){
         indexes = new SortedSet();
     }

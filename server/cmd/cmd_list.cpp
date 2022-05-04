@@ -5,7 +5,7 @@
 #include "cmd.h"
 #include "Response.h"
 namespace lightdb{
-    void lPush(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lPush(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() < 2){
             resp = "wrong num of args";
@@ -25,7 +25,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void rPush(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void rPush(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() < 2){
             resp = "wrong num of args";
@@ -46,7 +46,7 @@ namespace lightdb{
         return;
     }
 
-    void rPop(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void rPop(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size()!=1){
             resp = "wrong num of args";
@@ -63,7 +63,7 @@ namespace lightdb{
         return;
     }
 
-    void lPop(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lPop(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size()!=1){
             resp = "wrong num of args";
@@ -80,7 +80,7 @@ namespace lightdb{
         return;
     }
 
-    void lIndex(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lIndex(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size()!=2){
             resp = "wrong num of args";
@@ -102,7 +102,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lRem(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lRem(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() < 3){
             resp = "wrong num of args";
@@ -123,7 +123,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lInsert(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lInsert(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 4){
             resp = "wrong num of args";
@@ -152,7 +152,7 @@ namespace lightdb{
         return;
     }
 
-    void lSet(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lSet(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -180,7 +180,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lTrim(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lTrim(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -206,7 +206,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lRange(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lRange(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -236,7 +236,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lLen(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lLen(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 1) {
             resp = "wrong num of args";
@@ -249,7 +249,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lKeyExist(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lKeyExist(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 1){
             resp = "wrong num of args";
@@ -262,7 +262,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lClear(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lClear(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 1){
             resp = "wrong num of args";
@@ -280,7 +280,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lExpire(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lExpire(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -302,7 +302,7 @@ namespace lightdb{
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void lTTL(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void lTTL(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 1){
             resp = "wrong num of args";

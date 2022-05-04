@@ -120,8 +120,6 @@ void LightDB::buildListIndex(Entry *entry) {
     std::vector<std::string> pivot_and_opt;
     std::vector<std::string> start_and_end;
     switch (entry->GetMark()) {
-        InsertOption opt;
-        int count;
         case ListLPush:
             listIdx.indexes->LPush(key, entry->meta->value);
             break;
@@ -138,17 +136,19 @@ void LightDB::buildListIndex(Entry *entry) {
             listIdx.indexes->RPop(key, tmp);
             break;
 
-        case ListLRem:
+        case ListLRem: {
+            int count;
             count = std::stoi(entry->meta->extra);
             listIdx.indexes->LRem(key, entry->meta->value, count);
             break;
-
-        case ListLInsert:
+        }
+        case ListLInsert: {
+            InsertOption opt;
             pivot_and_opt = splitWithStl(entry->meta->extra, ExtraSeparator);
             opt = static_cast<InsertOption>(std::stoi(pivot_and_opt[1]));
             listIdx.indexes->LInsert(entry->meta->key, opt, pivot_and_opt[0], entry->meta->value);
             break;
-
+        }
         case ListLSet:
             listIdx.indexes->LSet(entry->meta->key, std::stoi(entry->meta->extra), entry->meta->value);
             break;
@@ -238,7 +238,7 @@ void LightDB::buildZSetIndex(Entry *entry) {
     double score;
     switch (entry->GetMark()) {
         case ZSetZAdd:
-            score = atof(entry->meta->extra.c_str());
+            score = std::strtod(entry->meta->extra.c_str(), nullptr);
             sortedSetIdx.indexes->ZAdd(key, score, entry->meta->value);
             break;
         case ZSetZRem:

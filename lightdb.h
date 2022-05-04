@@ -34,9 +34,7 @@ class LightDB{
 
     Status dumpStore(vector<DBFile*>& mergeFiles, std::string mergePath, Entry* e);
 
-    void mergeString();
-
-    Status loadDBFiles(DataType dataType);
+    Status mergeString();
 
     bool validEntry(Entry* e, int64_t offset, uint32_t fileId);
 
@@ -64,17 +62,11 @@ class LightDB{
 
     //String operations
 
-    Status StrKeys(std::vector<std::string> keys);
-
-    Status StrValues(std::vector<std::string> values);
-
     Status SetIndexer(Entry* entry);
 
     Status StrSet(const std::string& key, const std::string& value);
 
     Status StrSetNx(const std::string& key, const std::string& value, bool& suc);
-
-    Status StrSetEx(const std::string& key, const std::string& value, uint64_t duration);
 
     bool StrExist(const std::string& key);
 
@@ -233,10 +225,6 @@ class LightDB{
     void buildSetIndex(Entry* entry);
 
     void buildZSetIndex(Entry* entry);
-
-    std::string getDirPath(){
-        return this->config->dirPath;
-    }
 
     private:
     // 每种数据类型都有相应的存储索引的结构

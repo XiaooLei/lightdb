@@ -9,7 +9,7 @@ struct StrSkipListNode {
 	std::string key;
     Indexer val;
 	std::vector<StrSkipListNode *> level;
-	StrSkipListNode (const std::string& key, const Indexer& val,int sz=32) : key(key), val(val),level(sz, nullptr) {}
+	StrSkipListNode (std::string key, const Indexer& val,int sz=32) : key(std::move(key)), val(val),level(sz, nullptr) {}
 	StrSkipListNode(const StrSkipListNode& node): key(node.key), val(node.val){}
 };
 
@@ -22,7 +22,6 @@ private:
 
 public:
 	static constexpr int MAXL = 32;
-    static constexpr int P = 4;
     static constexpr int S = 0xFFFF;
     static constexpr int PS = S / 4;
 

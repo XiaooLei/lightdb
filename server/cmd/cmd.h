@@ -6,9 +6,9 @@
 namespace lightdb {
     typedef void CmdFunc(LightDB* db, const std::vector<std::string>& args, std::string& res);
 
-    void addExecCommand(std::string cmd, CmdFunc cmdFunc);
+    void addExecCommand(const std::string& cmd, CmdFunc cmdFunc);
 
-    CmdFunc* GetCmdFunction(std::string cmd);
+    CmdFunc* GetCmdFunction(const std::string& cmd);
 
     void init_hash();
 

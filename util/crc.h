@@ -1,16 +1,16 @@
 
 #pragma once
 #include <sys/types.h>
-#include <string.h>
+#include <cstring>
 
 namespace lightdb{
 
 #define MASK 0x1021
-inline uint32_t CRC_Compute(const std::string data)
+inline uint32_t CRC_Compute(const std::string& data)
 {
     char buf[data.size()];
     memcpy(buf, data.c_str(), sizeof(buf));
-    int len = data.size();
+    size_t len = data.size();
     uint32_t rst = 0x0;
     int i,j;
     for(i=0 ; i < len ; i++)

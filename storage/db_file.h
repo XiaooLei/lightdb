@@ -4,12 +4,12 @@
 #include "../util/str.h"
 #include "sys/types.h"
 #include <error.h>
-#include <string.h>
+#include <cstring>
 #include <sys/fcntl.h>
 #include <malloc.h>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <vector>
 #include <dirent.h>
 #include <unistd.h>
@@ -46,7 +46,7 @@ class DBFile{
     std::string _fileName;
 
     public:
-    DBFile(std::string path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType);
+    DBFile(const std::string& path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType);
 
     ~DBFile();
 
@@ -56,7 +56,7 @@ class DBFile{
 
     Status ReadBuf(std::string& result, uint64_t offset, uint32_t size);
 
-    void Sync();
+    void Sync() const;
 
     Status Write(Entry* entry);
 
@@ -76,7 +76,7 @@ Status BuildType(std::string path, FileRWMethod method, int64_t blockSize, Archi
 // 读取指定目录下所有value类型的数据文件，并且设置好archivedFiles和fileIds，建立好DBFile*
 Status Build(std::string path, FileRWMethod method, int64_t blockSize, ArchivedFiles& archivedFiles, FileIds& fileIds);
 
-Status buildInternal(std::string path, FileRWMethod method, int64_t blockSize, uint16_t eType, ArchivedFiles& archiveFiles, FileIds& activeFileIds);
+Status buildInternal(const std::string& path, FileRWMethod method, int64_t blockSize, uint16_t eType, ArchivedFiles& archiveFiles, FileIds& activeFileIds);
 
 std::vector<std::string> readFileList(char *basePath);
 

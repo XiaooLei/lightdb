@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include <regex>
 
 namespace lightdb{
@@ -8,7 +8,7 @@ inline std::vector<std::string> splitWithStl(const std::string &str,const std::s
 {
     std::vector<std::string> resVec;
 
-	if ("" == str)
+	if (str.empty())
     {
         return resVec;
     }
@@ -29,7 +29,7 @@ inline std::vector<std::string> splitWithStl(const std::string &str,const std::s
     return resVec;
 }
 
-inline int stringToInt(std::string str, bool& suc){
+inline int stringToInt(const std::string& str, bool& suc){
     int res;
     try{
         res = std::stoi(str);
@@ -41,7 +41,7 @@ inline int stringToInt(std::string str, bool& suc){
     return res;
 }
 
-inline double stringToDouble(std::string str, bool& suc){
+inline double stringToDouble(const std::string& str, bool& suc){
     double res;
     try{
         res = std::stod(str);
@@ -54,12 +54,12 @@ inline double stringToDouble(std::string str, bool& suc){
 }
 
 //用空格分割字符串
-inline void splitStrBySpace(std::string text, std::vector<std::string>& words){
-        std::string word = "";
+inline void splitStrBySpace(const std::string& text, std::vector<std::string>& words){
+        std::string word;
         for(auto c : text){
             std::string res;
             if(c == ' '){
-                if(word.size() != 0){
+                if(!word.empty()){
                     words.push_back(word);
                 }
                 word = "";
@@ -68,55 +68,9 @@ inline void splitStrBySpace(std::string text, std::vector<std::string>& words){
                 word += c;
             }
         }
-        if(word.size() != 0) {
+        if(!word.empty()) {
             words.push_back(word);
         }
 }
-
-// 去掉s中首尾的del子字符串
-inline std::string& Strim(std::string &s, const std::string & del)
-{
-    if (s.empty())
-    {
-        return s;
-    }
-
-    s.erase(0,s.find_first_not_of(del));
-    s.erase(s.find_last_not_of(del) + 1);
-    return s;
-}
-
-inline std::vector<std::string> Split(const std::string & input, const std::string& regex)
-{
-    // passing -1 as the submatch index parameter performs splitting
-    std::string key;
-    std::string value;
-    int count = 0;
-    for(auto c : input){
-        if(c == '='){
-            count ++;
-        }
-    }
-    if(count != 1){
-        return {};
-    }
-    bool flag = false;
-    for(auto c : input){
-        if(c == '='){
-            flag = true;
-            continue;
-        }
-        if(c == ' '){
-            continue;
-        }
-        if(flag){
-            key += c;
-        }else{
-            value += c;
-        }
-    }
-    return {key, value};
-}
-
 
 }

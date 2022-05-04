@@ -1,7 +1,7 @@
 
 
 #include "db_file.h"
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 namespace lightdb{
@@ -22,7 +22,7 @@ namespace lightdb{
             {4, "%09d.data.zset"},
     };
 
-    DBFile::DBFile(std::string path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType):Id(fileId),_fileName(""){
+    DBFile::DBFile(const std::string& path, uint32_t fileId, FileRWMethod method, uint32_t blockSize, uint16_t eType):Id(fileId),method(method){
         char buf[20];
         memset(buf, '\0', sizeof(buf));
         sprintf(buf, DBFileFormatNames[eType].c_str(), fileId);
@@ -91,7 +91,6 @@ namespace lightdb{
                 return status;
             }
         }
-        offset += entry.meta->extraSize;
 
         uint32_t crc = CRC_Compute(entry.meta->value);
         if(crc != entry.crc32){
@@ -105,7 +104,7 @@ namespace lightdb{
         memset(buf, 0, size);
         Status status;
         uint32_t nleft = size;
-        ssize_t nread = 0;
+        ssize_t nread;
         ssize_t nreadsum = 0;
         while (nleft > 0) {
             if ((nread = pread(_fd, buf + nreadsum, nleft, offset)) < 0) {  // Read error.
@@ -159,7 +158,7 @@ namespace lightdb{
         this->Offset = offset;
     }
 
-    void DBFile::Sync(){
+    void DBFile::Sync() const{
         syncfs(this->_fd);
     }
 
@@ -172,18 +171,18 @@ namespace lightdb{
     }
 
     // 读取指定目录下的所有数据文件，为不活跃数据文件建立DBFile实例，并获取活跃数据文件的Id号
-    Status buildInternal(std::string path, FileRWMethod method, int64_t blockSize, uint16_t eType, ArchivedFiles& archiveFiles, FileIds& activeFileIds){
+    Status buildInternal(const std::string& path, FileRWMethod method, int64_t blockSize, uint16_t eType, ArchivedFiles& archiveFiles, FileIds& activeFileIds){
         DIR *dir;
         struct dirent *ptr;
         char base[1000];
         // 每种类型包含的文件id，注意不是fileid
         std::unordered_map<uint16_t,std::vector<int>> fileIdsMap;
-        if((dir = opendir(path.c_str())) == NULL){
+        if((dir = opendir(path.c_str())) == nullptr){
             printf("path:%s\n", path.c_str());
             perror("Open dir error...");
             exit(1);
         }
-        while((ptr=readdir(dir)) != NULL){
+        while((ptr=readdir(dir)) != nullptr){
             // .swp和.swo文件都是临时交换文件，应该被忽略掉
             if(std::string(ptr->d_name).rfind(".swp")!=-1){
                 continue;
@@ -222,9 +221,7 @@ namespace lightdb{
             uint32_t activeFileId = 0;
             std::sort(fileIds.begin(), fileIds.end());
 
-            if(fileIds.size() > 0){
-
-//                printf("size:::%d , activeFileId:%d \n", fileIdsMap[typ].size(), activeFileId);
+            if(!fileIds.empty()){
 
                 activeFileId = fileIds.back();
 
@@ -247,37 +244,33 @@ namespace lightdb{
         struct dirent *ptr;
         char base[1000];
 
-        if ((dir=opendir(basePath)) == NULL)
+        if ((dir=opendir(basePath)) == nullptr)
         {
             perror("Open dir error..., the reason is");
             exit(1);
         }
 
-        while ((ptr=readdir(dir)) != NULL)
+        while ((ptr=readdir(dir)) != nullptr)
         {
             // ptr->d_name是文件名，不包含目录
             if(std::string(ptr->d_name).rfind(".swp")!=-1 || std::string(ptr->d_name).rfind(".swo")!=-1){
                 continue;
             }
-
-            if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)
+            if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0) {
                 continue;
-            else if(ptr->d_type == 8)    ///file
-            {
-                result.push_back(std::string(ptr->d_name));
-            }
-            else if(ptr->d_type == 10)    ///link file
-            {
-                //printf("d_name:%s/%s\n",basePath,ptr->d_name);
-                result.push_back(std::string(ptr->d_name));
-            }
-            else if(ptr->d_type == 4)    ///dir
-            {
+            }else if(ptr->d_type == 8) {
+                ///file
+                result.emplace_back(ptr->d_name);
+            }else if(ptr->d_type == 10){
+                ///link file
+                result.emplace_back(ptr->d_name);
+            }else if(ptr->d_type == 4){
+                ///dir
                 memset(base,'\0',sizeof(base));
                 strcpy(base,basePath);
                 strcat(base,"/");
                 strcat(base,ptr->d_name);
-                result.push_back(std::string(ptr->d_name));
+                result.emplace_back(ptr->d_name);
                 readFileList(base);
             }
         }

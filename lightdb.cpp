@@ -6,7 +6,7 @@
 #include "sync/CTimer.h"
 
 namespace lightdb{
-LightDB::LightDB(){}
+LightDB::LightDB():config(nullptr), cache(nullptr), isMerging(false){}
 
 void runMerge(LightDB* lightdb){
     lightdb->Merge();
@@ -208,9 +208,14 @@ void LightDB::dump(){
                     p->dumpInternal(path, Set); }, this, path);
                 break;
             }
-            case ZSet:
-                dumpZSetThread = new std::thread ([](LightDB* p, const string& path){
-                    p->dumpInternal(path, ZSet);}, this, path);
+            case ZSet: {
+                dumpZSetThread = new std::thread([](LightDB *p, const string &path) {
+                    p->dumpInternal(path, ZSet);
+                }, this, path);
+                break;
+            }
+            default:
+                //skip
                 break;
         }
     }
@@ -287,7 +292,7 @@ Status LightDB::dumpStore(vector<DBFile*>& mergeFiles, std::string mergePath, En
 
 
 
-void LightDB::mergeString(){
+Status LightDB::mergeString(){
     printf("[INFO][begin to merge string..]\n");
     //todo 先关闭mergeThreshold Check
 //    if(archivedFiles[String].size() < config->mergeThreshold){
@@ -313,9 +318,6 @@ void LightDB::mergeString(){
 
     vector<int> fileIds;
     //skip the merged Files;
-    int size = archivedFiles[String].size();
-
-    int archFilesSize = archFiles.size();
     // 从不活跃数据文件中选出未进行merge的文件，对它们进行merge。临时目录中可能存在一些merged db文件，这可能是因为上次数据库进行merge时，发生宕机了，就会有一些merged db文件残留在临时目录中，没来得及移出临时目录，这些残留的merged db文件不应参与到这次merge。这次merge完成后，新的merged db文件会和这些残留的上次的merged db文件一起移动到父目录，临时目录就会被清空了
     for(auto & it : archivedFiles[String]){
         if(it.first >= maxFileId){
@@ -336,7 +338,9 @@ void LightDB::mergeString(){
         DBFile* dbFile = archivedFiles[String][fileId];
         vector<Entry*> validEntries;
         s = FindValidEntries(validEntries, dbFile);
-
+        if(!s.ok()){
+            return s;
+        }
         for(auto entry : validEntries){
             if(rewriteDF == nullptr || rewriteDF->WriteOffset > config->blockSize){
                 rewriteDF = new DBFile(mergePath, rewriteFileId, config->rWMethod, config->blockSize, String);
@@ -347,12 +351,11 @@ void LightDB::mergeString(){
             s = rewriteDF->Write(entry);
             if(!s.ok()){
                 printf("rewrite entry err! \n");
-                return;
+                return s;
             }
 
             //update index
             Indexer idx;
-            //if(this->strIdx->indexes->get(entry->meta->key, idx)){
             idx.fileId = rewriteFileId;
             idx.offset = rewriteDF->WriteOffset - entry->Size();
             if(config->indexMode == KeyValueMemMode){
@@ -367,7 +370,6 @@ void LightDB::mergeString(){
         std::remove((config->dirPath + "/" + oldfilename).c_str());
     }
 
-
     // 把merge出的db文件移出临时目录，移到父目录中，这样临时目录就是空的了
     this->strIdx.mtx.lock();//移动文件的时候需要阻塞
     for(auto file : archFiles){
@@ -379,11 +381,6 @@ void LightDB::mergeString(){
             printf("rename error\n");
         }
     }
-    //reload dbFiles;
-    //this->loadDBFiles(String);
-
-    //merge完成之后把新的索引设置到lightdb对象
-    this->strIdx.indexes = newStrSkipList;
     //把新的索引更新到旧索引中
     for(newStrSkipList->Begin(); !newStrSkipList->End(); newStrSkipList->Next()){
         std::string key;
@@ -391,7 +388,9 @@ void LightDB::mergeString(){
         newStrSkipList->CurIterKeyValue(key, value);
         strIdx.indexes->put(key, value);
     }
-    this->strIdx.mtx.unlock(); }
+    this->strIdx.mtx.unlock();
+    return Status::OK();
+}
 
 // 只有mergestring时使用这个函数
 Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){
@@ -440,21 +439,5 @@ bool LightDB::validEntry(Entry* e, int64_t offset, uint32_t fileId){
 
     return false;
 }
-
-
-// 为db的不活跃数据文件建立DBFile实例，并获取db的活跃数据文件的Id号
-Status LightDB::loadDBFiles(DataType dataType){
-    Status s;
-    ArchivedFiles archFiles;
-    FileIds activeFileIds;
-    s = BuildType(config->dirPath, config->rWMethod, config->blockSize, archFiles, activeFileIds, dataType);
-    if(!s.ok()){
-        return s;
-    }
-    this->archivedFiles[dataType] = archFiles[dataType];
-    this->activeFiles[dataType] = new DBFile(config->dirPath, activeFileIds[dataType], config->rWMethod, config->blockSize, dataType);
-    return Status::OK();
-}
-
 
 }

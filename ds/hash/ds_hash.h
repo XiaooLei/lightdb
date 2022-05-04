@@ -157,7 +157,6 @@ class Hash{
 class Hash;
 struct HashIdx{
     Hash* indexes;
-    std::mutex mtx;
 
     HashIdx(){
         indexes = new Hash();

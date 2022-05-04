@@ -27,7 +27,6 @@ private:
     std::set<std::string>::iterator curMemberPtr;
 public:
 	static constexpr int MAXL = 32;
-    static constexpr int P = 4;
     static constexpr int S = 0xFFFF;
     static constexpr int PS = S / 4;
 
@@ -50,23 +49,6 @@ public:
         }
         p = p->level[0];
         return p;
-    }
-    
-    bool search(double target, const std::string& member) {
-        SkipListNode *p = find(target);
-        if(p->score != target){
-            return false;
-        }
-        if(p->members.find(member) == p->members.end()){
-            return false;
-        }
-        return true;
-
-    }
-
-    bool scoreExist(double target){
-        SkipListNode* p = find(target);
-        return p->score == target;
     }
     
     SkipListNode* add(double score, const std::string& member) {

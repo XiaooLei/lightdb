@@ -295,7 +295,6 @@ class List{
 
 struct ListIdx {
     List* indexes;
-    std::mutex mtx;
     ListIdx(){
         indexes = new List();
     }

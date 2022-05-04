@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <chrono>
 #include <string>
+#include <utility>
 #include "../include/common.h"
 #include "../util/coding.h"
 #include "../util/crc.h"
@@ -20,11 +21,11 @@ struct  Meta{
     uint32_t extraSize;
 
     Meta(std::string key, std::string value, std::string extra, uint32_t keySize, uint32_t valueSize, uint32_t extraSize):
-    key(key), value(value), extra(extra), keySize(keySize), valueSize(valueSize), extraSize(extraSize)
+    key(std::move(key)), value(std::move(value)), extra(std::move(extra)), keySize(keySize), valueSize(valueSize), extraSize(extraSize)
     {
     }
-    Meta():key(""),value(""),extra(""),keySize(0),valueSize(0),extraSize(0){};
-    ~Meta(){}
+    Meta():keySize(0),valueSize(0),extraSize(0){};
+    ~Meta() = default;
 };
 
 // 包含一个k-v对的所有信息，entry会被写入到db文件中，即数据文件中
@@ -42,11 +43,11 @@ class Entry{
     uint64_t timeStamp;
 
     public:
-    Entry(std::string key, std::string value, std::string extra, uint16_t state, uint64_t timeStamp):state(state), timeStamp(timeStamp){
+    Entry(const std::string& key, const std::string& value, const std::string& extra, uint16_t state, uint64_t timeStamp):state(state), timeStamp(timeStamp), crc32(-1), txId(-1){
         meta = new Meta(key, value, extra, key.size(), value.size(), extra.size());
     }
 
-    Entry(){
+    Entry():state(-1), crc32(-1), txId(-1), timeStamp(-1){
         meta = new Meta();
     }
             
@@ -54,12 +55,12 @@ class Entry{
         delete meta;
     }
 
-    uint32_t Size(){
+    uint32_t Size() const{
         return EntryHeaderSize + meta->keySize + meta->valueSize + meta->extraSize;
     }
 
     //小端序编码
-    int Encode(std::string& buf){
+    int Encode(std::string& buf) const{
         uint32_t crc = CRC_Compute(meta->value);
         PutFixed32(&buf, crc);
         PutFixed32(&buf, meta->keySize);
@@ -88,16 +89,16 @@ class Entry{
     }
 
     // 获取value类型
-    uint16_t GetType(){
+    uint16_t GetType() const{
         return state>>8;
     }
 
     // 获取操作类型，因为mark存储在state的低位，并且mark的数值不会超过127，所以state和127相与即可得到mark
-    uint16_t GetMark(){
+    uint16_t GetMark() const{
         return state & (127);
     }
 
-    static Entry* NewEntryNow(std::string key, std::string value, std::string extra, DataType type, OperationType mark){
+    static Entry* NewEntryNow(const std::string& key, const std::string& value, const std::string& extra, DataType type, OperationType mark){
         //set type and mark, higher 8 bits as data type, lower 8 bits as operation mark;
         uint16_t state = 0;
         state = state | (type<<8);
@@ -107,12 +108,12 @@ class Entry{
     }
 
     // NewEntryNoExtra create a new entry without extra info.
-    static Entry* NewEntryNoExtra(std::string key, std::string value, DataType type, OperationType mark){
+    static Entry* NewEntryNoExtra(const std::string& key, const std::string& value, DataType type, OperationType mark){
         return NewEntryNow(key, value, "", type, mark);
     }
 
     // NewEntryWithExpire create a new Entry with expired info.
-    static Entry* NewEntryWithExpire(std::string key, std::string value, uint64_t deadline, DataType type, OperationType mark){
+    static Entry* NewEntryWithExpire(const std::string& key, const std::string& value, uint64_t deadline, DataType type, OperationType mark){
         uint16_t state = 0;
         state = state | (type<<8);
         state = state | mark;

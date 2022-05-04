@@ -21,6 +21,7 @@ typedef struct Indexer{
     }
 
     Indexer& operator=(const Indexer& indexer){
+        delete meta;
         if(indexer.meta!= nullptr){
             this->meta = new Meta();
             *this->meta = *indexer.meta;

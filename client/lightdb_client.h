@@ -5,7 +5,6 @@
 #ifndef MYPROJECT_CLIENT_H
 #define MYPROJECT_CLIENT_H
 
-#define PORT 10000
 #define MAXDATASIZE 1000
 #include <string>
 #include <netdb.h>

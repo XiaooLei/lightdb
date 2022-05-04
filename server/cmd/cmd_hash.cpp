@@ -6,7 +6,7 @@
 #include "Response.h"
 
 namespace lightdb{
-void hSet(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hSet(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 3){
         resp = "wrong num of args";
@@ -23,7 +23,7 @@ void hSet(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hSetNx(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hSetNx(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size()!=3){
         resp = "wrong num of args";
@@ -41,7 +41,7 @@ void hSetNx(LightDB* db, std::vector<std::string> args, std::string& resp){
 }
 
 
-void hGet(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hGet(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size()!=2){
         resp = "wrong num of args";
@@ -55,7 +55,7 @@ void hGet(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hGetAll(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hGetAll(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
@@ -76,7 +76,7 @@ void hGetAll(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hMSet(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hMSet(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size()%2 != 1){
         resp = "wrong num of args";
@@ -84,8 +84,9 @@ void hMSet(LightDB* db, std::vector<std::string> args, std::string& resp){
         return;
     }
     std::string key = args[0];
-    args.erase(args.begin());
-    s = db->HMSet(key, args);
+    auto args1 = args;
+    args1.erase(args1.begin());
+    s = db->HMSet(key, args1);
     if(!s.ok()){
         resp = Response::ResponseWrap(s.Code(), s.Message());
         return;
@@ -94,7 +95,7 @@ void hMSet(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hMGet(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hMGet(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() <=1 ){
         resp = "wrong num of args";
@@ -102,7 +103,8 @@ void hMGet(LightDB* db, std::vector<std::string> args, std::string& resp){
         return;
     }
     std::string key = args[0];
-    args.erase(args.begin());
+    auto args1 = args;
+    args1.erase(args1.begin());
     std::vector<std::string> vals;
     std::vector<bool> sucs;
     s = db->HMGet(key, args, vals, sucs);
@@ -125,7 +127,7 @@ void hMGet(LightDB* db, std::vector<std::string> args, std::string& resp){
 
 
 //Hash Del
-void hDel(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hDel(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() <= 1){
         resp = "wrong num of args";
@@ -148,7 +150,7 @@ void hDel(LightDB* db, std::vector<std::string> args, std::string& resp){
 }
 
 
-void hKeyExist(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hKeyExist(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
@@ -164,7 +166,7 @@ void hKeyExist(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hExist(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hExist(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 2){
         resp = "wrong num of args";
@@ -180,7 +182,7 @@ void hExist(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hLen(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hLen(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
@@ -193,7 +195,7 @@ void hLen(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hKeys(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hKeys(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     if(args.size() != 1){
         resp = "wrong num of args";
         return;
@@ -214,7 +216,7 @@ void hKeys(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hVals(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hVals(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
@@ -235,7 +237,7 @@ void hVals(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hClear(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hClear(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 1){
         resp = "wrong num of args";
@@ -253,7 +255,7 @@ void hClear(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hExpire(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hExpire(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 2){
         resp = "wrong num of args";
@@ -275,7 +277,7 @@ void hExpire(LightDB* db, std::vector<std::string> args, std::string& resp){
     resp = Response::ResponseWrap(s.Code(), resp);
 }
 
-void hTTL(LightDB* db, std::vector<std::string> args, std::string& resp){
+void hTTL(LightDB* db, const std::vector<std::string>& args, std::string& resp){
     Status s;
     if(args.size() != 1){
         resp = "wrong num of args";

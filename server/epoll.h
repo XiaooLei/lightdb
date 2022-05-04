@@ -29,7 +29,7 @@ private:
 
 public:
 
-    Epoll(int listen_fd);
+    explicit Epoll(int listen_fd);
 
     void SetRequestHandler(RequestHandler* requestHandler);
 
@@ -39,8 +39,6 @@ public:
 
     void CloseAndDel(int fd);
 
-
-    int HandleNewConn(int fd);
 
 };
 

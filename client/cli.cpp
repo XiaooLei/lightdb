@@ -2,7 +2,6 @@
 // Created by xiaolei on 2022/3/23.
 //
 
-#define MAX_REQUEST_LENGTH 1000
 #include "cluster_client.h"
 #include <vector>
 #include <iostream>

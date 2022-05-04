@@ -16,7 +16,7 @@ class Request {
     std::string reqContent;
 
 public:
-    Request(){};
+    Request():reqCode(-1){};
 
     Request(const int& reqCode, const std::string& requestContent);
 

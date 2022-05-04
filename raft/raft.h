@@ -656,7 +656,7 @@ public:
     void AddLog(const std::string& command, const int& conn_fd){
         //add to log set
         std::lock_guard<std::recursive_mutex> lock(mtx);
-        this->logs.push_back({this->getCurTerm(), command, conn_fd});
+        this->logs.emplace_back(this->getCurTerm(), command, conn_fd);
         if(ReplicationTaskQueue.Empty()) {
             int tmp = 1;
             ReplicationTaskQueue.Enqueue(tmp);

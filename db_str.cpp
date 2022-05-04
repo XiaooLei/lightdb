@@ -48,26 +48,6 @@ namespace lightdb{
         return Status::OK();
     }
 
-    // SetEx set key to hold the std::string value and set key to timeout after a given number of seconds.
-    Status LightDB::StrSetEx(const std::string& key, const std::string& value, uint64_t duration){
-        Status s;
-        uint64_t deadline = getCurrentTimeStamp() + duration;
-        Entry* e = Entry::NewEntryWithExpire(key, value, duration, String, StringExpire);
-        s = store(e);
-        if(!s.ok()){
-            return s;
-        }        
-        s = SetIndexer(e);
-        if(!s.ok()){
-            return s;
-        }
-        expires[String][key] = deadline;
-        if(config->indexMode == KeyOnlyMemMode) {
-            cache->put(key, value);
-        }
-        return Status::OK();
-    }
-
     // Get get the value of key. If the key doesn't exist suc is set to be false
     Status LightDB::Get(const std::string& key, std::string& value, bool& suc){
         Status s;
