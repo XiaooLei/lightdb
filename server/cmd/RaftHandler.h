@@ -32,13 +32,13 @@ public:
 
     void GetRedirectServer(RaftState redirectTo, std::string& redirectToAddress, int& redirectToPort, int& redirectToServerNum);
 
-    std::string WrapDirectResp(std::string redirectToAddress, int redirectToPort, int redirectToServerNum);
+    static std::string WrapDirectResp(std::string redirectToAddress, int redirectToPort, int redirectToServerNum);
 
     std::string StartConsumeApplyQueue();
 
-    void HandleRaftRequest(RequestType, std::string args, std::string& reply);
+    void HandleRaftRequest(RequestType, const std::string& args, std::string& reply);
 
-    void WriteBack(const std::string resp, const int& conn_fd);
+    static void WriteBack(const std::string& resp, const int& conn_fd);
 
 };
 

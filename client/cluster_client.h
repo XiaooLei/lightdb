@@ -26,12 +26,19 @@ private:
 public:
     ClusterClient();
 
-    int Connect(std::string address, int port);
+    int Connect(const std::string& address, int port);
 
     int Execute(Request request, Response& response);
 
     int Close();
 
+    std::string ReadRemoteAddress();
+
+    std::string WriteRemoteAddress();
+
+    int ReadRemotePort();
+
+    int WriteRemotePort();
 
 };
 

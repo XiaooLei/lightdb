@@ -16,12 +16,12 @@ public:
     int num;
 
 
-    RpcClient(std::string serverHost, int serverPort,int num):server_end_address(serverHost), server_end_port(serverPort), num(num){
+    RpcClient(std::string serverHost, int serverPort,int num):server_end_address(std::move(serverHost)), server_end_port(serverPort), num(num){
         this->lightdb_client = new LightdbClient();
     }
-    RpcClient():lightdb_client(nullptr), server_end_port(0), server_end_address(""), num(0){};
+    RpcClient():lightdb_client(nullptr), server_end_port(0), num(0){};
 
-    int sendRequestVote(const RequestVoteArgs& args, RequestVoteReply& reply){
+    int sendRequestVote(const RequestVoteArgs& args, RequestVoteReply& reply) const{
         std::string args_bytes;
         args.encode(args_bytes);
         Request voteRequest(VoteReq, args_bytes);
@@ -44,7 +44,7 @@ public:
         return 0;
     }
 
-    int sendAppendEntries(const AppendEntriesArgs& args, AppendEntriesReply& reply){
+    int sendAppendEntries(const AppendEntriesArgs& args, AppendEntriesReply& reply) const{
         std::string args_byte;
         args.encode(args_byte);
         if(lightdb_client->Connect(server_end_address, server_end_port) < 0){

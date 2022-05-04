@@ -15,9 +15,9 @@ Status LightDB::loadIdxFromFiles(){
         std::map<uint32_t, DBFile*> dbFiles;
 
         //archived files
-        for(auto it=archivedFiles[dataType].begin(); it!=archivedFiles[dataType].end(); it++){
-            dbFiles.insert(std::make_pair(it->first, it->second));
-            fileIds.push_back(it->first);
+        for(auto & it : archivedFiles[dataType]){
+            dbFiles.insert(std::make_pair(it.first, it.second));
+            fileIds.push_back(it.first);
         }
 
         //active files
@@ -27,8 +27,7 @@ Status LightDB::loadIdxFromFiles(){
 
         sort(fileIds.begin(), fileIds.end());
 
-        for(int i = 0; i < fileIds.size(); i++){
-            uint32_t fid = fileIds[i];
+        for(unsigned int fid : fileIds){
             DBFile* df = dbFiles[fid];
             int64_t offset = 0;
             for(; offset < config->blockSize; ){
@@ -49,7 +48,7 @@ Status LightDB::loadIdxFromFiles(){
 
                 offset += e.Size();
                 df->SetOffset(offset);
-                if(e.meta->key.size() > 0){
+                if(!e.meta->key.empty()){
                     buildIndex(&e, indexer);
                 }
 

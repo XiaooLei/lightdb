@@ -1,5 +1,7 @@
 #include "util/dir_util.h"
 #include "lightdb.h"
+
+#include <utility>
 #include "sync/waitGroup.h"
 #include "sync/CTimer.h"
 
@@ -24,10 +26,10 @@ Status LightDB::Open(Config* config, bool merge){
     }
 
     //set active files for writing 每种不同类型的value都有一个活跃数据文件
-    for(auto it = activeFileIds.begin(); it!=activeFileIds.end(); it++){
+    for(auto & activeFileId : activeFileIds){
         // it->first是数据类型的型号（0-4），it->second是文件Id，注意是Id，即DBFile的Id，不是fileid
-        DBFile* af = new DBFile(config->dataPath, it->second, config->rWMethod, config->blockSize, it->first);
-        activeFiles.insert(std::make_pair(it->first, af));
+        DBFile* af = new DBFile(config->dataPath, activeFileId.second, config->rWMethod, config->blockSize, activeFileId.first);
+        activeFiles.insert(std::make_pair(activeFileId.first, af));
     }
 
     // expires是每个key的过期时间，同时包含了每个key的所属类型（0-4）
@@ -66,7 +68,7 @@ Status LightDB::Open(Config* config, bool merge){
 }
 
 //check if the key or value exceed the length limitation
-Status LightDB::CheckKeyValue(string key, string value){
+Status LightDB::CheckKeyValue(const string& key, const string& value){
     int keyLength = key.size();
     if(keyLength == 0){
         return Status::EmptyKeyError();
@@ -81,7 +83,7 @@ Status LightDB::CheckKeyValue(string key, string value){
 }
 
 //check if the key or values exceed the length limitation
-Status LightDB::CheckKeyValue(string key, vector<string> values){
+Status LightDB::CheckKeyValue(const string& key, const vector<string>& values){
     int keyLength = key.size();
     if(keyLength == 0){
         return Status::EmptyKeyError();
@@ -89,9 +91,9 @@ Status LightDB::CheckKeyValue(string key, vector<string> values){
     if(keyLength > config->maxKeySize){
         return Status::KeyTooLargeErr(key);
     }
-    for(auto it = values.begin(); it!=values.end(); it++){
-        if(it->size() > config->maxValueSize){
-            return Status::ValueTooLargeErr(*it);
+    for(auto & value : values){
+        if(value.size() > config->maxValueSize){
+            return Status::ValueTooLargeErr(value);
         }
     }
     return Status::OK();
@@ -103,7 +105,7 @@ DBFile* LightDB::getActiveFile(DataType dataType) {
 }
 
 // if the key is exist and expired, return true and erase indexer and expires element, else return false
-bool LightDB::CheckExpired(string key, DataType dataType){
+bool LightDB::CheckExpired(const string& key, DataType dataType){
     if(expires[dataType].find(key) == expires[dataType].end()){
         return false;
     }
@@ -192,22 +194,22 @@ void LightDB::dump(){
     for(int idx = List; idx < DataStructureNum; idx++){
         switch (idx){
             case List: {
-                dumpListThread = new std::thread([](LightDB *p, string path) {
+                dumpListThread = new std::thread([](LightDB *p, const string& path) {
                     p->dumpInternal(path, List); }, this, path);
                 break;
             }
             case Hash: {
-                dumpHashThread = new std::thread ([](LightDB *p, string path) {
+                dumpHashThread = new std::thread ([](LightDB *p, const string& path) {
                     p->dumpInternal(path, Hash); }, this, path);
                 break;
             }
             case Set: {
-                dumpSetThread = new std::thread ([](LightDB *p, string path) {
+                dumpSetThread = new std::thread ([](LightDB *p, const string& path) {
                     p->dumpInternal(path, Set); }, this, path);
                 break;
             }
             case ZSet:
-                dumpZSetThread = new std::thread ([](LightDB* p, string path){
+                dumpZSetThread = new std::thread ([](LightDB* p, const string& path){
                     p->dumpInternal(path, ZSet);}, this, path);
                 break;
         }
@@ -220,10 +222,9 @@ void LightDB::dump(){
     delete dumpHashThread;
     delete dumpSetThread;
     delete dumpZSetThread;
-    return;
 }
 
-void LightDB::dumpInternal(std::string path, DataType eType){
+void LightDB::dumpInternal(const std::string& path, DataType eType){
     Status s;
     //todo 先去除mergeThreshold Check
     //if(archivedFiles[eType].size() + 1 < config->mergeThreshold){
@@ -276,7 +277,7 @@ Status LightDB::dumpStore(vector<DBFile*>& mergeFiles, std::string mergePath, En
     if(df->WriteOffset > config->blockSize){
         //free the last file
         /* delete(df); */
-        df = new DBFile(mergePath, df->Id+1, config->rWMethod, config->blockSize, e->GetType());
+        df = new DBFile(std::move(mergePath), df->Id+1, config->rWMethod, config->blockSize, e->GetType());
         mergeFiles.push_back(df);
     }
     s = df->Write(e);
@@ -304,9 +305,9 @@ void LightDB::mergeString(){
 
     std::unordered_map<uint32_t, DBFile*> archFiles = mergeFiles[String];
     int maxFileId = 0;
-    for(auto it = archFiles.begin(); it!=archFiles.end(); it++){
-        if(it->first > maxFileId){
-            maxFileId = it->first;
+    for(auto & archFile : archFiles){
+        if(archFile.first > maxFileId){
+            maxFileId = archFile.first;
         }
     }
 
@@ -316,9 +317,9 @@ void LightDB::mergeString(){
 
     int archFilesSize = archFiles.size();
     // 从不活跃数据文件中选出未进行merge的文件，对它们进行merge。临时目录中可能存在一些merged db文件，这可能是因为上次数据库进行merge时，发生宕机了，就会有一些merged db文件残留在临时目录中，没来得及移出临时目录，这些残留的merged db文件不应参与到这次merge。这次merge完成后，新的merged db文件会和这些残留的上次的merged db文件一起移动到父目录，临时目录就会被清空了
-    for(auto it = archivedFiles[String].begin(); it!=archivedFiles[String].end(); it++){
-        if(it->first >= maxFileId){
-            fileIds.push_back(it->first);   
+    for(auto & it : archivedFiles[String]){
+        if(it.first >= maxFileId){
+            fileIds.push_back(it.first);
         }
     }
 
@@ -331,8 +332,8 @@ void LightDB::mergeString(){
     //rewrite the valid entries
     DBFile* rewriteDF = nullptr;
     int rewriteFileId = 0;
-    for(int i = 0; i<fileIds.size(); i++){
-        DBFile* dbFile = archivedFiles[String][fileIds[i]];
+    for(int fileId : fileIds){
+        DBFile* dbFile = archivedFiles[String][fileId];
         vector<Entry*> validEntries;
         s = FindValidEntries(validEntries, dbFile);
 
@@ -361,7 +362,7 @@ void LightDB::mergeString(){
         }
         //delete older archivedFiles
         std::string oldfilename = dbFile->FileName();
-        this->archivedFiles[String].erase(fileIds[i]);
+        this->archivedFiles[String].erase(fileId);
         delete(dbFile);
         std::remove((config->dirPath + "/" + oldfilename).c_str());
     }
@@ -390,9 +391,7 @@ void LightDB::mergeString(){
         newStrSkipList->CurIterKeyValue(key, value);
         strIdx.indexes->put(key, value);
     }
-    this->strIdx.mtx.unlock(); //新索引建立完成，可以解锁了
-    return;
-}
+    this->strIdx.mtx.unlock(); }
 
 // 只有mergestring时使用这个函数
 Status LightDB::FindValidEntries(std::vector<Entry*>& entries, DBFile* df){

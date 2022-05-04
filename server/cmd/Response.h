@@ -6,6 +6,7 @@
 #define MYPROJECT_RESPONSE_H
 
 #include <string>
+#include <utility>
 #include "../../util/cJson/cJSON.h"
 
 namespace lightdb {
@@ -16,9 +17,9 @@ private:
     std::string respContent;
 
 public:
-    Response(){}
+    Response():respCode(-1){}
 
-    Response(const int &respCode, const std::string &respContent) : respCode(respCode), respContent(respContent) {}
+    Response(const int &respCode, std::string respContent) : respCode(respCode), respContent(std::move(respContent)) {}
 
     void Encode(std::string &bytes);
 
@@ -35,7 +36,7 @@ public:
         return respContent;
     }
 
-    int GetRespCode(){
+    int GetRespCode() const{
         return respCode;
     }
 

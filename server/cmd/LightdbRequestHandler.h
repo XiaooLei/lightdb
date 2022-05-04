@@ -10,6 +10,8 @@
 #include "../../sync/SafeQueue.h"
 #include <unistd.h>
 
+#include <utility>
+
 namespace lightdb {
 
     struct Task{
@@ -18,18 +20,18 @@ namespace lightdb {
         std::vector<std::string> args;
         int conn_fd;
 
-        Task(){};
+        Task():cmdFunc(nullptr),lightDb(nullptr),conn_fd(-1){};
 
-        Task(CmdFunc* cmdFunc, LightDB* lightDb, const std::vector<std::string>& args, int conn_fd): cmdFunc(cmdFunc), lightDb(lightDb), args(args), conn_fd(conn_fd){}
+        Task(CmdFunc* cmdFunc, LightDB* lightDb, std::vector<std::string>  args, int conn_fd): cmdFunc(cmdFunc), lightDb(lightDb), args(std::move(args)), conn_fd(conn_fd){}
     };
 
     struct RespTask{
         int conn_fd;
         std::string resp;
 
-        RespTask(){}
+        RespTask():conn_fd(-1){}
 
-        RespTask(int conn_fd, std::string resp):conn_fd(conn_fd), resp(resp){}
+        RespTask(int conn_fd, std::string  resp):conn_fd(conn_fd), resp(std::move(resp)){}
 
     };
 
@@ -51,13 +53,13 @@ namespace lightdb {
 
     public:
 
-        LightdbRequestHandler(LightDB* db):lightDb(db){
+        explicit LightdbRequestHandler(LightDB* db):lightDb(db){
             Start();
         }
 
         void Start();
 
-        std::string HandleCmd(std::string request, int conn_fd);
+        std::string HandleCmd(std::string request, int conn_fd) override;
 
     };
 

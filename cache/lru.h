@@ -8,8 +8,8 @@ struct DLinkedNode {
     string key, value;
     DLinkedNode* prev;
     DLinkedNode* next;
-    DLinkedNode(): key(""), value(""), prev(nullptr), next(nullptr) {}
-    DLinkedNode(string _key, string _value): key(_key), value(_value), prev(nullptr), next(nullptr) {}
+    DLinkedNode():prev(nullptr), next(nullptr) {}
+    DLinkedNode(string _key, string _value): key(std::move(_key)), value(std::move(_value)), prev(nullptr), next(nullptr) {}
 };
 
 class LRUCache {
@@ -21,7 +21,7 @@ private:
     int capacity;
 
 public:
-    LRUCache(int _capacity): size(0), capacity(_capacity) {
+    explicit LRUCache(int _capacity): size(0), capacity(_capacity) {
         // 使用伪头部和伪尾部节点
         head = new DLinkedNode();
         tail = new DLinkedNode();
@@ -35,7 +35,6 @@ public:
         }
         
         removeNode(cache[key]);
-        return;
     }
 
 
@@ -51,7 +50,7 @@ public:
     
     void put(const string& key, const string& value) {
         if (!cache.count(key)) {
-            DLinkedNode* node = new DLinkedNode(key, value);
+            auto node = new DLinkedNode(key, value);
             cache[key] = node;
             addToHead(node);
             ++size;
@@ -76,7 +75,7 @@ public:
         head->next = node;
     }
     
-    void removeNode(DLinkedNode* node) {
+    static void removeNode(DLinkedNode* node) {
         node->prev->next = node->next;
         node->next->prev = node->prev;
     }

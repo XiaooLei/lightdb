@@ -5,8 +5,8 @@
 #include <string>
 #include <set>
 #include <cmath>
-#include <stdio.h>
-#include <limits.h>
+#include <cstdio>
+#include <climits>
 
 namespace lightdb{
 
@@ -14,7 +14,7 @@ struct SkipListNode {
 	double score;
     std::set<std::string> members;// member是string的集合
 	std::vector<SkipListNode *> level;
-	SkipListNode (double _score, int sz=32) : score(_score), level(sz, nullptr) {}
+	explicit SkipListNode (double _score, int sz=32) : score(_score), level(sz, nullptr) {}
 };
 
 
@@ -31,7 +31,7 @@ public:
     static constexpr int S = 0xFFFF;
     static constexpr int PS = S / 4;
 
-    Skiplist() {
+    Skiplist():curNodePtr(nullptr){
         level = length = 0;
         tail = new SkipListNode(INT_MAX, 0);
         head = new SkipListNode(INT_MAX);// 头结点有32层
@@ -52,7 +52,7 @@ public:
         return p;
     }
     
-    bool search(double target, std::string member) {
+    bool search(double target, const std::string& member) {
         SkipListNode *p = find(target);
         if(p->score != target){
             return false;
@@ -69,7 +69,7 @@ public:
         return p->score == target;
     }
     
-    SkipListNode* add(double score, std::string member) {
+    SkipListNode* add(double score, const std::string& member) {
         SkipListNode* p = find(score);
         if(p->score==score){
             p->members.insert(member);
@@ -91,7 +91,7 @@ public:
             }
             level = lv;
         }
-        SkipListNode *newNode = new SkipListNode(score, lv);
+        auto newNode = new SkipListNode(score, lv);
         newNode->members.insert(member);
         for (int i = lv - 1; i >= 0; --i) {
             p = update[i];
@@ -103,7 +103,7 @@ public:
     }
     
 
-    bool erase(double score, std::string member) {
+    bool erase(double score, const std::string& member) {
         std::vector<SkipListNode *> update(MAXL + 1);
         SkipListNode *p = head;
         for (int i = level - 1; i >= 0; --i) {
@@ -121,7 +121,7 @@ public:
 
         p->members.erase(member);
 
-        if(p->members.size() != 0){
+        if(!p->members.empty()){
             return true;
         }
 
@@ -136,13 +136,13 @@ public:
         return true;
     }
 
-    int randomLevel() {
+    static int randomLevel() {
         int lv = 1;
-        while (lv < MAXL && (rand() & S) < PS) ++lv;
+        while (lv < MAXL && (rand() & S) < PS) { ++lv; }
         return lv;
     }
 
-    int rank(std::string member,double target_score){
+    int rank(const std::string& member,double target_score){
         SkipListNode* p = head;
         int rank = 0;
         while(p&&p->level[0]->score<target_score){
@@ -150,8 +150,8 @@ public:
             p = p->level[0];
         }
         p = p->level[0];
-        for(auto it = p->members.begin(); it!=p->members.end(); it++){
-            if((*it).compare(member) == 0){
+        for(const auto & it : p->members){
+            if(it == member){
                 break;
             }
             rank++;

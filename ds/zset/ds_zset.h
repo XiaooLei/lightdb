@@ -13,7 +13,7 @@ public:
     std::unordered_map<std::string,std::unordered_map<std::string,SkipListNode*>> dict;
 
     public:
-    void ZAdd(std::string key, double score, std::string member){
+    void ZAdd(const std::string& key, double score, const std::string& member){
         if(ZKeyExist(key)){
             record.insert(make_pair(key, Skiplist()));
             dict.insert(make_pair(key,std::unordered_map<std::string,SkipListNode*>()));
@@ -22,7 +22,7 @@ public:
         dict[key].insert(make_pair(member,node));
     }
 
-    bool ZKeyExist(std::string key){
+    bool ZKeyExist(const std::string& key){
         if(record.find(key)==record.end()){
             return false;
         }
@@ -30,7 +30,7 @@ public:
     }
 
     //if the key or the member does not exist, return false
-    bool ZScore(std::string key, std::string member, double& score){
+    bool ZScore(const std::string& key, const std::string& member, double& score){
         if(!ZKeyExist(key)){
             return false;
         }
@@ -43,14 +43,14 @@ public:
         return true;
     }
 
-    int ZCard(std::string key){
+    int ZCard(const std::string& key){
         if(!ZKeyExist(key)){
             return 0;
         }
         return dict[key].size();
     }
 
-    int ZRank(std::string key, std::string member){
+    int ZRank(const std::string& key, const std::string& member){
         if(!ZKeyExist(key)){
             return -1;
         }
@@ -61,7 +61,7 @@ public:
         return record[key].rank(member,member_score);
     }
 
-    int ZRevRank(std::string key, std::string member){
+    int ZRevRank(const std::string& key, const std::string& member){
         if(!ZKeyExist(key)){
             return -1;
         }
@@ -72,7 +72,7 @@ public:
         return dict.size() - record[key].rank(member, member_score) -1;
     }
 
-    bool ZRem(std::string key, std::string member){
+    bool ZRem(const std::string& key, const std::string& member){
         Status s;
         if(!ZKeyExist(key)){
             return false;
@@ -87,7 +87,7 @@ public:
         return true;
     }
 
-    double ZIncrBy(std::string key, double increment, std::string member){
+    double ZIncrBy(const std::string& key, double increment, const std::string& member){
         Status s;
         double old_score = 0;
         bool exist = ZScore(key, member, old_score);
@@ -102,7 +102,7 @@ public:
         return new_score;
     }
 
-    void ZRevRange(std::string key, int start, int end, std::vector<std::string>& vals) {
+    void ZRevRange(const std::string& key, int start, int end, std::vector<std::string>& vals) {
         int size = dict[key].size();
         start = size - end -1;
         end = size - start -1;
@@ -112,7 +112,7 @@ public:
 
 
 
-    void ZRange(std::string key, int start, int end, std::vector<std::string>& vals){
+    void ZRange(const std::string& key, int start, int end, std::vector<std::string>& vals){
         std::string start_member;
         bool get = record[key].getByRank(start, start_member);
         if(!get){
@@ -125,7 +125,7 @@ public:
         }
         SkipListNode* start_node = dict[key][start_member];
         auto it = start_node->members.begin();
-        for(; it->compare(start_member)!=0;it++){
+        for(; *it != start_member; it++){
             //skip;
         }
         int count = end-start+1;
@@ -147,14 +147,14 @@ public:
         }
     }
 
-    bool ZGetByRank(std::string key, int rank, std::string& member){
+    bool ZGetByRank(const std::string& key, int rank, std::string& member){
         if(!ZKeyExist(key)){
             return false;
         }
         return record[key].getByRank(rank,member);
     }
 
-    bool ZRevGetByRank(std::string key, int revRank, std::string& member){
+    bool ZRevGetByRank(const std::string& key, int revRank, std::string& member){
         if(!ZKeyExist(key)){
             return false;
         }
@@ -162,7 +162,7 @@ public:
         return record[key].getByRank(rank,member);
     }
 
-    int ZClear(std::string key){
+    int ZClear(const std::string& key){
         if(!ZKeyExist(key)){
             return 0;
         }

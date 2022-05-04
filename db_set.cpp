@@ -5,7 +5,7 @@ namespace lightdb{
     // SAdd add the specified members to the set stored at key.
     // Specified members that are already a member of this set are ignored.
     // If key does not exist, a new set is created before adding the specified members.
-    Status LightDB::SAdd(std::string key, std::string member, int& count){
+    Status LightDB::SAdd(const std::string& key, const std::string& member, int& count){
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -29,7 +29,7 @@ namespace lightdb{
     }
 
     // SPop removes and returns one or more random members from the set value store at key.
-    Status LightDB::SPop(std::string key, std::string& val, bool& suc){
+    Status LightDB::SPop(const std::string& key, std::string& val, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -50,7 +50,7 @@ namespace lightdb{
     }
 
     // SIsMember Returns if member is a member of the set stored at key.
-    bool LightDB::SIsMember(std::string key, std::string member){
+    bool LightDB::SIsMember(const std::string& key, const std::string& member){
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -67,7 +67,7 @@ namespace lightdb{
     // SRem Remove the specified members from the set stored at key.
     // Specified members that are not a member of this set are ignored.
     // If key does not exist, it is treated as an empty set and this command returns 0.
-    Status LightDB::SRem(std::string key, std::string member, bool& suc){
+    Status LightDB::SRem(const std::string& key, const std::string& member, bool& suc){
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -88,7 +88,7 @@ namespace lightdb{
     }
 
     // SMove move member from the set at source to the set at destination.
-    Status LightDB::SMove(std::string src, std::string dst, std::string member, bool& suc){
+    Status LightDB::SMove(const std::string& src, const std::string& dst, const std::string& member, bool& suc){
         Status s;
         s = CheckKeyValue(src, "");
         if(!s.ok()){
@@ -118,7 +118,7 @@ namespace lightdb{
     }
 
     // SCard returns the set cardinality (number of elements) of the set stored at key.
-    int LightDB::SCard(std::string key){
+    int LightDB::SCard(const std::string& key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -132,7 +132,7 @@ namespace lightdb{
     }
 
     // SMembers returns all the members of the set value stored at key.
-    bool LightDB::SMembers(std::string key, std::vector<std::string>& members){
+    bool LightDB::SMembers(const std::string& key, std::vector<std::string>& members){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -146,25 +146,25 @@ namespace lightdb{
     }
 
     // SUnion returns the members of the set resulting from the union of all the given sets.
-    void LightDB::SUnion(std::vector<std::string> keys, std::vector<std::string>& vals){
+    void LightDB::SUnion(const std::vector<std::string>& keys, std::vector<std::string>& vals){
         Status s;
         std::vector<std::string> validKeys;
-        for(auto it = keys.begin(); it!=keys.end(); it++){
-            s = CheckKeyValue(*it, "");
+        for(auto & key : keys){
+            s = CheckKeyValue(key, "");
             if(s.ok()){
-                validKeys.push_back(*it);
+                validKeys.push_back(key);
             }
         }
         std::vector<std::string> keysNotExpired;
-        for(auto it = validKeys.begin(); it!=validKeys.end(); it++){
-            if(!CheckExpired(*it, Set)){
-                keysNotExpired.push_back(*it);
+        for(auto & validKey : validKeys){
+            if(!CheckExpired(validKey, Set)){
+                keysNotExpired.push_back(validKey);
             }
         }
         setIdx.indexes->SUnion(keysNotExpired, vals);
     }
 
-    void LightDB::SDiff(std::string key1, std::vector<std::string> succ_keys, std::vector<std::string>& vals) {
+    void LightDB::SDiff(const std::string& key1, const std::vector<std::string>& succ_keys, std::vector<std::string>& vals) {
         Status s;
         s = CheckKeyValue(key1, "");
         if(!s.ok()){
@@ -175,23 +175,23 @@ namespace lightdb{
         }
 
         std::vector<std::string> validKeys;
-        for(auto it = succ_keys.begin(); it!=succ_keys.end(); it++){
-            s = CheckKeyValue(*it, "");
+        for(auto & succ_key : succ_keys){
+            s = CheckKeyValue(succ_key, "");
             if(s.ok()){
-                validKeys.push_back(*it);
+                validKeys.push_back(succ_key);
             }
         }
         std::vector<std::string> keysNotExpired;
-        for(auto it = validKeys.begin(); it!=validKeys.end(); it++){
-            if(!CheckExpired(*it, Set)){
-                keysNotExpired.push_back(*it);
+        for(auto & validKey : validKeys){
+            if(!CheckExpired(validKey, Set)){
+                keysNotExpired.push_back(validKey);
             }
         }
         setIdx.indexes->SDiff(key1, keysNotExpired, vals);
     }
 
     // SKeyExists returns if the key exists.
-    bool LightDB::SKeyExist(std::string key){
+    bool LightDB::SKeyExist(const std::string& key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -205,7 +205,7 @@ namespace lightdb{
     }
 
     // SClear clear the specified key in set.
-    Status LightDB::SClear(std::string key, int& count){
+    Status LightDB::SClear(const std::string& key, int& count){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -232,7 +232,7 @@ namespace lightdb{
 
     // SExpire set expired time for the key in set.
     // if the key does not exist, suc = false, else suc = true
-    Status LightDB::SExpire(std::string key, uint64_t duration, bool& suc){
+    Status LightDB::SExpire(const std::string& key, uint64_t duration, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -262,7 +262,7 @@ namespace lightdb{
     }
 
     // STTL return time to live for the key in set.
-    int64_t LightDB::STTL(std::string key){
+    int64_t LightDB::STTL(const std::string& key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){

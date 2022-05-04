@@ -13,11 +13,12 @@
 #include "include/types.h"
 #include "storage/db_file.h"
 #include "storage/entry.h"
-#include "util/time.h"
-#include "stdio.h"
+#include <ctime>
+#include <cstdio>
 #include "sync/waitGroup.h"
 #include <thread>
 #include <cstdio>
+#include "util/time.h"
 
 
 namespace lightdb {
@@ -41,21 +42,21 @@ class LightDB{
 
     Status FindValidEntries(std::vector<Entry*>& entries, DBFile* df);
 
-    void dumpInternal(std::string path, DataType eType);
+    void dumpInternal(const std::string& path, DataType eType);
 
-    Status dumpList(vector<DBFile*>& mergeFiles, std::string path);
+    Status dumpList(vector<DBFile*>& mergeFiles, const std::string& path);
 
-    Status dumpHash(vector<DBFile*>& mergeFiles, std::string path);
+    Status dumpHash(vector<DBFile*>& mergeFiles, const std::string& path);
 
-    Status dumpSet(vector<DBFile*>& mergeFiles, std::string path);
+    Status dumpSet(vector<DBFile*>& mergeFiles, const std::string& path);
 
-    Status dumpZSet(vector<DBFile*>& mergeFiles, std::string path);
+    Status dumpZSet(vector<DBFile*>& mergeFiles, const std::string& path);
 
-    Status CheckKeyValue(std::string key, std::string value);
+    Status CheckKeyValue(const std::string& key, const std::string& value);
 
-    Status CheckKeyValue(std::string key, std::vector<std::string> values);
+    Status CheckKeyValue(const std::string& key, const std::vector<std::string>& values);
 
-    bool CheckExpired(std::string key, DataType dataType);
+    bool CheckExpired(const std::string& key, DataType dataType);
 
     Status store(Entry* entry);
 
@@ -69,154 +70,154 @@ class LightDB{
 
     Status SetIndexer(Entry* entry);
 
-    Status StrSet(std::string key, std::string value);
+    Status StrSet(const std::string& key, const std::string& value);
 
-    Status StrSetNx(std::string key, std::string value, bool& suc);
+    Status StrSetNx(const std::string& key, const std::string& value, bool& suc);
 
-    Status StrSetEx(std::string key, std::string value, uint64_t duration);
+    Status StrSetEx(const std::string& key, const std::string& value, uint64_t duration);
 
-    bool StrExist(std::string key);
+    bool StrExist(const std::string& key);
 
-    Status Get(std::string key, std::string& value, bool& suc);
+    Status Get(const std::string& key, std::string& value, bool& suc);
 
-    Status GetSet(std::string key, std::string& oldValue, const std::string& newValue, bool& suc);
+    Status GetSet(const std::string& key, std::string& oldValue, const std::string& newValue, bool& suc);
 
     Status MSet(std::vector<std::string> values);
 
     Status MGet(const std::vector<std::string>& keys, std::vector<std::string>& values, std::vector<bool>& sucs);
 
-    Status Append(std::string key, std::string value, int& length);
+    Status Append(const std::string& key, const std::string& value, int& length);
 
-    Status Remove(std::string key, bool& suc);
+    Status Remove(const std::string& key, bool& suc);
 
-    Status Expire(std::string key, uint64_t duration, bool& suc);
+    Status Expire(const std::string& key, uint64_t duration, bool& suc);
 
-    int64_t TTL(std::string key);
+    int64_t TTL(const std::string& key);
 
-    Status getVal(std::string key, std::string& value, bool& suc);
+    Status getVal(const std::string& key, std::string& value, bool& suc);
 
     
 
     //hash operations;
-    Status HSet(std::string key, std::string field, std::string value, int& res);
+    Status HSet(const std::string& key, const std::string& field, const std::string& value, int& res);
 
-    Status HSetNx(std::string key, std::string field, std::string value, bool& res);
+    Status HSetNx(const std::string& key, const std::string& field, const std::string& value, bool& res);
 
-    bool HGet(std::string key, std::string field, std::string& value);
+    bool HGet(const std::string& key, const std::string& field, std::string& value);
 
-    bool HGetAll(std::string key, std::vector<std::string>& vals);
+    bool HGetAll(const std::string& key, std::vector<std::string>& vals);
 
-    Status HMSet(std::string key, std::vector<std::string> vals);
+    Status HMSet(const std::string& key, std::vector<std::string> vals);
 
-    Status HDel(std::string key, std::string field, int& res);
+    Status HDel(const std::string& key, const std::string& field, int& res);
 
-    Status HMGet(std::string key, std::vector<std::string> fields, std::vector<std::string>& vals, std::vector<bool>& sucs);
+    Status HMGet(const std::string& key, const std::vector<std::string>& fields, std::vector<std::string>& vals, std::vector<bool>& sucs);
 
-    bool HKeyExist(std::string key);
+    bool HKeyExist(const std::string& key);
 
-    bool HExist(std::string key, std::string field);
+    bool HExist(const std::string& key, const std::string& field);
 
-    int HLen(std::string key);
+    int HLen(const std::string& key);
 
-    bool HKeys(std::string key, std::vector<std::string>& keys);
+    bool HKeys(const std::string& key, std::vector<std::string>& keys);
 
-    bool HVals(std::string key, std::vector<std::string>& vals);
+    bool HVals(const std::string& key, std::vector<std::string>& vals);
 
-    Status HClear(std::string key, int& res);
+    Status HClear(const std::string& key, int& res);
 
-    Status HExpire(std::string key, uint64_t duration, bool& suc);
+    Status HExpire(const std::string& key, uint64_t duration, bool& suc);
 
-    int64_t HTTL(std::string key);
+    int64_t HTTL(const std::string& key);
 
     //List operations
-    Status LPush(std::string key, std::string value, int& length);
+    Status LPush(const std::string& key, const std::string& value, int& length);
 
-    Status RPush(std::string key, std::string value, int& length);
+    Status RPush(const std::string& key, const std::string& value, int& length);
 
-    Status LPop(std::string key, std::string& val, bool& suc);
+    Status LPop(const std::string& key, std::string& val, bool& suc);
 
-    Status RPop(std::string key, std::string& val, bool& suc);
+    Status RPop(const std::string& key, std::string& val, bool& suc);
 
-    bool LIndex(std::string key, uint32_t index, std::string& val);
+    bool LIndex(const std::string& key, uint32_t index, std::string& val);
 
-    Status LRem(std::string key, std::string value, int count, int& removed);
+    Status LRem(const std::string& key, const std::string& value, int count, int& removed);
 
-    Status LInsert(std::string key, InsertOption option, std::string pivot, std::string val, int& count);
+    Status LInsert(const std::string& key, InsertOption option, const std::string& pivot, const std::string& val, int& count);
 
-    Status LSet(std::string key, int idx, std::string value, bool& suc);
+    Status LSet(const std::string& key, int idx, const std::string& value, bool& suc);
 
-    Status LTrim(std::string key, int start, int end, bool& suc);
+    Status LTrim(const std::string& key, int start, int end, bool& suc);
 
-    Status LRange(std::string key, int start, int end, std::vector<std::string>& vals, bool& suc);
+    Status LRange(const std::string& key, int start, int end, std::vector<std::string>& vals, bool& suc);
 
-    bool LKeyExist(std::string key);
+    bool LKeyExist(const std::string& key);
 
-    int LLen(std::string key);
+    int LLen(const std::string& key);
 
-    Status LClear(std::string key, int& count);
+    Status LClear(const std::string& key, int& count);
 
-    Status LExpire(std::string key, uint64_t duration, bool& suc);
+    Status LExpire(const std::string& key, uint64_t duration, bool& suc);
 
-    int64_t LTTL(std::string key);
+    int64_t LTTL(const std::string& key);
 
 
     //Set operations
-    Status SAdd(std::string key, std::string member, int& count);
+    Status SAdd(const std::string& key, const std::string& member, int& count);
 
-    Status SPop(std::string key, std::string& val, bool& suc);
+    Status SPop(const std::string& key, std::string& val, bool& suc);
 
-    bool SIsMember(std::string key, std::string member);
+    bool SIsMember(const std::string& key, const std::string& member);
 
-    Status SRem(std::string key, std::string member, bool& suc);
+    Status SRem(const std::string& key, const std::string& member, bool& suc);
 
-    Status SMove(std::string src, std::string dst, std::string member, bool& suc);
+    Status SMove(const std::string& src, const std::string& dst, const std::string& member, bool& suc);
 
-    int SCard(std::string key);
+    int SCard(const std::string& key);
 
-    bool SMembers(std::string key, std::vector<std::string>& members);
+    bool SMembers(const std::string& key, std::vector<std::string>& members);
 
-    void SUnion(std::vector<std::string> keys, std::vector<std::string>& vals);
+    void SUnion(const std::vector<std::string>& keys, std::vector<std::string>& vals);
 
-    void SDiff(std::string key1, std::vector<std::string> succ_keys, std::vector<std::string>& vals);
+    void SDiff(const std::string& key1, const std::vector<std::string>& succ_keys, std::vector<std::string>& vals);
 
-    bool SKeyExist(std::string key);
+    bool SKeyExist(const std::string& key);
 
-    Status SClear(std::string key, int& count);
+    Status SClear(const std::string& key, int& count);
 
-    Status SExpire(std::string key, uint64_t duration, bool& suc);
+    Status SExpire(const std::string& key, uint64_t duration, bool& suc);
 
-    int64_t STTL(std::string key);
+    int64_t STTL(const std::string& key);
 
     //SortedSet operations
-    Status ZAdd(std::string key, double score,std::string member, bool& suc);
+    Status ZAdd(const std::string& key, double score,const std::string& member, bool& suc);
 
-    bool ZScore(std::string key, std::string member, double& score);
+    bool ZScore(const std::string& key, const std::string& member, double& score);
 
-    int ZCard(std::string key);
+    int ZCard(const std::string& key);
 
-    int ZRank(std::string, std::string member);
+    int ZRank(const std::string&, const std::string& member);
 
-    int ZRevRank(std::string, std::string member);
+    int ZRevRank(const std::string&, const std::string& member);
 
-    Status ZIncrBy(std::string key, double increment, std::string member, double& res);
+    Status ZIncrBy(const std::string& key, double increment, const std::string& member, double& res);
 
-    void ZRange(std::string key, int start, int end, std::vector<std::string>& vals);
+    void ZRange(const std::string& key, int start, int end, std::vector<std::string>& vals);
 
-    void ZRevRange(std::string key, int start, int end, std::vector<std::string>& vals);
+    void ZRevRange(const std::string& key, int start, int end, std::vector<std::string>& vals);
 
-    Status ZRem(std::string key, std::string member, bool& suc);
+    Status ZRem(const std::string& key, const std::string& member, bool& suc);
 
-    bool ZGetByRank(std::string key, int rank, std::string& member);
+    bool ZGetByRank(const std::string& key, int rank, std::string& member);
 
-    bool ZRevGetByRank(std::string key, int rank, std::string& member);
+    bool ZRevGetByRank(const std::string& key, int rank, std::string& member);
 
-    bool ZKeyExist(std::string key);
+    bool ZKeyExist(const std::string& key);
 
-    Status ZClear(std::string key, int& count);
+    Status ZClear(const std::string& key, int& count);
 
-    Status ZExpire(std::string key, int64_t duration, bool& suc);
+    Status ZExpire(const std::string& key, int64_t duration, bool& suc);
 
-    int64_t ZTTL(std::string key);
+    int64_t ZTTL(const std::string& key);
 
     //idx
     Status loadIdxFromFiles();

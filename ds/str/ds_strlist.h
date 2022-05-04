@@ -9,7 +9,7 @@ struct StrSkipListNode {
 	std::string key;
     Indexer val;
 	std::vector<StrSkipListNode *> level;
-	StrSkipListNode (std::string key, Indexer val,int sz=32) : key(key), val(val),level(sz, nullptr) {}
+	StrSkipListNode (const std::string& key, const Indexer& val,int sz=32) : key(key), val(val),level(sz, nullptr) {}
 	StrSkipListNode(const StrSkipListNode& node): key(node.key), val(node.val){}
 };
 
@@ -27,6 +27,7 @@ public:
     static constexpr int PS = S / 4;
 
     StrSkiplist() {
+        iteraterNodePointer = nullptr;
         level = length = 0;
         tail = new StrSkipListNode("",  Indexer());
         head = new StrSkipListNode("", Indexer());
@@ -36,7 +37,7 @@ public:
     }
 
     // 找到第一个key大于等于target key的节点，如果找不到，返回尾节点
-    StrSkipListNode* find(std::string key) {
+    StrSkipListNode* find(const std::string& key) {
         StrSkipListNode *p = head;
         for (int i = level - 1; i >= 0; --i) {
             while (p->level[i] && p->level[i]->key.compare(key) > 0) {
@@ -47,9 +48,9 @@ public:
         return p;
     }
     
-    bool get(std::string key, Indexer& val) {
+    bool get(const std::string& key, Indexer& val) {
         StrSkipListNode *p = find(key);
-        bool exist = p->key.compare(key) == 0;
+        bool exist = p->key == key;
         if(exist){
             val = p->val;
         }
@@ -57,10 +58,10 @@ public:
     }
     
     // if key exist，update corresponding Indexer，or insert a StrSkipListNode
-    void put(std::string key, Indexer val) {
+    void put(const std::string& key, const Indexer& val) {
         //if key exist
         StrSkipListNode* pointer = find(key);
-        if(pointer && pointer->key.compare(key) == 0){
+        if(pointer && pointer->key == key){
            pointer->val = val;
            return;
         }
@@ -78,7 +79,7 @@ public:
             lv = ++level;
             update[lv - 1] = head; 
         }
-        StrSkipListNode *newNode = new StrSkipListNode(key, val, lv);
+        auto newNode = new StrSkipListNode(key, val, lv);
         for (int i = lv - 1; i >= 0; --i) {
             p = update[i];
             newNode->level[i] = p->level[i];
@@ -87,7 +88,7 @@ public:
         ++length;
     }
     
-    bool erase(std::string key) {
+    bool erase(const std::string& key) {
         std::vector<StrSkipListNode *> update(MAXL + 1);
         StrSkipListNode *p = head;
         for (int i = level - 1; i >= 0; --i) {
@@ -97,7 +98,7 @@ public:
             update[i] = p;
         }
         p = p->level[0];
-        if (p->key.compare(key)!=0) return false;
+        if (p->key!=key) return false;
         for (int i = 0; i < level; ++i) {
             if (update[i]->level[i] != p) {
                 break;
@@ -110,7 +111,7 @@ public:
         return true;
     }
 
-    int randomLevel() {
+    static int randomLevel() {
         int lv = 1;
         while (lv < MAXL && (rand() & S) < PS) ++lv;
         return lv;

@@ -7,15 +7,15 @@
 
 namespace lightdb{
 
-    ClusterClient::ClusterClient() {}
+    ClusterClient::ClusterClient() = default;
 
-    int ClusterClient::Connect(std::string address, int port) {
+    int ClusterClient::Connect(const std::string& address, int port) {
         int conn_ret;
         conn_ret = this->readClient.Connect(address, port);
         if(conn_ret < 0){
             return conn_ret;
         }
-        conn_ret = this->readClient.Connect(address, port);
+        conn_ret = this->writeClient.Connect(address, port);
         if(conn_ret < 0){
             return conn_ret;
         }
@@ -58,5 +58,23 @@ namespace lightdb{
         }
         return 0;
     }
+
+
+    std::string ClusterClient::ReadRemoteAddress() {
+        return readClient.RemoteAddress();
+    }
+
+    std::string ClusterClient::WriteRemoteAddress() {
+        return writeClient.RemoteAddress();
+    }
+
+    int ClusterClient::ReadRemotePort() {
+        return readClient.RemotePort();
+    }
+
+    int ClusterClient::WriteRemotePort() {
+        return writeClient.RemotePort();
+    }
+
 
 }

@@ -25,7 +25,8 @@ namespace lightdb{
             };
 
     int LightdbClient::Connect(std::string address, int port) {
-        if((he=gethostbyname(address.c_str()))==NULL)
+        this->port = port;
+        if((he=gethostbyname(address.c_str())) == nullptr)
         {
             printf("gethostbyname() error\n");
             exit(1);
@@ -98,6 +99,10 @@ namespace lightdb{
 
     const char* LightdbClient::RemoteAddress() {
         return remoteAddress.c_str();
+    }
+
+    int LightdbClient::RemotePort() {
+        return port;
     }
 
 }

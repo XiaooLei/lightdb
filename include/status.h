@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <cassert>
 #include <string>
-#include <string.h>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstring>
+#include <cstdio>
+#include <cstdint>
 
 
 namespace lightdb{
@@ -21,7 +21,7 @@ enum Code {kOk, kIOError, kNotFound, kEndOfFile, kKeyNotExist, kKeyExpiredErr, k
 //用来存储异常信息
 class Status{
     private:
-    std::string state_ = "";
+    std::string state_;
     Code code;
 
     //定义：code:每一种错误对应一个code
@@ -37,14 +37,14 @@ class Status{
 
 
     public:
-    Status(): state_(""),code(kOk){}
+    Status():code(kOk){}
 public:
     //copy constructor of Status
     Status(const Status& s){
         code = s.code;
         state_ = s.state_;
     }
-    ~Status(){}
+    ~Status() = default;
 
     Code Code(){
         return this->code;
@@ -59,7 +59,7 @@ public:
     }
     
 
-    static Status OK() { return Status(); }
+    static Status OK() { return {}; }
 
     //msg2表示不存的key
     static Status KeyNotExist(const std::string& msg2 = ""){
@@ -95,7 +95,7 @@ public:
     }
 
 
-    static Status LInvalidIndex(std::string key, int index){
+    static Status LInvalidIndex(const std::string& key, int index){
         char buf[100];
         memset(buf, '\0', sizeof(buf));
         sprintf(buf, "LInvalidIndex, key:%s,index:%d", key.c_str(), index);
@@ -104,7 +104,7 @@ public:
         return Status(kLInvalidIndex, msg, "");
     }
 
-    static Status LInvalidRange(std::string key, int start, int end){
+    static Status LInvalidRange(const std::string& key, int start, int end){
         char buf[100];
         memset(buf, '\0', sizeof(buf));
         sprintf(buf, "LInvalidRange, key:%s,start:%d,end:%d", key.c_str(), start, end);
@@ -113,15 +113,15 @@ public:
         return Status(kLInvalidRange, msg, "");
     }
 
-    static Status LPivotNotExist(std::string key, std::string pivot){
+    static Status LPivotNotExist(std::string key, const std::string& pivot){
         return Status(kLPivotNotExist, "pivot not exist err", pivot);
     }
 
-    static Status SMemberNotExist(std::string key, std::string member){
+    static Status SMemberNotExist(const std::string& key, const std::string& member){
         return Status(kSmemberNotExist, key, member);
     }
 
-    static Status ZMemberNotExist(std::string key, std::string member){
+    static Status ZMemberNotExist(const std::string& key, const std::string& member){
         std::string msg2 = "key:" + key + "," + member;
         return Status(kZMemberNotExist, "zset member not exist err", member);
     }

@@ -4,7 +4,7 @@ namespace lightdb{
 
     // LPush insert all the specified values at the head of the list stored at key.
     // If key does not exist, it is created as empty list before performing the push operations.
-    Status LightDB::LPush(std::string key, std::string value, int& length){
+    Status LightDB::LPush(const std::string& key, const std::string& value, int& length){
         //store
         Status s;
         s = CheckKeyValue(key, value);
@@ -27,7 +27,7 @@ namespace lightdb{
 
     // RPush insert all the specified values at the tail of the list stored at key.
     // If key does not exist, it is created as empty list before performing the push operation.
-    Status LightDB::RPush(std::string key, std::string value, int& length){
+    Status LightDB::RPush(const std::string& key, const std::string& value, int& length){
         Status s;
 
         s = CheckKeyValue(key, value);
@@ -49,7 +49,7 @@ namespace lightdb{
     }
 
     // LPop removes and returns the first elements of the list stored at key.
-    Status LightDB::LPop(std::string key, std::string& val, bool& suc){
+    Status LightDB::LPop(const std::string& key, std::string& val, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -67,7 +67,7 @@ namespace lightdb{
     }
 
     // Removes and returns the last elements of the list stored at key.
-    Status LightDB::RPop(std::string key, std::string& val, bool& suc){
+    Status LightDB::RPop(const std::string& key, std::string& val, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -86,7 +86,7 @@ namespace lightdb{
 
     // LIndex returns the element at index  in the list stored at key.
     // The index is zero-based, so 0 means the first element, 1 the second element and so on.
-    bool LightDB::LIndex(std::string key, uint32_t index, std::string& val){
+    bool LightDB::LIndex(const std::string& key, uint32_t index, std::string& val){
         Status s;
 
         s = CheckKeyValue(key, "");
@@ -107,7 +107,7 @@ namespace lightdb{
     // count > 0: Remove elements equal to element moving from head to tail.
     // count < 0: Remove elements equal to element moving from tail to head.
     // count = 0: Remove all elements equal to element.   
-    Status LightDB::LRem(std::string key, std::string value, int count, int& removed){
+    Status LightDB::LRem(const std::string& key, const std::string& value, int count, int& removed){
         Status s;
         s = CheckKeyValue(key, value);
         if(!s.ok()){
@@ -129,7 +129,7 @@ namespace lightdb{
     }
 
     // LInsert inserts element in the list stored at key either before or after the reference value pivot.
-    Status LightDB::LInsert(std::string key, InsertOption option, std::string pivot, std::string val, int& count){
+    Status LightDB::LInsert(const std::string& key, InsertOption option, const std::string& pivot, const std::string& val, int& count){
         Status s;
         s = CheckKeyValue(key, pivot);
         if(!s.ok()){
@@ -160,7 +160,7 @@ namespace lightdb{
 
     // LSet sets the list element at index to element.
     // returns whether is successful.
-    Status LightDB::LSet(std::string key, int idx, std::string value, bool& suc){
+    Status LightDB::LSet(const std::string& key, int idx, const std::string& value, bool& suc){
         Status s;
         s = CheckKeyValue(key, value);
         if(!s.ok()){
@@ -186,7 +186,7 @@ namespace lightdb{
 
     // LTrim trim an existing list so that it will contain only the specified range of elements specified.
     // Both start and stop are zero-based indexes, where 0 is the first element of the list (the head), 1 the next element and so on.
-    Status LightDB::LTrim(std::string key, int start, int end, bool& suc){
+    Status LightDB::LTrim(const std::string& key, int start, int end, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -214,7 +214,7 @@ namespace lightdb{
     // The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
     // These offsets can also be negative numbers indicating offsets starting at the end of the list.
     // For example, -1 is the last element of the list, -2 the penultimate, and so on.
-    Status LightDB::LRange(std::string key, int start, int end, std::vector<std::string>& vals, bool& suc){
+    Status LightDB::LRange(const std::string& key, int start, int end, std::vector<std::string>& vals, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -224,7 +224,7 @@ namespace lightdb{
         return Status::OK();
     }
 
-    bool LightDB::LKeyExist(std::string key){
+    bool LightDB::LKeyExist(const std::string& key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -233,7 +233,7 @@ namespace lightdb{
         return listIdx.indexes->LKeyExist(key);
     }
 
-    int LightDB::LLen(std::string key){
+    int LightDB::LLen(const std::string& key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -244,7 +244,7 @@ namespace lightdb{
 
     // LClear clear a specified key for List.
     // return the number of eliment of the list in this operation
-    Status LightDB::LClear(std::string key, int& count){
+    Status LightDB::LClear(const std::string& key, int& count){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -267,7 +267,7 @@ namespace lightdb{
     }
 
     // LExpire set expired time for a specified key of List.
-    Status LightDB::LExpire(std::string key, uint64_t duration, bool& suc){
+    Status LightDB::LExpire(const std::string& key, uint64_t duration, bool& suc){
         Status s;
         if(!LKeyExist(key)){
             suc = false;
@@ -285,7 +285,7 @@ namespace lightdb{
     }
 
     // LTTL return time to live.
-    int64_t LightDB::LTTL(std::string key){
+    int64_t LightDB::LTTL(const std::string& key){
         bool expired = CheckExpired(key, List);
         if(expired){
             return -2;

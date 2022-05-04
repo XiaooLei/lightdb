@@ -19,7 +19,11 @@ typedef struct logEntry{
     std::string Command;
     int conn_fd;
 
-    void encode(std::string& str){
+    logEntry():Term(0), conn_fd(-1){}
+
+    logEntry(int Term, std::string Command, int conn_fd):Term(Term), Command(std::move(Command)), conn_fd(conn_fd){}
+
+    void encode(std::string& str) const{
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddNumberToObject(cJson, "Term", Term);
         cJSON_AddStringToObject(cJson, "Command", Command.c_str());
@@ -38,12 +42,12 @@ typedef struct requestVoteArgs{
     int LastLogIndex;
     int LastLogTerm;
 
-    requestVoteArgs(){}
+    requestVoteArgs():Term(-1), CandidateId(-1), LastLogIndex(-1), LastLogTerm(-1){}
 
     requestVoteArgs(const int& Term, const int& CandidateId, const int& LastLogIndex, const int& LastLogTerm):
     Term(Term), CandidateId(CandidateId), LastLogIndex(LastLogIndex), LastLogTerm(LastLogTerm){}
 
-    void encode(std::string& bytes){
+    void encode(std::string& bytes) const{
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddNumberToObject(cJson, "Term", Term);
         cJSON_AddNumberToObject(cJson, "CandidateId", CandidateId);
@@ -52,7 +56,7 @@ typedef struct requestVoteArgs{
         bytes = cJSON_Print(cJson);
     }
 
-    void decode(std::string bytes){
+    void decode(const std::string& bytes){
         cJSON* cJson = cJSON_Parse(bytes.c_str());
         this->Term = cJSON_GetObjectItem(cJson, "Term")->valueint;
         this->CandidateId = cJSON_GetObjectItem(cJson, "CandidateId")->valueint;
@@ -69,14 +73,14 @@ typedef struct requestVoteRely{
     int Term;
     bool VoteGranted;
 
-    void Encode(std::string& bytes){
+    void Encode(std::string& bytes) const{
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddNumberToObject(cJson, "Term", Term);
         cJSON_AddBoolToObject(cJson, "VoteGranted", VoteGranted);
         bytes = cJSON_Print(cJson);
     }
 
-    void Decode(std::string bytes) {
+    void Decode(const std::string& bytes) {
         cJSON* cJson = cJSON_Parse(bytes.c_str());
         this->Term = cJSON_GetObjectItem(cJson, "Term")->valueint;
         this->VoteGranted = cJSON_GetObjectItem(cJson, "VoteGranted")->valueint;
@@ -103,9 +107,9 @@ typedef struct appendEntriesArgs{
         cJSON_AddNumberToObject(cJson, "LeaderCommit", LeaderCommit);
         cJSON_AddNumberToObject(cJson, "FirstOffset", FirstOffset);
 
-        cJSON* entries_json = NULL;
+        cJSON* entries_json;
         cJSON_AddItemToObject(cJson, "Entries", entries_json = cJSON_CreateArray());
-        for(LogEntry entry : Entries){
+        for(const LogEntry& entry : Entries){
             std::string entry_bytes;
             entry.encode(entry_bytes);
             cJSON* entry_json = cJSON_Parse(entry_bytes.c_str());
@@ -114,7 +118,7 @@ typedef struct appendEntriesArgs{
         bytes = cJSON_Print(cJson);
     }
 
-    void decode(std::string bytes){
+    void decode(const std::string& bytes){
         cJSON* cJson = cJSON_Parse(bytes.c_str());
         this->Term = cJSON_GetObjectItem(cJson, "Term")->valueint;
         this->LeaderId = cJSON_GetObjectItem(cJson, "LeaderId")->valueint;
@@ -140,11 +144,11 @@ typedef struct RaftServer{
     int port;
     int num;
 
-    RaftServer(){}
+    RaftServer():port(-1), num(-1){}
 
-    RaftServer(const std::string& host, const int& port, const int& num):host(host),port(port),num(num){}
+    RaftServer(std::string host, const int& port, const int& num):host(std::move(host)),port(port),num(num){}
 
-    void encode(std::string& bytes){
+    void encode(std::string& bytes) const{
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddStringToObject(cJson, "host", host.c_str());
         cJSON_AddNumberToObject(cJson, "port", port);
@@ -152,7 +156,7 @@ typedef struct RaftServer{
         bytes = cJSON_Print(cJson);
     }
 
-    void decode(std::string bytes){
+    void decode(const std::string& bytes){
         cJSON* cJson = cJSON_Parse(bytes.c_str());
         this->host = cJSON_GetObjectItem(cJson, "host")->valuestring;
         this->port = cJSON_GetObjectItem(cJson, "port")->valueint;
@@ -167,7 +171,7 @@ typedef struct appendEntriesReply{
     int ConflictIndex;
     int ConflictTerm;
 
-    void encode(std::string& bytes){
+    void encode(std::string& bytes) const{
         cJSON* cJson = cJSON_CreateObject();
         cJSON_AddNumberToObject(cJson, "Term", Term);
         cJSON_AddBoolToObject(cJson, "Success", Success);
@@ -176,7 +180,7 @@ typedef struct appendEntriesReply{
         bytes = cJSON_Print(cJson);
     }
 
-    void decode(std::string bytes){
+    void decode(const std::string& bytes){
         cJSON* cJson = cJSON_Parse(bytes.c_str());
         this->Term = cJSON_GetObjectItem(cJson, "Term")->valueint;
         this->Success = cJSON_GetObjectItem(cJson, "Success")->valueint;
@@ -198,9 +202,9 @@ typedef struct raftPersist{
         cJSON_AddNumberToObject(cJson, "CurrentTerm", currentTerm);
         cJSON_AddNumberToObject(cJson, "VotedFor", votedFor);
         cJSON_AddNumberToObject(cJson, "FirstOffset", firstOffset);
-        cJSON* entries_json = NULL;
+        cJSON* entries_json;
         cJSON_AddItemToObject(cJson, "Logs", entries_json = cJSON_CreateArray());
-        for(auto entry : logs){
+        for(const auto& entry : logs){
             std::string entry_bytes;
             entry.encode(entry_bytes);
             cJSON* entry_json = cJSON_Parse(entry_bytes.c_str());
@@ -210,7 +214,7 @@ typedef struct raftPersist{
     }
 
 
-    void Decode(std::string bytes){
+    void Decode(const std::string& bytes){
         cJSON* cJson = cJSON_Parse(bytes.c_str());
         this->currentTerm = cJSON_GetObjectItem(cJson, "CurrentTerm")->valueint;
         this->votedFor = cJSON_GetObjectItem(cJson, "VotedFor")->valueint;
@@ -227,7 +231,7 @@ typedef struct raftPersist{
     }
 
 
-    int persist(std::string persistPath){
+    int persist(const std::string& persistPath){
         std::string bytes;
         Encode(bytes);
         std::ofstream out(persistPath);
@@ -235,7 +239,7 @@ typedef struct raftPersist{
         return 0;
     }
 
-    int readFromPesist(std::string persistPath){
+    int readFromPesist(const std::string& persistPath){
         std::ifstream t(persistPath);
         std::stringstream buffer;
         buffer << t.rdbuf();

@@ -3,14 +3,14 @@
 //
 
 #include "RaftHandler.h"
+
+#include <utility>
 #define RedirectCode 101
 #define RaftRespCode 102
 
 namespace lightdb{
 
-    RaftHandler::RaftHandler() {
-
-    }
+    RaftHandler::RaftHandler():lightdbRequestHandler(nullptr), raft(nullptr) {}
 
     void RaftHandler::SetLightdbRequestHandler(LightdbRequestHandler* lightdbRequestHandler) {
         this->lightdbRequestHandler = lightdbRequestHandler;
@@ -79,7 +79,7 @@ namespace lightdb{
     }
 
     std::string RaftHandler::WrapDirectResp(std::string redirectToAddress, int redirectToPort, int redirectToServerNum) {
-        RaftServer raftServer(redirectToAddress, redirectToPort, redirectToServerNum);
+        RaftServer raftServer(std::move(redirectToAddress), redirectToPort, redirectToServerNum);
         std::string jsonResp;
         raftServer.encode(jsonResp);
         return Response::ResponseWrap(RedirectCode, jsonResp);
@@ -97,7 +97,7 @@ namespace lightdb{
         consumeApplyQueueThread.detach();
     }
 
-    void RaftHandler::HandleRaftRequest(RequestType reqType, std::string args, std::string &reply) {
+    void RaftHandler::HandleRaftRequest(RequestType reqType, const std::string& args, std::string &reply) {
         if(reqType == VoteReq){
             RequestVoteArgs requestVoteArgs;
             requestVoteArgs.decode(args);
@@ -114,7 +114,7 @@ namespace lightdb{
         }
     }
 
-    void RaftHandler::WriteBack(const std::string resp, const int &conn_fd) {
+    void RaftHandler::WriteBack(const std::string& resp, const int &conn_fd) {
         write(conn_fd, resp.c_str(), resp.size());
     }
 

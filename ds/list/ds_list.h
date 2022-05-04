@@ -2,7 +2,6 @@
 #pragma once
 #include <unordered_map>
 #include <list>
-#include <stdarg.h>
 #include <vector>
 #include <mutex>
 #include "../../include/status.h"
@@ -20,14 +19,12 @@ class List{
     std::unordered_map<std::string,std::list<std::string>> record;
 
     public:
-    List(){
-        
-    }
+    List() = default;
 
     // LPush insert all the specified values at the head of the list stored at key.
     // If key does not exist, it is created as empty list before performing the push operations.
     // return the number of elements in the list after the operation
-    int LPush(std::string key, std::string val){
+    int LPush(const std::string& key, const std::string& val){
         if(!LKeyExist(key)){
             record.insert(make_pair("key", std::list<std::string>()));
         }
@@ -35,7 +32,7 @@ class List{
         return record[key].size();
     }
 
-    bool LKeyExist(std::string key){
+    bool LKeyExist(const std::string& key){
         if(record.find(key) == record.end()){
             return false;
         }
@@ -44,13 +41,13 @@ class List{
     
     // LPop removes and returns the first elements of the list stored at key.
     // if the list stored at key is empty, return false, else return true
-    bool LPop(std::string key, std::string& val){
+    bool LPop(const std::string& key, std::string& val){
         if(!LKeyExist(key)){
             return false;
         }
         val = record[key].front();
         record[key].pop_front();
-        if(record[key].size() == 0){
+        if(record[key].empty()){
             record.erase(key);
         }
         return true; 
@@ -58,7 +55,7 @@ class List{
 
     // RPush insert all the specified values at the tail of the list stored at key.
     // If key does not exist, it is created as empty list before performing the push operation.
-    int RPush(std::string key, std::string val){
+    int RPush(const std::string& key, const std::string& val){
         if(!LKeyExist(key)){
             record.insert(std::make_pair("key", std::list<std::string>()));
         }
@@ -68,13 +65,13 @@ class List{
 
     // RPop removes the last elements of the list stored at key.
     // if the list stored at key is empty, return false, else return true 
-    bool RPop(std::string key, std::string& val){
+    bool RPop(const std::string& key, std::string& val){
         if(!LKeyExist(key)){
             return false;
         }
         val = record[key].back();
         record[key].pop_back();
-        if(record[key].size() == 0){
+        if(record[key].empty()){
             record.erase(key);
         }
         return true;
@@ -82,7 +79,7 @@ class List{
 
     // LIndex returns the element at index in the list stored at key.
     // The index is zero-based, so 0 means the first element, 1 the second element and so on.
-    bool LIndex(std::string key, uint32_t index, std::string& val){
+    bool LIndex(const std::string& key, uint32_t index, std::string& val){
         if(!LKeyExist(key)){
             return false;
         }
@@ -103,7 +100,7 @@ class List{
     // count < 0: Remove elements equal to element moving from tail to head.
     // count = 0: Remove all elements equal to element.
     // return the number of element removed in the list stored at the key
-    int LRem(std::string key, std::string val, int count){
+    int LRem(const std::string& key, const std::string& val, int count){
         int res = 0;
         if(record.find(key) == record.end()){
             return 0;
@@ -111,7 +108,7 @@ class List{
 
         if(count == 0){
             for(auto it = record[key].begin(); it!=record[key].end(); it++){
-                if(it->compare(val) == 0){
+                if(*it == val){
                     record[key].erase(it);
                     res++;
                 }
@@ -120,7 +117,7 @@ class List{
 
         if(count>0){
             for(auto it = record[key].begin(); it!=record[key].end() && count>0;it++){
-                if(it->compare(val) == 0){
+                if(*it == val){
                     record[key].erase(it);
                     count--;
                     res++;
@@ -131,7 +128,7 @@ class List{
         if(count<0){
             // 从尾到头遍历，用反向迭代器
             for(auto it = record[key].rbegin(); it!=record[key].rend() && count<0; it++){
-                if(it->compare(val) == 0){
+                if(*it == val){
                     record[key].erase(it.base());
                     count++;
                     res++;
@@ -144,7 +141,7 @@ class List{
 
     // LLen returns the length of the list stored at key.
     // If key does not exist, it is interpreted as an empty list and 0 is returned.
-    int LLen(std::string key){
+    int LLen(const std::string& key){
         if(!LKeyExist(key)){
             return 0;
         }
@@ -153,7 +150,7 @@ class List{
 
     // LClear clear a specified key for List.
     // return the number of element of the list in this operation
-    int LClear(std::string key){
+    int LClear(const std::string& key){
         if(!LKeyExist(key)){
             return 0;
         }
@@ -163,7 +160,7 @@ class List{
     }
 
     // LSet sets the list element at index to element.
-    bool LSet(std::string key, int index, std::string val){
+    bool LSet(const std::string& key, int index, std::string val){
         if(!LKeyExist(key)){
             return false;
         }
@@ -175,18 +172,18 @@ class List{
         for(; count++<index; it++){
             //skip
         }
-        *it = val;
+        *it = std::move(val);
         return true;
     }
 
     // LInsert inserts element in the list stored at key either before or after the reference value pivot.
     // if the pivot is in this list, insert and return the length of list after insertion, else if the pivot
     // does not exist in the list, return -1;
-    int LInsert(std::string key, InsertOption option, std::string pivot, std::string val){
+    int LInsert(const std::string& key, InsertOption option, const std::string& pivot, const std::string& val){
         std::list<std::string>::iterator pointer;
         bool flag = false;
         for(auto it = record[key].begin(); it!=record[key].end(); it++){
-            if(it->compare(pivot) == 0){
+            if(*it == pivot){
                 pointer = it;
                 flag = true;
                 break;
@@ -208,7 +205,7 @@ class List{
     // The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
     // These offsets can also be negative numbers indicating offsets starting at the end of the list.
     // For example, -1 is the last element of the list, -2 the penultimate, and so on.
-    bool LRange(std::string key, int start, int end, std::vector<std::string>& vals){
+    bool LRange(const std::string& key, int start, int end, std::vector<std::string>& vals){
         if(!LKeyExist(key)){
             return false;
         }
@@ -232,7 +229,7 @@ class List{
 
     // LTrim trim an existing list so that it will contain only the specified range of elements specified.
     // Both start and stop are zero-based indexes, where 0 is the first element of the list (the head), 1 the next element and so on.
-    bool LTrim(std::string key, int start, int end){
+    bool LTrim(const std::string& key, int start, int end){
         if(!LKeyExist(key)){
             return false;
         }
@@ -247,11 +244,11 @@ class List{
             //小于一半
             std::list<std::string> newList;
             int index = 0;
-            for(auto it = record[key].begin(); it!=record[key].end(); it++){
+            for(auto & it : record[key]){
                 if(index<start){
                     continue;
                 }else if(index >= start && index <= end){
-                    newList.push_back(*it);
+                    newList.push_back(it);
                 }else if(index > end){
                     break;
                 }
@@ -263,24 +260,21 @@ class List{
             int index = 0;
             std::vector<std::list<std::string>::iterator> vec;
             for(auto it = record[key].begin(); it!=record[key].end(); it++){
-                if(index<start){
+                if(index<start || index > end){
                     vec.push_back(it);
                 }else if(index >= start && index <= end){
                     //skip
-                }else{
-                    vec.push_back(it);
                 }
                 index++;
             }
-            for(auto it = vec.begin(); it!=vec.end(); it++){
-                //printf("to be removed:%s \n",(*it)->c_str());
-                record[key].erase(*it);
+            for(auto & it : vec){
+                record[key].erase(it);
             }
         }
         return true;
     }
     
-    void handleIndex(int length, int& start, int& end){
+    static void handleIndex(int length, int& start, int& end){
         if (start < 0) {
 		    start += length;
 	    }

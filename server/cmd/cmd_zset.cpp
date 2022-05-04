@@ -5,7 +5,7 @@
 #include "Response.h"
 
 namespace lightdb {
-    void zAdd(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zAdd(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -30,7 +30,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zScore(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zScore(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -47,7 +47,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zCard(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zCard(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 1){
             resp = "wrong num of args";
@@ -60,7 +60,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zRank(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zRank(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -76,7 +76,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zRevRank(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zRevRank(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -92,7 +92,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zIncrBy(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zIncrBy(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -116,7 +116,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zRange(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zRange(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -143,7 +143,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zRevRange(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zRevRange(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 3){
             resp = "wrong num of args";
@@ -170,7 +170,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zRem(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zRem(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -188,7 +188,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zGetByRank(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zGetByRank(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -212,7 +212,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zRevGetByRank(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zRevGetByRank(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
@@ -236,7 +236,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zKeyExist(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zKeyExist(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 1){
             resp = "wrong num of args";
@@ -249,7 +249,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zClear(LightDB *db, std::vector <std::string> args, std::string &resp){
+    void zClear(LightDB *db, const std::vector <std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 1){
             resp = "wrong num of args";
@@ -265,14 +265,13 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zExpire(LightDB *db, std::vector<std::string> args, std::string &resp){
+    void zExpire(LightDB *db, const std::vector<std::string>& args, std::string &resp){
         Status s;
         if(args.size() != 2){
             resp = "wrong num of args";
             resp = Response::ResponseWrap(s.Code(), resp);
             return;
         }
-        int count = 0;
         bool suc;
         s = db->ZExpire(args[0], strtoull(args[1].c_str(), nullptr, 10), suc);
         if(!s.ok()){
@@ -287,7 +286,7 @@ namespace lightdb {
         resp = Response::ResponseWrap(s.Code(), resp);
     }
 
-    void zTTL(LightDB* db, std::vector<std::string> args, std::string& resp){
+    void zTTL(LightDB* db, const std::vector<std::string>& args, std::string& resp){
         Status s;
         if(args.size() != 1){
             resp = "wrong num of args";

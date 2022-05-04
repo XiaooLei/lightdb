@@ -11,6 +11,7 @@
 #include "../util/dir_util.h"
 #include <condition_variable>
 #include <fstream>
+#include <utility>
 #include "../lightdb.h"
 #include <unistd.h>
 #include "rpcClient.h"
@@ -24,25 +25,24 @@ enum RaftState{Leader, Candidate, Follower};
 class Raft {
 
 private:
-    std::string raftConfigPath;
     std::string raftPersistDir;
 
     std::recursive_mutex mtx;
 
     std::vector<RpcClient> peers;
 
-    int leader;
+    int leader{};
 
-    int me;
+    int me{};
 
     //persistent state
-    int currentTerm;
-    int votedFor;
+    int currentTerm{};
+    int votedFor{};
     std::vector<LogEntry> logs;
 
     //volatile state on all servers;
-    int commitIndex;
-    int lastApplied;
+    int commitIndex{};
+    int lastApplied{};
 
     //commit offset
     int firstOffset = 0;
@@ -53,17 +53,17 @@ private:
 
     // other auxiliary states
     RaftState state;
-    int voteCount;
+    int voteCount{};
 
     std::condition_variable_any appendEntriesCond;
-    bool leaderOut;
+    bool leaderOut{};
 
     // 用于协调是否发起选举
     std::mutex reelectMtx;
     std::condition_variable_any reelectCond;
     bool reElect = true;
 
-    bool winElection;
+    bool winElection{};
 
 public:
 
@@ -73,9 +73,9 @@ public:
 
 public:
 
-    Raft(std::string raftPersistDir, std::string raftConfigPath):raftPersistDir(raftPersistDir),raftConfigPath(raftConfigPath){
+    Raft(std::string raftPersistDir, std::string raftConfigPath):raftPersistDir(std::move(raftPersistDir)){
         //read rpcClients from raft.json
-        readRpcClients(raftConfigPath);
+        readRpcClients(std::move(raftConfigPath));
         //initialize
         setCurState(Follower);
         setCurTerm(0);
@@ -101,7 +101,7 @@ public:
     }
 
     //从raft.json文件中读取集群中的各个server
-    void readRpcClients(std::string raftConfigPath){
+    void readRpcClients(std::string&& raftConfigPath){
         std::ifstream t(raftConfigPath);
         std::stringstream buffer;
         buffer << t.rdbuf();
@@ -264,7 +264,7 @@ public:
         }
     }
 
-    int getElectionTimeOut(){
+    static int getElectionTimeOut(){
         return (150 + rand()%150) * 10 * 5;
     }
 
@@ -344,6 +344,7 @@ public:
         }
 
         if(args.Term > getCurTerm()){
+            leader = args.CandidateId;
             stepDownToFollower(args.Term);
             appendEntriesCond.notify_all();
             setLeaderOut(true);
@@ -494,6 +495,7 @@ public:
         }
 
         if(args.Term > getCurTerm()){
+            this->leader = args.LeaderId;
             stepDownToFollower(args.Term);
         }
         printf("get heartbeat from leader ||");
@@ -540,10 +542,11 @@ public:
         DEBUGPrint();
         logs = std::vector<LogEntry>(logs.begin(), logs.begin() + i);
         args.Entries = std::vector<LogEntry>(args.Entries.begin() + j, args.Entries.end());
-        for(auto e : args.Entries){
+        for(auto const& e : args.Entries){
             logs.push_back(e);
         }
         reply.Success = true;
+        this->leader = args.LeaderId;
         //update commit index to min(leader commit, lastIndex)
 
         if(args.LeaderCommit + offsetBehind > getCommitIndex()){

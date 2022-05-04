@@ -88,7 +88,7 @@ namespace lightdb{
         std::thread serveHash([&](){
             while(true) {
                 Task task;
-                bool get = this->hashTaskQueue.Dequeue(task);
+                this->hashTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
                 handler(task.lightDb, task.args, resp);
@@ -102,7 +102,7 @@ namespace lightdb{
         std::thread serveSet([&](){
             while(true) {
                 Task task;
-                bool get = this->setTaskQueue.Dequeue(task);
+                this->setTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
                 handler(task.lightDb, task.args, resp);
@@ -116,7 +116,7 @@ namespace lightdb{
         std::thread serveList([&](){
             while(true) {
                 Task task;
-                bool get = this->listTaskQueue.Dequeue(task);
+                this->listTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
                 handler(task.lightDb, task.args, resp);
@@ -130,7 +130,7 @@ namespace lightdb{
         std::thread serveStr([&](){
             while(true) {
                 Task task;
-                bool get = this->strTaskQueue.Dequeue(task);
+                this->strTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
                 handler(task.lightDb, task.args, resp);
@@ -144,7 +144,7 @@ namespace lightdb{
         std::thread serveZSet([&](){
             while(true) {
                 Task task;
-                bool get = this->zsetTaskQueue.Dequeue(task);
+                this->zsetTaskQueue.Dequeue(task);
                 std::string resp;
                 CmdFunc *handler = task.cmdFunc;
                 handler(task.lightDb, task.args, resp);
@@ -173,7 +173,7 @@ namespace lightdb{
     std::string LightdbRequestHandler::HandleCmd(std::string request, int conn_fd) {
         std::vector<std::string> cmdAndArgs;
         splitStrBySpace(request, cmdAndArgs);
-        if(cmdAndArgs.size() == 0){
+        if(cmdAndArgs.empty()){
             return "";
         }
         std::string cmd = cmdAndArgs[0];

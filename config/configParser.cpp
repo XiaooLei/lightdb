@@ -1,16 +1,15 @@
 //
 // Created by xiaolei on 2022/3/19.
 //
-#include <iostream>
 #include <fstream>
-#include <assert.h>
-
 #include "configParser.h"
 #include "../util/str.h"
 
 namespace lightdb{
 
-    ConfigParser::ConfigParser() {}
+    ConfigParser::ConfigParser() = default;
+
+    ConfigParser::~ConfigParser() = default;
 
     string ConfigParser::GetConfig(const string &Key, bool& exist) {
         if(this->_configData.find(Key) != _configData.end()){
@@ -40,7 +39,7 @@ namespace lightdb{
             infile.getline(buf, sizeof(buf));
             std::string line;
             line.assign(buf);
-            if(line.find("#") == 0){
+            if(line.find('#') == 0){
                 continue;
             }
             std::vector<std::string> keyAndValue;

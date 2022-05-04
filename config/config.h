@@ -5,11 +5,10 @@
 #include "configParser.h"
 #include "../util/dir_util.h"
 
-using namespace std;
 namespace lightdb{
 
 const int DefaultPort = 10000;
-const string DefaultDirPath = "/tmp/test/lightdb";
+const std::string DefaultDirPath = "/tmp/test/lightdb";
 const uint32_t DefaultBlockSize = 500  * 1024;// * 1024;
 const uint32_t DefaultMaxKeySize = uint32_t(1 * 1024 * 1024);
 const uint32_t DefaultMaxValueSize = uint32_t(8 * 1024 * 1024);
@@ -19,9 +18,9 @@ const int DefaultCacheCapacity = 0;
 
 class Config{
 public:
-    Config(){}
+    Config()= default;
 
-    Config(int port, string dirPath, FileRWMethod rWMethod, DataIndexMode indexMode,
+    Config(int port, const string& dirPath, FileRWMethod rWMethod, DataIndexMode indexMode,
     uint64_t blockSize, uint32_t maxKeySize, uint32_t maxValueSize, 
     bool sync, int mergeThreshold, uint64_t mergeCheckInterval,int cacheCapacity):
     port(port), dirPath(dirPath), rWMethod(rWMethod), indexMode(indexMode),
@@ -32,14 +31,14 @@ public:
 
     //默认配置
     static Config DefaultConfig(){
-        return Config(DefaultPort, DefaultDirPath, FileIO, KeyOnlyMemMode,
+        return {DefaultPort, DefaultDirPath, FileIO, KeyOnlyMemMode,
          DefaultBlockSize, DefaultMaxKeySize, DefaultMaxValueSize,
-         false, DefaultMergeThreshold, DefaultMergeCheckInterval, DefaultCacheCapacity);
+         false, DefaultMergeThreshold, DefaultMergeCheckInterval, DefaultCacheCapacity};
     }
 
-    static Config BuildConfig(const std::string configPath){
-        ConfigParser* configParser = new ConfigParser();
-        configParser->Parser(configPath.c_str());
+    static Config BuildConfig(const std::string& configPath){
+        auto configParser = new ConfigParser();
+        configParser->Parser(configPath);
         std::string portStr = configParser->GetDefConfig("Port", to_string(DefaultPort));
         int port = stoi(portStr);
         std::string dirPath = configParser->GetDefConfig( "DirPath", DefaultDirPath);
@@ -89,9 +88,9 @@ public:
         std::string cacheCapacityStr = configParser->GetDefConfig("CacheCapacity", to_string(DefaultCacheCapacity));
         int cacheCapacity;
         cacheCapacity = stoi(cacheCapacityStr);
-        return Config(port, dirPath, fileRwMethod, dataIndexMode,
+        return {port, dirPath, fileRwMethod, dataIndexMode,
                       blockSize, maxKeySize, maxValueSize,
-                      sync, mergeThreshold, mergeCheckInterval, cacheCapacity);
+                      sync, mergeThreshold, mergeCheckInterval, cacheCapacity};
     }
 
 
@@ -103,8 +102,8 @@ public:
 
     public:
     int port;
-    string dirPath;
-    string dataPath;
+    std::string dirPath;
+    std::string dataPath;
     FileRWMethod rWMethod;
     DataIndexMode indexMode;
     uint64_t blockSize;// db文件的最大容量

@@ -3,9 +3,8 @@
 //
 
 #define MAX_REQUEST_LENGTH 1000
-#include "lightdb_client.h"
+#include "cluster_client.h"
 #include <vector>
-#include "../util/str.h"
 #include <iostream>
 using namespace lightdb;
 
@@ -23,36 +22,38 @@ std::map<RequestType, std::set<std::string>> CommandTypeMap = {
         {AppendEntriesReq, {"appendentries"}}};
 
 int main(int argc, char* argv[]){
-    LightdbClient lightdbClient;
+    ClusterClient clusterClient;
     if( argc != 3){
         printf("wrong args count \n");
         exit(0);
     }
     char* address = argv[1];
-    int port = atoi(argv[2]);
+    int port = std::strtol(argv[2], nullptr, 10);
 
-    if(lightdbClient.Connect(address, port) < 0){
+    if(clusterClient.Connect(address, port) < 0){
         printf("connect failed");
         exit(0);
     }
-    printf("successfully connected to lighted, address:%s \n", lightdbClient.RemoteAddress());
+    printf("successfully connected to lighted,read remote:[%s:%d], write remote:[%s:%d]\n",
+           clusterClient.ReadRemoteAddress().c_str(), clusterClient.ReadRemotePort(),
+           clusterClient.WriteRemoteAddress().c_str(), clusterClient.WriteRemotePort());
     while(true){
-        printf("(%s:%d)>", lightdbClient.RemoteAddress(), port);
+        printf("(read:[%s:%d],write:[%s:%d])>", clusterClient.ReadRemoteAddress().c_str(), clusterClient.ReadRemotePort(),
+               clusterClient.WriteRemoteAddress().c_str(), clusterClient.WriteRemotePort());
         std::string requestStr;
         std::getline(std::cin, requestStr);
-        if(requestStr.size() == 0){
+        if(requestStr.empty()){
             continue;
         }
-        //printf("request:%s||", request.c_str());
-        if(requestStr.compare("quit") == 0){
-            lightdbClient.Close();
+        if(requestStr == "quit"){
+            clusterClient.Close();
             exit(0);
         }
 
         Response resp;
         std::vector<std::string> cmdAndArgs;
         splitStrBySpace(requestStr, cmdAndArgs);
-        if(cmdAndArgs.size() == 0){
+        if(cmdAndArgs.empty()){
             return -1;
         }
         std::string cmd = cmdAndArgs[0];
@@ -60,13 +61,13 @@ int main(int argc, char* argv[]){
 
         if(CommandTypeMap[ReadReq].find(cmd) != CommandTypeMap[ReadReq].end()){
             Request request(ReadReq, requestStr);
-            if(lightdbClient.Execute(request, resp) < 0){
+            if(clusterClient.Execute(request, resp) < 0){
                 printf("err occur\n");
                 exit(0);
             }
         }else if(CommandTypeMap[WriteReq].find(cmd) != CommandTypeMap[WriteReq].end()){
             Request request(WriteReq, requestStr);
-            if(lightdbClient.Execute(request, resp) < 0){
+            if(clusterClient.Execute(request, resp) < 0){
                 printf("err occur\n");
                 exit(0);
             }

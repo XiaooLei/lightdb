@@ -74,18 +74,14 @@ namespace lightdb{
             exit( EXIT_FAILURE );
         }
         cur_fds++;
-        return;
-    }
+   }
 
     void Epoll::CloseAndDel(int fd) {
         close(fd);
         epoll_event ev;
         epoll_ctl( epollFd, EPOLL_CTL_DEL, fd, &ev);	//删除加入的fd
         --cur_fds;
-        //todo
-        /* return -1; */
-        return;
-    }
+   }
 
 }
 

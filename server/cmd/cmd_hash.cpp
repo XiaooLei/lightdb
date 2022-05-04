@@ -21,7 +21,6 @@ void hSet(LightDB* db, std::vector<std::string> args, std::string& resp){
     }
     resp = to_string(count);
     resp = Response::ResponseWrap(s.Code(), resp);
-    return;
 }
 
 void hSetNx(LightDB* db, std::vector<std::string> args, std::string& resp){
@@ -274,7 +273,6 @@ void hExpire(LightDB* db, std::vector<std::string> args, std::string& resp){
         resp = "(integer) 0";
     }
     resp = Response::ResponseWrap(s.Code(), resp);
-    return;
 }
 
 void hTTL(LightDB* db, std::vector<std::string> args, std::string& resp){

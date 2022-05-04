@@ -24,7 +24,9 @@ namespace lightdb{
         struct hostent *he;
         struct sockaddr_in server;
         std::string remoteAddress;
+        int port;
     public:
+        LightdbClient():connected(false), socket_fd(-1), he(nullptr), port(-1){}
 
         ~LightdbClient(){
             if(connected){
@@ -40,6 +42,7 @@ namespace lightdb{
 
         const char* RemoteAddress();
 
+        int RemotePort();
     };
 
 

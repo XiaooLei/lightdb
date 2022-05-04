@@ -3,7 +3,7 @@
 namespace lightdb{
 
     // ZAdd adds the specified member with the specified score to the sorted set stored at key.
-    Status LightDB::ZAdd(std::string key, double score,std::string member, bool& suc){
+    Status LightDB::ZAdd(const std::string& key, double score,const std::string& member, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -28,7 +28,7 @@ namespace lightdb{
     }
 
     // ZScore returns the score of member in the sorted set at key.
-    bool LightDB::ZScore(std::string key, std::string member, double& score){
+    bool LightDB::ZScore(const std::string& key, const std::string& member, double& score){
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -42,7 +42,7 @@ namespace lightdb{
     }
 
     // ZCard returns the sorted set cardinality (number of elements) of the sorted set stored at key.
-    int LightDB::ZCard(std::string key){
+    int LightDB::ZCard(const std::string& key){
         Status s;
         if(!s.ok()){
             return 0;
@@ -56,7 +56,7 @@ namespace lightdb{
 
     // ZRank returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
     // The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
-    int LightDB::ZRank(std::string key, std::string member){
+    int LightDB::ZRank(const std::string& key, const std::string& member){
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -69,7 +69,7 @@ namespace lightdb{
         return sortedSetIdx.indexes->ZRank(key, member);
     }
 
-    int LightDB::ZRevRank(std::string key, std::string member) {
+    int LightDB::ZRevRank(const std::string& key, const std::string& member) {
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -85,7 +85,7 @@ namespace lightdb{
     // ZIncrBy increments the score of member in the sorted set stored at key by increment.
     // If member does not exist in the sorted set, it is added with increment as its score (as if its previous score was 0.0).
     // If key does not exist, a new sorted set with the specified member as its sole member is created.
-    Status LightDB::ZIncrBy(std::string key, double increment, std::string member, double& res){
+    Status LightDB::ZIncrBy(const std::string& key, double increment, const std::string& member, double& res){
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -103,7 +103,7 @@ namespace lightdb{
     }
 
     // ZRange returns the specified range of elements in the sorted set stored at key.
-    void LightDB::ZRange(std::string key, int start, int end, std::vector<std::string>& vals){
+    void LightDB::ZRange(const std::string& key, int start, int end, std::vector<std::string>& vals){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -114,10 +114,9 @@ namespace lightdb{
             return;
         }
         sortedSetIdx.indexes->ZRange(key, start, end,vals);
-        return;
-    }
+   }
 
-    void LightDB::ZRevRange(std::string key, int start, int end, std::vector<std::string>& vals){
+    void LightDB::ZRevRange(const std::string& key, int start, int end, std::vector<std::string>& vals){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -128,14 +127,13 @@ namespace lightdb{
             return;
         }
         sortedSetIdx.indexes->ZRevRange(key, start, end,vals);
-        return;
     }
 
 
 
     // ZRem removes the specified members from the sorted set stored at key. Non existing members are ignored.
     // An error is returned when key exists and does not hold a sorted set.
-    Status LightDB::ZRem(std::string key, std::string member, bool& suc){
+    Status LightDB::ZRem(const std::string& key, const std::string& member, bool& suc){
         Status s;
         s = CheckKeyValue(key, member);
         if(!s.ok()){
@@ -158,7 +156,7 @@ namespace lightdb{
 
     // ZGetByRank get the member at key by rank, the rank is ordered from lowest to highest.
     // The rank of lowest is 0 and so on.
-    bool LightDB::ZGetByRank(std::string key, int rank, std::string& member){
+    bool LightDB::ZGetByRank(const std::string& key, int rank, std::string& member){
         bool expired = CheckExpired(key, ZSet);
         if(expired){
             return false;
@@ -166,7 +164,7 @@ namespace lightdb{
         return sortedSetIdx.indexes->ZGetByRank(key, rank, member);
     }
 
-    bool LightDB::ZRevGetByRank(std::string key, int rank, std::string& member){
+    bool LightDB::ZRevGetByRank(const std::string& key, int rank, std::string& member){
         bool expired = CheckExpired(key, ZSet);
         if(expired){
             return false;
@@ -175,7 +173,7 @@ namespace lightdb{
     }
 
     // ZKeyExists check if the key exists in zset.
-    bool LightDB::ZKeyExist(std::string key){
+    bool LightDB::ZKeyExist(const std::string& key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -189,7 +187,7 @@ namespace lightdb{
     }
 
     // ZClear clear the specified key in zset.
-    Status LightDB::ZClear(std::string key, int& count){
+    Status LightDB::ZClear(const std::string& key, int& count){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -206,7 +204,7 @@ namespace lightdb{
     }
 
     // ZExpire set expired time for the key in zset.
-    Status LightDB::ZExpire(std::string key, int64_t duration, bool& suc){
+    Status LightDB::ZExpire(const std::string& key, int64_t duration, bool& suc){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
@@ -234,7 +232,7 @@ namespace lightdb{
         return Status::OK();
     }
 
-    int64_t LightDB::ZTTL(std::string key){
+    int64_t LightDB::ZTTL(const std::string& key){
         Status s;
         s = CheckKeyValue(key, "");
         if(!s.ok()){
