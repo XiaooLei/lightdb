@@ -39,8 +39,8 @@ namespace lightdb{
                 RaftServer raftServer;
                 raftServer.decode(response.GetContent());
                 this->writeClient.Connect(raftServer.host, raftServer.port);
+                this->writeClient.Execute(request, response);
             }
-            this->writeClient.Execute(request, response);
         }else {
             //skip
         }

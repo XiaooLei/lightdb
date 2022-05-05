@@ -39,6 +39,10 @@ namespace lightdb{
         bzero(&server,sizeof(server));
         server.sin_family = AF_INET;
         server.sin_port = htons(port);
+        if(he->h_addr_list == nullptr || he->h_addr_list[0] == nullptr){
+            printf("strange things happened\n");
+            return -4;
+        }
         server.sin_addr = *((struct in_addr *)he->h_addr);
         if(connect(socket_fd, (struct sockaddr *)&server, sizeof(server)) < 0)
         {
