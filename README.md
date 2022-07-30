@@ -94,8 +94,6 @@ Run the command below to launch a Client
 ./Client 127.0.0.1 5200 # The first parameter is the IP address of the connected server, and the second parameter is the port number
 ```
 
-### Acknowlegement
-the design and implemention of storage engine part of lightdb has referenced Rosedb which was written in Golang. 
 
 
 
