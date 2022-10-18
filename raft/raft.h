@@ -265,7 +265,7 @@ public:
     }
 
     static int getElectionTimeOut(){
-        return (150 + rand()%150) * 10 * 5;
+        return (150 + rand()%150) * 10 * 1;
     }
 
     void stepDownToFollower(int term){
@@ -671,7 +671,7 @@ public:
             DEBUGPrint();
             switch(getCurState()){
                 case Leader:{
-                    appendEntriesCond.wait_for(reelectMtx, chrono::milliseconds (1200 * 5));
+                    appendEntriesCond.wait_for(reelectMtx, chrono::milliseconds (1200 * 1));
                     if(getLeaderOut()){
                         //skip has been converted to a follower
                     }else{

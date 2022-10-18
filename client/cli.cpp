@@ -66,7 +66,16 @@ int main(int argc, char* argv[]){
             }
         }else if(CommandTypeMap[WriteReq].find(cmd) != CommandTypeMap[WriteReq].end()){
             Request request(WriteReq, requestStr);
-            if(clusterClient.Execute(request, resp) < 0){
+            int ret = 0;
+            int retryTimes = 0;
+            while(retryTimes < 3) {
+                if (ret = clusterClient.Execute(request, resp) < 0) {
+                    clusterClient.Connect(address, port);
+                }else{
+                    break;
+                }
+            }
+            if(ret < 0){
                 printf("err occur\n");
                 exit(0);
             }

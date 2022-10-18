@@ -9,7 +9,9 @@ namespace lightdb{
 
     ClusterClient::ClusterClient() = default;
 
-    int ClusterClient::Connect(const std::string& address, int port) {
+    int ClusterClient::Connect(const std::string& address, int port){
+        remoteAddress = address;
+        this->port = port;
         int conn_ret;
         conn_ret = this->readClient.Connect(address, port);
         if(conn_ret < 0){
@@ -23,27 +25,29 @@ namespace lightdb{
     }
 
     int ClusterClient::Execute(Request request, Response &response) {
+        int ret;
         if(request.GetReqType() == ReadReq){
-            this->readClient.Execute(request, response);
+            ret = this->readClient.Execute(request, response);
             if(response.GetRespCode() == RedirectCode){
                 this->readClient.Close();
                 RaftServer raftServer;
                 raftServer.decode(response.GetContent());
                 this->readClient.Connect(raftServer.host, raftServer.port);
+                ret = this->readClient.Execute(request, response);
             }
-            this->readClient.Execute(request, response);
         }else if(request.GetReqType() == WriteReq){
-            this->writeClient.Execute(request, response);
+            ret = this->writeClient.Execute(request, response);
             if(response.GetRespCode() == RedirectCode){
                 this->writeClient.Close();
                 RaftServer raftServer;
                 raftServer.decode(response.GetContent());
                 this->writeClient.Connect(raftServer.host, raftServer.port);
-                this->writeClient.Execute(request, response);
+                ret = this->writeClient.Execute(request, response);
             }
         }else {
             //skip
         }
+        return ret;
     }
 
     int ClusterClient::Close() {

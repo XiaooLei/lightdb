@@ -22,6 +22,8 @@ private:
     LightdbClient readClient;
     LightdbClient writeClient;
 
+    std::string remoteAddress;
+    int port;
 
 public:
     ClusterClient();

@@ -25,6 +25,7 @@ namespace lightdb{
             };
 
     int LightdbClient::Connect(std::string address, int port) {
+        this->remoteAddress = address;
         this->port = port;
         if((he=gethostbyname(address.c_str())) == nullptr)
         {
@@ -46,6 +47,7 @@ namespace lightdb{
         server.sin_addr = *((struct in_addr *)he->h_addr);
         if(connect(socket_fd, (struct sockaddr *)&server, sizeof(server)) < 0)
         {
+            printf("address:%s, port:%d\n", address.c_str(), port);
             printf("connect() error\n");
             return -1;
         }
@@ -65,15 +67,21 @@ namespace lightdb{
         int num = 0;
         std::string request_sequence;
         request.Encode(request_sequence);
-        if((num=send(socket_fd, request_sequence.c_str(), request_sequence.size(), 0))==-1){
-            printf("send() error\n");
+        int retryTime = 0;
+        int sendRet;
+        while(retryTime < 3) {
+            if (sendRet = send(socket_fd, request_sequence.c_str(), request_sequence.size(), 0) < 0) {
+                Connect(RemoteAddress(), RemotePort());
+            }else{
+                break;
+            }
+            retryTime++;
+        }
+        if(sendRet < 0){
+            printf("send err\n");
             return -1;
         }
-        struct timeval timeout={2,0};//3s
-        int ret=setsockopt(socket_fd,SOL_SOCKET,SO_SNDTIMEO,(const char*)&timeout,sizeof(timeout));
-        if(ret < 0){
-            printf("timeout set failed\n");
-        }
+
         char buf[MAXDATASIZE];
         if((num=recv(socket_fd, buf, MAXDATASIZE,0))==-1)
         {
